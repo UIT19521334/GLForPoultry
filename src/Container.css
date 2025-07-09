@@ -1,0 +1,8 @@
+.form-title {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    width: 200px;
+    font-size: 1rem;
+    justify-content: flex-end;
+}

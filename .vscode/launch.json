@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "chrome",
+            "name": "costingwed",
+            "request": "launch",
+            "url": "http://localhost:3000"
+        }
+    ]
+}
