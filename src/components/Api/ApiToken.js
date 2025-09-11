@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMsal, AuthenticatedTemplate, UnauthenticatedTemplate } from '@azure/msal-react';
+import { useMsal } from '@azure/msal-react';
 import DomainApi from '~/DomainApi';
 
 export default function ApiToken() {

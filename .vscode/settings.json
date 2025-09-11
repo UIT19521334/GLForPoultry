@@ -3,5 +3,22 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "[javascript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
-    }
+    },
+    "cSpell.words": [
+        "bgcolor",
+        "boldreports",
+        "bulletgraph",
+        "haspopup",
+        "không",
+        "Không",
+        "kiểm",
+        "msal",
+        "Msal",
+        "phép",
+        "reportdesigner",
+        "searchtxt",
+        "Toastify",
+        "unitcode",
+        "webfonts"
+    ]
 }
