@@ -25,7 +25,7 @@ import './TranslationLanguage/i18n.js';
 import { Spin } from 'antd';
 
 const WrapperView = () => {
-    CallApiMaster();
+    //CallApiMaster();
     const login = ApiToken();
     const darkTheme = createTheme({
         palette: {
@@ -48,7 +48,7 @@ const WrapperView = () => {
                     <AuthenticatedTemplate>
                         {login.status ? (
                             <Routes>
-                                {publicRoutes.map((route, index) => {
+                                {publicRoutes.map((route) => {
                                     let Layout = DefaultLayout;
                                     if (route.layout) {
                                         Layout = route.layout;
@@ -59,7 +59,7 @@ const WrapperView = () => {
                                     const Page = route.component;
                                     return (
                                         <Route
-                                            key={index}
+                                            key={route.title}
                                             path={route.path}
                                             exact
                                             element={

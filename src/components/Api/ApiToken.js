@@ -1,36 +1,28 @@
-import React from 'react';
-import { useMsal, AuthenticatedTemplate, UnauthenticatedTemplate } from '@azure/msal-react';
-import DomainApi from '~/DomainApi';
+import React, { useEffect } from 'react';
+import { useMsal } from '@azure/msal-react';
 
 export default function ApiToken() {
     const { instance } = useMsal();
     const activeAccount = instance.getActiveAccount();
     const [valueAccessToken, setValueAccessToken] = React.useState({ token: '', status: null });
-    const [callApiToken, setCallApiToken] = React.useState(false);
-    const fetchCallApiToken = () => {
-        if (activeAccount && !callApiToken) {
-            setCallApiToken(true);
-        }
-    };
-    fetchCallApiToken();
-    React.useEffect(() => {
-        async function fetchData() {
+
+    useEffect(() => {
+        async function getAccessToken() {
             if (activeAccount) {
                 try {
-                    const model = {
-                        email: activeAccount.username,
-                    };
-                    const response = await DomainApi.post(`auth/email`, model);
-                    setValueAccessToken({ token: response.data.access_token, status: true });
+                    const tokenResponse = await instance.acquireTokenSilent({
+                        account: activeAccount,
+                        scopes: ["user.read"] // Thêm các scopes cần thiết của bạn
+                    });
+                    setValueAccessToken({ token: tokenResponse.accessToken, status: true });
                 } catch (error) {
-                    console.log(error);
-                    setValueAccessToken({ token: error.response ? error.response.data : error, status: false });
-                    // await instance.logout();
+                    console.error("Token acquisition failed:", error);
+                    setValueAccessToken({ token: '', status: false });
                 }
             }
         }
-        fetchData();
-    }, [callApiToken]);
+        getAccessToken();
+    }, [instance, activeAccount]);
 
     return valueAccessToken;
 }

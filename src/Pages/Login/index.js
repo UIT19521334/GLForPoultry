@@ -2,12 +2,10 @@ import styles from '~/Pages/Login/Login.module.scss';
 import classNames from 'classnames/bind';
 import Form from 'react-bootstrap/Form';
 import 'bootstrap/dist/css/bootstrap.min.css';
-//import Button from 'react-bootstrap/Button';
 import Button from '@mui/material/Button';
 import LoginIcon from '@mui/icons-material/Login';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
-import { AuthenticatedTemplate, useMsal } from '@azure/msal-react';
+import { useMsal } from '@azure/msal-react';
 import { loginRequest } from '~/Config';
 import { MicrosoftLoginButton } from 'react-social-login-buttons';
 import { Input, Spin } from 'antd';
@@ -33,7 +31,7 @@ function Login({ mess, status }) {
         instance
             .acquireTokenSilent(request)
             .then((tokenResponse) => {
-                console.log('token', tokenResponse.accessToken);
+                // console.log('token', tokenResponse.accessToken);
             })
             .catch((error) => {
                 if (error instanceof InteractionRequiredAuthError) {

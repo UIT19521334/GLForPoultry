@@ -184,30 +184,14 @@ function Header() {
     const { t } = useTranslation();
     const { instance } = useMsal();
     const activeAccount = instance.getActiveAccount();
-
-    const [dataUnit, setDataUnit] = React.useState([]);
-
     const [openReport, setOpenReport] = React.useState(false);
-
-    const avaConfig = genConfig();
-    console.log(avaConfig);
+    const [avaConfig, setAvaConfig] = React.useState(genConfig());
     const handleClickReport = () => {
         setOpenReport(!openReport);
     };
 
     const userName = activeAccount.name.split('(');
 
-    React.useEffect(() => {
-        async function fetchData() {
-            try {
-                const response = await Api.get(`master/unit?username=${activeAccount.username}`);
-                setDataUnit(response.data);
-            } catch (error) {
-                console.log(error);
-            }
-        }
-        fetchData();
-    }, []);
     const [valueUnit, setValueUnit] = React.useState(
         localStorage.getItem('Unit') ? localStorage.getItem('Unit') : 'UN001',
     );
@@ -258,8 +242,8 @@ function Header() {
         <Box
             sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
             role="presentation"
-            // onClick={toggleDrawer(anchor, false)}
-            // onKeyDown={toggleDrawer(anchor, false)}
+        // onClick={toggleDrawer(anchor, false)}
+        // onKeyDown={toggleDrawer(anchor, false)}
         >
             <List>
                 {['Inbox'].map((text, index) => (
@@ -534,24 +518,6 @@ function Header() {
                 {t('menu-logout')}
             </MenuItem>
         </Menu>
-        // <Menu
-        //     anchorEl={anchorEl}
-        //     anchorOrigin={{
-        //         vertical: 'top',
-        //         horizontal: 'right',
-        //     }}
-        //     id={menuId}
-        //     keepMounted
-        //     transformOrigin={{
-        //         vertical: 'top',
-        //         horizontal: 'right',
-        //     }}
-        //     open={isMenuOpen}
-        //     onClose={handleMenuClose}
-        // >
-        //     <MenuItem onClick={handleMenuClose}>Setting</MenuItem>
-        //     <MenuItem onClick={handleMenuClose}>Log Out</MenuItem>
-        // </Menu>
     );
 
     const mobileMenuId = 'primary-search-account-menu-mobile';
@@ -630,11 +596,11 @@ function Header() {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h5" component="div" sx={{ display: { xs: 'none', sm: 'block' } }}>
-                        Go Direct GL
+                        Poultry GL
                     </Typography>
                     <Stack direction={'column'}>
                         <Typography variant="h5" component="div" sx={{ display: { xs: 'block', sm: 'none' } }}>
-                            GD GL
+                            PT GL
                         </Typography>
                         <Typography
                             variant="h8"
@@ -671,38 +637,7 @@ function Header() {
                                 checked={i18n.language === 'en' ? true : false}
                             />
                         </Typography>
-                        <FormControl
-                            sx={{
-                                m: 1,
-                                // minWidth: 100,
-                                // maxWidth: 200,
-                                width: '100%',
-                                // height: 48,
-                                paddingTop: 0.5,
-                                marginRight: 2,
-                            }}
-                            size="small"
-                        >
-                            <Select
-                                labelId="demo-simple-select-helper-label"
-                                id="demo-simple-select-helper"
-                                value={valueUnit}
-                                // label="Age"
-                                displayEmpty
-                                onChange={handleChangeUnit}
-                                sx={{
-                                    backgroundColor: 'white',
-                                }}
-                            >
-                                {dataUnit.map((unit) => {
-                                    return (
-                                        <MenuItem key={unit.unit_code} value={unit.unit_code}>
-                                            {unit.unit_name}
-                                        </MenuItem>
-                                    );
-                                })}
-                            </Select>
-                        </FormControl>
+
                         <Typography
                             variant="h7"
                             component="div"
@@ -718,7 +653,7 @@ function Header() {
                         >
                             {userName[0]}
                         </Typography>
-                        {/* <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+                        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
                             <Badge badgeContent={4} color="error">
                                 <MailIcon />
                             </Badge>
@@ -727,7 +662,7 @@ function Header() {
                             <Badge badgeContent={17} color="error">
                                 <NotificationsIcon />
                             </Badge>
-                        </IconButton> */}
+                        </IconButton>
                         <Tooltip title="Open Profile">
                             <IconButton
                                 size="large"
@@ -745,7 +680,7 @@ function Header() {
                             </IconButton>
                         </Tooltip>
                     </Box>
-                    {/* <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+                    <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
                             size="large"
                             aria-label="show more"
@@ -756,7 +691,7 @@ function Header() {
                         >
                             <MoreIcon />
                         </IconButton>
-                    </Box> */}
+                    </Box>
                 </Toolbar>
             </AppBar>
             {renderMobileMenu}
