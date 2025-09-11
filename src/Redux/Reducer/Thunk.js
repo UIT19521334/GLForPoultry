@@ -1,5 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import DomainApi from '~/DomainApi';
+import { createSlice } from '@reduxjs/toolkit';
 import {
     fetchApiChannel,
     fetchApiCurrency,
@@ -14,9 +13,28 @@ import {
 import { toast } from 'react-toastify';
 
 const initialState = {
-    listData_Channel: [],
-    listData_Currency: [],
-    listData_Period: [],
+    listData_Channel: [
+        { code: 'CHL0001', channel_name: 'Traditional Trade(TT)', isactive: true },
+        { code: 'CHL0002', channel_name: 'Modern Trade(MT)', isactive: true },
+        { code: 'CHL0003', channel_name: 'Food Services(FS)', isactive: true },
+        { code: 'CHL0004', channel_name: 'Meat Shop', isactive: true },
+        { code: 'CHL0005', channel_name: 'General', isactive: true }
+    ],
+    listData_Currency: [{
+        code: "VND",
+        description: null,
+        name: "VND",
+    }],
+    listData_Period: [{
+        acc_date: "2025-08-01T00:00:00",
+        acc_period_month: "08",
+        acc_period_year: "2025",
+        last_period_month: "08",
+        last_period_year: "2025",
+        next_period_month: "09",
+        next_period_year: "2025",
+        unitcode: "UN001"
+    }],
     listData_CostCenter: [],
     listData_AccountGroup: [],
     listData_Account: [],

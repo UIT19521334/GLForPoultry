@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styles from './Header.module.scss';
 import classNames from 'classnames/bind';
-import { settingRoutes, accountantRoutes, reportRoutes, publicRoutes } from '~/Routes';
+import { settingRoutes, accountantRoutes, reportRoutes } from '~/Routes';
 import { Link, NavLink } from 'react-router-dom';
 import { styled, alpha, useTheme } from '@mui/material/styles';
 // import AppBar from '@mui/material/AppBar';
@@ -32,10 +32,7 @@ import MuiAppBar from '@mui/material/AppBar';
 import MuiDrawer from '@mui/material/Drawer';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import PersonAdd from '@mui/icons-material/PersonAdd';
-import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
-import Avatar from '@mui/material/Avatar';
 import { useLocation } from 'react-router-dom';
 import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
@@ -46,23 +43,18 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import ChromeReaderModeIcon from '@mui/icons-material/ChromeReaderMode';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import { useMsal, AuthenticatedTemplate, UnauthenticatedTemplate } from '@azure/msal-react';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import Api from '~/DomainApi';
-import { ToastContainer, toast } from 'react-toastify';
+import { useMsal } from '@azure/msal-react';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ConfigProvider, Switch } from 'antd';
+import { Switch } from 'antd';
 import { useTranslation } from 'react-i18next';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { LibraryAdd } from '@mui/icons-material';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ArticleIcon from '@mui/icons-material/Article';
-import AssignmentIcon from '@mui/icons-material/Assignment';
 import SavingsIcon from '@mui/icons-material/Savings';
-import { Button, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 import ReactNiceAvatar, { genConfig } from 'react-nice-avatar';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import PercentIcon from '@mui/icons-material/Percent';
@@ -242,8 +234,6 @@ function Header() {
         <Box
             sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
             role="presentation"
-        // onClick={toggleDrawer(anchor, false)}
-        // onKeyDown={toggleDrawer(anchor, false)}
         >
             <List>
                 {['Inbox'].map((text, index) => (
@@ -386,7 +376,7 @@ function Header() {
                         color: '#ed6c02',
                     }}
                 >
-                    {/* <AccountBalanceWalletIcon /> */}
+                    <AccountBalanceWalletIcon />
                     {openReport ? <ExpandLess /> : <ExpandMore />}
                 </ListItemIcon>
                 <ListItemText primary={t('report')} sx={{ opacity: open ? 1 : 0, color: '#ed6c02' }} />
@@ -610,12 +600,12 @@ function Header() {
                             v1.0.1
                         </Typography>
                     </Stack>
-                    {/* <Search>
+                    <Search>
                         <SearchIconWrapper>
                             <SearchIcon />
                         </SearchIconWrapper>
                         <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
-                    </Search> */}
+                    </Search>
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ display: { xs: 'flex', md: 'flex' } }}>
                         <Typography

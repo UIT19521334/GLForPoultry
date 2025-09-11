@@ -11,9 +11,9 @@ export default function ApiToken() {
             if (activeAccount) {
                 try {
                     const tokenResponse = await instance.acquireTokenSilent({
-                        account: activeAccount,
-                        scopes: ["user.read"] // Thêm các scopes cần thiết của bạn
+                        scopes: ['User.Read'],
                     });
+                    console.log("token  response:", tokenResponse);
                     setValueAccessToken({ token: tokenResponse.accessToken, status: true });
                 } catch (error) {
                     console.error("Token acquisition failed:", error);
