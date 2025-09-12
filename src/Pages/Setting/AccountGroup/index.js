@@ -25,6 +25,7 @@ import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { useSelector } from 'react-redux';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
+import _ from 'lodash';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -39,7 +40,6 @@ function Account({ title }) {
     const access_token = useSelector((state) => state.FetchApi.token);
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = React.useState(false);
-    const [valueSearch, setValueSearch] = React.useState('');
     const [reloadListAccGroup, setReloadListAccGroup] = React.useState(false);
     const [dataList, setDataList] = useState([]);
 
@@ -77,6 +77,21 @@ function Account({ title }) {
         fetchApiGetDataAccGroup();
     }, [reloadListAccGroup]);
 
+    // Handle search
+    const [valueSearch, setValueSearch] = React.useState('');
+    const handleSearch = () => {
+        let filteredData = dataList;
+        if (valueSearch && valueSearch.trim() !== "") {
+            const fieldsToSearch = ["AccountName", "AccountId", "Description"];
+
+            filteredData = _.filter(dataList, (item) => {
+                const search = _.toLower(valueSearch);
+                return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
+            });
+        }
+        setDataList(filteredData);
+    }
+
     const [valueCode, setValueCode] = React.useState('');
     const [valueName, setValueName] = React.useState('');
     const [valueDescription, setValueDescription] = React.useState('');
@@ -84,10 +99,12 @@ function Account({ title }) {
     //! select row in datagrid
     const onRowsSelectionHandler = (ids) => {
         const selectedRowsData = ids.map((id) => dataList.find((row) => row.AccountId === id));
+        console.log('first', ids);
+        console.log('second', selectedRowsData);
         if (selectedRowsData) {
             {
                 selectedRowsData.map((key) => {
-                    setValueCode(key.AccountId);
+                    setValueCode(key.AccountId ?? "XXXX");
                     setValueName(key.AccountName ?? '');
                     setValueDescription(key.Description ?? '');
                 });
@@ -114,25 +131,25 @@ function Account({ title }) {
         toast.warning(t('toast-cancel-new'));
     };
 
-    useEffect(() => {
-        const asyncApiCreateAccountGroup = async () => {
-            setIsLoading(true);
-            const statusCode = await ApiCreateAccountGroup(access_token, valueCode, valueName, valueDescription);
-            if (statusCode) {
-                setValueCode('');
-                setValueName('');
-                setValueDescription('');
-                setValueNewButton(false);
-                setValueDisableSaveButton(true);
-                setValueReadonly(true);
-                setValueReadonlyCode(true);
-            }
-            setIsLoading(false);
+    // useEffect(() => {
+    //     const asyncApiCreateAccountGroup = async () => {
+    //         setIsLoading(true);
+    //         const statusCode = await ApiCreateAccountGroup(access_token, valueCode, valueName, valueDescription);
+    //         if (statusCode) {
+    //             setValueCode('');
+    //             setValueName('');
+    //             setValueDescription('');
+    //             setValueNewButton(false);
+    //             setValueDisableSaveButton(true);
+    //             setValueReadonly(true);
+    //             setValueReadonlyCode(true);
+    //         }
+    //         setIsLoading(false);
 
-            setReloadListAccGroup(!reloadListAccGroup);
-        };
-        asyncApiCreateAccountGroup();
-    }, [callApiNew]);
+    //         setReloadListAccGroup(!reloadListAccGroup);
+    //     };
+    //     asyncApiCreateAccountGroup();
+    // }, [callApiNew]);
     /* #endregion */
 
     const handleOnChangeValueCode = (event) => {
@@ -158,20 +175,20 @@ function Account({ title }) {
         toast.warning(t('toast-cancel-update'));
     };
 
-    useEffect(() => {
-        const asyncApiUpdateAccountGroup = async () => {
-            setIsLoading(true);
-            const statusCode = await ApiUpdateAccountGroup(access_token, valueCode, valueName, valueDescription);
-            if (statusCode) {
-                setValueReadonly(true);
-                setValueUpdateButton(false);
-                setValueDisableSaveButton(true);
-            }
-            setIsLoading(false);
-            setReloadListAccGroup(!reloadListAccGroup);
-        };
-        asyncApiUpdateAccountGroup();
-    }, [callApiUpdate]);
+    // useEffect(() => {
+    //     const asyncApiUpdateAccountGroup = async () => {
+    //         setIsLoading(true);
+    //         const statusCode = await ApiUpdateAccountGroup(access_token, valueCode, valueName, valueDescription);
+    //         if (statusCode) {
+    //             setValueReadonly(true);
+    //             setValueUpdateButton(false);
+    //             setValueDisableSaveButton(true);
+    //         }
+    //         setIsLoading(false);
+    //         setReloadListAccGroup(!reloadListAccGroup);
+    //     };
+    //     asyncApiUpdateAccountGroup();
+    // }, [callApiUpdate]);
 
     /* #endregion */
 
@@ -205,7 +222,7 @@ function Account({ title }) {
     /* #endregion */
 
     const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
-    const handleClickSave = (event) => {
+    const handleClickSave = () => {
         if (valueCode && valueName) {
             if (valueNewButton) {
                 setDialogIsOpenNew(true);
@@ -344,7 +361,7 @@ function Account({ title }) {
                                             variant="contained"
                                             color="warning"
                                             sx={{ whiteSpace: 'nowrap' }}
-                                            onClick={() => setReloadListAccGroup(!reloadListAccGroup)}
+                                            onClick={() => handleSearch()}
                                         >
                                             {t('button-search')}
                                         </LoadingButton>
@@ -374,7 +391,23 @@ function Account({ title }) {
                                             showColumnVerticalBorder
                                             loading={isLoading}
                                             onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
-                                        // checkboxSelection
+                                            // checkboxSelection
+                                            slotProps={{
+                                                pagination: {
+                                                    sx: {
+                                                        "& .MuiTablePagination-selectLabel": {
+                                                            marginBottom: 0, // align label vertically
+                                                        },
+                                                        "& .MuiTablePagination-displayedRows": {
+                                                            marginBottom: 0, // align displayed rows text
+                                                        },
+                                                        "& .MuiTablePagination-select": {
+                                                            paddingTop: "8px",
+                                                            paddingBottom: "8px",
+                                                        },
+                                                    },
+                                                },
+                                            }}
                                         />
                                     </div>
                                 </Stack>
@@ -444,21 +477,22 @@ function Account({ title }) {
                                                 </div>
                                                 <Input
                                                     variant="outlined"
-                                                    type="number"
+                                                    type="text"
                                                     size="large"
                                                     status={!valueCode ? 'error' : ''}
                                                     count={{
                                                         show: !valueReadonlyCode,
-                                                        max: 4,
+                                                        max: 9,
                                                         // strategy: (txt) => txt.length,
                                                         // exceedFormatter: (txt, { max }) => txt.slice(0, max),
                                                     }}
                                                     value={valueCode}
                                                     onChange={(event) =>
-                                                        event.target.value.length <= 4 && handleOnChangeValueCode(event)
+                                                        event.target.value.length <= 9 && handleOnChangeValueCode(event)
                                                     }
                                                     placeholder="xxxx"
                                                     disabled={valueReadonlyCode}
+                                                    style={{ color: '#000' }}
                                                 />
                                             </Stack>
                                             <Stack direction={'row'} spacing={2}>
@@ -473,6 +507,7 @@ function Account({ title }) {
                                                     onChange={(event) => handleOnChangeValueName(event)}
                                                     placeholder="name..."
                                                     disabled={valueReadonly}
+                                                    style={{ color: '#000' }}
                                                 />
                                             </Stack>
                                             <Stack direction={'row'} spacing={2}>
@@ -488,6 +523,7 @@ function Account({ title }) {
                                                     rows={2}
                                                     placeholder="..."
                                                     disabled={valueReadonly}
+                                                    style={{ color: '#000' }}
                                                 />
                                             </Stack>
                                         </Stack>

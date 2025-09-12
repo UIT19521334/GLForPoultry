@@ -1,18 +1,23 @@
 import { toast } from 'react-toastify';
 import DomainApi, { DomainPoultry } from '~/DomainApi';
+import _ from 'lodash';
 
 export async function ApiListAccountGroup(valueSearch, setDataList) {
     try {
-        // let url = `master/group-account/search?username=${localStorage.getItem('UserName')}`;
-        // if (valueSearch) {
-        //     url += `&searchtxt=${valueSearch}`;
-        // }
-        // const response = await DomainApi.get(url);
-        // setDataList(response.data.sort((a, b) => parseFloat(a.gr_acc_code) - parseFloat(b.gr_acc_code)));
         let url = `master/account`;
         const response = await DomainPoultry.get(url);
-        const data = await response.data;
-        setDataList(data.Response);
+        const data = await response.data?.Response ?? [];
+        let filteredData = data;
+        if (valueSearch && valueSearch.trim() !== "") {
+            const fieldsToSearch = ["AccountName", "AccountId", "Description"];
+            console.log(valueSearch);
+
+            filteredData = _.filter(data, (item) => {
+                const search = _.toLower(valueSearch);
+                return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
+            });
+        }
+        setDataList(filteredData);
     } catch (error) {
         console.log(error);
         toast.error(' Error api get data account group list!');
