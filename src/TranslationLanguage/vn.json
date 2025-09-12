@@ -1,7 +1,8 @@
 {
     "loading": "Đang tải",
 
-    "description": "Nội dung",
+    "description": "Mô tả",
+    "content": "Nội dung",
     "cost-center": "Cost center",
     "cost-channel": "Kênh chi phí",
     "account-group": "Nhóm tài Khoản",
@@ -81,6 +82,7 @@
     "accountgroup-toast-error": "Mã nhóm | tên nhóm trống!",
     "accountgroup-toast-new": "Tạo mới nhóm tài khoản?",
     "accountgroup-toast-update": "Cập nhật nhóm tài khoản?",
+    "accountgroup-toast-delete": "Xóa nhóm tài khoản?",
 
     "account-title-list": "Danh sách tài khoản",
     "account-title-infor": "Thông tin tài khoản",

@@ -2,6 +2,7 @@
     "loading": "Loading",
 
     "description": "Description",
+    "content": "Content",
     "cost-center": "Cost center",
     "cost-channel": "Cost channel",
     "account-group": "Account group",
@@ -81,6 +82,7 @@
     "accountgroup-toast-error": "Empty group code | group name!",
     "accountgroup-toast-new": "Create new account group?",
     "accountgroup-toast-update": "Update account group?",
+    "accountgroup-toast-delete": "Delete account group?",
 
     "account-title-list": "Account list",
     "account-title-infor": "Account information",

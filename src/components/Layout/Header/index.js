@@ -199,8 +199,8 @@ function Header() {
     );
     const handleChangeUnit = (event) => {
         setValueUnit(event.target.value);
+        localStorage.setItem('Unit', valueUnit);
     };
-    localStorage.setItem('Unit', valueUnit);
     const location = useLocation();
     /**side pc */
     const theme = useTheme();
@@ -581,7 +581,7 @@ function Header() {
     };
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <ToastContainer stacked />
+            <ToastContainer position='bottom-right' stacked />
             <AppBar position="fixed" color="warning">
                 <Toolbar>
                     <IconButton
