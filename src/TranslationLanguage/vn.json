@@ -1,6 +1,5 @@
 {
     "loading": "Đang tải",
-
     "description": "Mô tả",
     "content": "Nội dung",
     "cost-center": "Cost center",
@@ -20,7 +19,6 @@
     "to-date": "Đến ngày",
     "process": "% Xử lý",
     "total-cost": "Tổng chi phí",
-
     "button-search": "Tìm kiếm",
     "button-new": "Tạo mới(n)",
     "button-update": "Cập nhật(u)",
@@ -41,7 +39,6 @@
     "button-calculate-cost-transfer": "Tạo bút toán tự động",
     "button-material-cost": "Nhập chi phí nguyên vật liệu",
     "button-create-index": "Tạo Index Rate",
-
     "toast-success": "Thành công!",
     "toast-new": "Tạo mới",
     "toast-update": "Cập nhật",
@@ -59,8 +56,8 @@
     "toast-cancel-cogm": "Hủy bỏ tính COGS!",
     "toast-cancel-cost-transfer": "Hủy bỏ tạo bút toán tự động!",
     "toast-error": "Chưa nhập dữ liệu!",
-
     "menu-acc-group": "Nhóm Tài Khoản",
+    "menu-sub-acc-group": "Tài Khoản Phụ",
     "menu-acc": "Tài Khoản",
     "menu-entry": "Bút Toán",
     "menu-allocation": "Phân Bổ Chi Phí",
@@ -68,13 +65,11 @@
     "menu-open-period": "Mở Kỳ",
     "menu-profile": "Hồ sơ",
     "menu-logout": "Đăng xuất",
-
     "enum-status-all": "Tất cả",
     "enum-status-new": "Mới tạo",
     "enum-status-processing": "Đang phân bổ",
     "enum-status-pause": "Tạm dừng",
     "enum-status-finish": "Đã hoàn tất",
-
     "accountgroup-title-list": "Danh sách nhóm tài khoản",
     "accountgroup-title-infor": "Thông tin nhóm tài khoản",
     "accountgroup-groupcode": "Mã nhóm",
@@ -83,7 +78,14 @@
     "accountgroup-toast-new": "Tạo mới nhóm tài khoản?",
     "accountgroup-toast-update": "Cập nhật nhóm tài khoản?",
     "accountgroup-toast-delete": "Xóa nhóm tài khoản?",
-
+    "subaccount-title-list": "Danh sách tài khoản phụ",
+    "subaccount-title-infor": "Thông tin tài khoản phụ",
+    "subaccount-code": "Mã tài khoản phụ",
+    "subaccount-name": "Tên tài khoản phụ",
+    "subaccount-toast-error": "Mã tài khoản phụ | tên tài khoản phụ trống!",
+    "subaccount-toast-new": "Tạo mới tài khoản phụ?",
+    "subaccount-toast-update": "Cập nhật tài khoản phụ?",
+    "subaccount-toast-delete": "Xóa tài khoản phụ?",
     "account-title-list": "Danh sách tài khoản",
     "account-title-infor": "Thông tin tài khoản",
     "account-code": "Mã tài khoản",
@@ -97,7 +99,6 @@
     "account-toast-new": "Tạo mới tài khoản?",
     "account-toast-update": "Cập nhật tài khoản?",
     "account-toast-upload": "Tải lên file tài khoản?",
-
     "entry": "Quản lý bút toán",
     "memo": "Transfer Memo",
     "entry-period": "Kỳ kế toán",
@@ -125,7 +126,6 @@
     "memo-toast-success": "Load memo khấu hao từ phần mềm FA thành công!",
     "entry-toast-warn": "Nội dung | mã tài khoản | số tiền trống!",
     "entry-channel-warn": "Đối với tài khoản 641, kênh chi phí không được để trống!",
-
     "allocation-list": "Danh sách phân bổ",
     "allocation-code": "Mã phân bổ",
     "allocation-infor": "1. Thông tin phân bổ",
@@ -138,7 +138,6 @@
     "allocation-toast-new": "Tạo mới phân bổ?",
     "allocation-toast-update": "Cập nhật phân bổ?",
     "allocation-toast-load-memo": "Load memo từ phần mềm FA?",
-
     "close-period": "Khóa sổ kế toán đến kỳ",
     "close-toast-cancel": "Hủy bỏ đóng kỳ!",
     "close-toast-new": "Đóng kỳ",
@@ -153,13 +152,11 @@
     "reopen-toast-cancel": "Hủy bỏ mở lại kỳ mới!",
     "reopen-toast-new": "Mở lại kỳ?",
     "expenses-period": "1. Chi phí trong kỳ",
-
     "report": "Báo cáo",
     "menu-report-cogs": "Báo cáo COGS",
     "menu-report-inout-ward": "Báo Cáo InOut Ward",
     "menu-report-cogm": "Báo cáo COGM",
     "menu-report-cogs-meat": "Báo cáo COGS Meat",
-
     "live-pig": "Live Pigs",
     "live-pig-title-list": "Danh sách Live Pigs từ farm đến SH",
     "value": "Giá trị",
@@ -170,7 +167,6 @@
     "livepig-toast-delete": "Xóa Live Pig?",
     "livepig-delete-error": "Chưa chọn Live Pig để xóa?",
     "title-farm": "Trại",
-
     "product-id": "Mã sản phẩm",
     "product-name": "Tên sản phẩm",
     "effect-from": "Hiệu lực từ:",

@@ -109,5 +109,8 @@
         "worksheetname",
         "xuất",
         "Xuất"
-    ]
+    ],
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
 }

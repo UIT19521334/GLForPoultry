@@ -16,7 +16,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SearchIcon from '@mui/icons-material/Search';
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
-import { ApiCreateAccountGroup, ApiDeleteAccountGroup, ApiListAccountGroup, ApiUpdateAccountGroup } from '~/components/Api/AccountGroup';
+import { ApiCreateSupAccount, ApiDeleteSupAccount, ApiListSupAccount, ApiUpdateSupAccount } from '~/components/Api/SubAccount';
 import SaveIcon from '@mui/icons-material/Save';
 import '../../../Container.css';
 import TextField from '@mui/material/TextField';
@@ -35,7 +35,7 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-function AccountGroup({ title }) {
+function SubAccount({ title }) {
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = React.useState(false);
     const [reloadListAccGroup, setReloadListAccGroup] = React.useState(false);
@@ -44,25 +44,25 @@ function AccountGroup({ title }) {
     //! columns header
     const columns = [
         {
-            field: 'GroupId',
-            headerName: t('accountgroup-groupcode'),
+            field: 'AccountSubId',
+            headerName: t('supaccount-code'),
             minWidth: 100,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'GroupName',
-            headerName: t('accountgroup-groupname'),
+            field: 'AccountSubName',
+            headerName: t('supaccount-name'),
             minWidth: 200,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'Description',
+            field: 'SubTypeName',
             headerName: t('description'),
             minWidth: 200,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'Content',
+            field: 'TypeId',
             headerName: t('content'),
             flex: 1,
             minWidth: 300,
@@ -74,7 +74,7 @@ function AccountGroup({ title }) {
     useEffect(() => {
         const fetchApiGetDataAccGroup = async () => {
             setIsLoading(true);
-            await ApiListAccountGroup(valueSearch, setDataList);
+            await ApiListSupAccount(valueSearch, setDataList);
             setIsLoading(false);
         };
         fetchApiGetDataAccGroup();
@@ -85,7 +85,7 @@ function AccountGroup({ title }) {
     const handleSearch = () => {
         let filteredData = dataList;
         if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["GroupName", "GroupId", "Description", "Content"];
+            const fieldsToSearch = ["AccountSubId", "AccountSubName", "SubTypeName", "TypeId"];
 
             filteredData = _.filter(dataList, (item) => {
                 const search = _.toLower(valueSearch);
@@ -102,14 +102,14 @@ function AccountGroup({ title }) {
 
     //! select row in datagrid
     const onRowsSelectionHandler = (ids) => {
-        const selectedRowsData = ids.map((id) => dataList.find((row) => row.GroupId === id));
+        const selectedRowsData = ids.map((id) => dataList.find((row) => row.AccountSubId === id));
         if (selectedRowsData) {
             {
                 selectedRowsData.map((key) => {
-                    setValueCode(key.GroupId ?? "XXXX");
-                    setValueName(key.GroupName ?? '');
-                    setValueDescription(key.Description ?? '');
-                    setValueContent(key.Content ?? '');
+                    setValueCode(key.AccountSubId ?? "XXXX");
+                    setValueName(key.AccountSubName ?? '');
+                    setValueDescription(key.SubTypeName ?? '');
+                    setValueContent(key.TypeId ?? '');
                 });
                 setValueReadonly(true);
                 setValueReadonlyCode(true);
@@ -129,16 +129,16 @@ function AccountGroup({ title }) {
     const [dialogIsOpenDelete, setDialogIsOpenDelete] = React.useState(false);
     const agreeDialogNew = () => {
         setDialogIsOpenNew(false);
-        asyncApiCreateAccountGroup();
+        asyncApiCreateSupAccount();
     };
     const closeDialogNew = () => {
         setDialogIsOpenNew(false);
         toast.warning(t('toast-cancel-new'));
     };
 
-    const asyncApiCreateAccountGroup = async () => {
+    const asyncApiCreateSupAccount = async () => {
         setIsLoading(true);
-        const statusCode = await ApiCreateAccountGroup(valueCode, valueName, valueDescription, valueContent);
+        const statusCode = await ApiCreateSupAccount(valueCode, valueName, valueDescription, valueContent);
         if (statusCode) {
             setValueCode('');
             setValueName('');
@@ -176,16 +176,16 @@ function AccountGroup({ title }) {
     /* #region  call api update */
     const agreeDialogUpdate = () => {
         setDialogIsOpenUpdate(false);
-        asyncApiUpdateAccountGroup();
+        asyncApiUpdateSupAccount();
     };
     const closeDialogUpdate = () => {
         setDialogIsOpenUpdate(false);
         toast.warning(t('toast-cancel-update'));
     };
 
-    const asyncApiUpdateAccountGroup = async () => {
+    const asyncApiUpdateSupAccount = async () => {
         setIsLoading(true);
-        const statusCode = await ApiUpdateAccountGroup(valueCode, valueName, valueDescription, valueContent);
+        const statusCode = await ApiUpdateSupAccount(valueCode, valueName, valueDescription, valueContent);
         if (statusCode) {
             setValueReadonly(true);
             setValueUpdateButton(false);
@@ -202,16 +202,16 @@ function AccountGroup({ title }) {
     /* #region  call api delete */
     const agreeDialogDelete = () => {
         setDialogIsOpenDelete(false);
-        asyncApiDeleteAccountGroup();
+        asyncApiDeleteSupAccount();
     };
     const closeDialogDelete = () => {
         setDialogIsOpenDelete(false);
         toast.warning(t('toast-cancel-delete'));
     };
 
-    const asyncApiDeleteAccountGroup = async () => {
+    const asyncApiDeleteSupAccount = async () => {
         setIsLoading(true);
-        const statusCode = await ApiDeleteAccountGroup(valueCode);
+        const statusCode = await ApiDeleteSupAccount(valueCode);
         if (statusCode) {
             setValueCode('');
             setValueName('');
@@ -272,7 +272,7 @@ function AccountGroup({ title }) {
                 setDialogIsOpenUpdate(true);
             }
         } else {
-            toast.error(t('accountgroup-toast-error'));
+            toast.error(t('SupAccount-toast-error'));
         }
     };
     /* #endregion */
@@ -357,11 +357,11 @@ function AccountGroup({ title }) {
                 <ToastContainer />
                 {dialogIsOpenNew && (
                     <AlertDialog
-                        title={t('accountgroup-toast-new')}
+                        title={t('SupAccount-toast-new')}
                         content={
                             <>
-                                {t('accountgroup-groupcode')}: {valueCode}
-                                <br /> {t('accountgroup-groupname')}: {valueName}
+                                {t('subaccount-code')}: {valueCode}
+                                <br /> {t('subaccount-name')}: {valueName}
                                 <br /> {t('description')}:{valueDescription}
                                 <br /> {t('content')}:{valueContent}
                             </>
@@ -373,11 +373,11 @@ function AccountGroup({ title }) {
                 )}
                 {dialogIsOpenUpdate && (
                     <AlertDialog
-                        title={t('accountgroup-toast-update')}
+                        title={t('SupAccount-toast-update')}
                         content={
                             <>
-                                {t('accountgroup-groupcode')}: {valueCode}
-                                <br /> {t('accountgroup-groupname')}: {valueName}
+                                {t('subaccount-code')}: {valueCode}
+                                <br /> {t('subaccount-name')}: {valueName}
                                 <br /> {t('description')}:{valueDescription}
                                 <br /> {t('content')}:{valueContent}
                             </>
@@ -389,11 +389,11 @@ function AccountGroup({ title }) {
                 )}
                 {dialogIsOpenDelete && (
                     <AlertDialog
-                        title={t('accountgroup-toast-delete')}
+                        title={t('SupAccount-toast-delete')}
                         content={
                             <>
-                                {t('accountgroup-groupcode')}: {valueCode}
-                                <br /> {t('accountgroup-groupname')}: {valueName}
+                                {t('SupAccount-groupcode')}: {valueCode}
+                                <br /> {t('SupAccount-AccountSubName')}: {valueName}
                                 <br /> {t('description')}:{valueDescription}
                                 <br /> {t('content')}:{valueContent}
                             </>
@@ -453,13 +453,13 @@ function AccountGroup({ title }) {
                             <Item>
                                 <Stack spacing={0}>
                                     <h5 style={{ textAlign: 'left', fontWeight: 'bold' }}>
-                                        {t('accountgroup-title-list')}
+                                        {t('SupAccount-title-list')}
                                     </h5>
                                     <div style={{ width: '100%' }}>
                                         <DataGrid
                                             rows={dataList}
                                             columns={columns}
-                                            getRowId={(row) => row.GroupId}
+                                            getRowId={(row) => row.AccountSubId}
                                             initialState={{
                                                 pagination: {
                                                     paginationModel: { page: 0, pageSize: 5 },
@@ -511,7 +511,7 @@ function AccountGroup({ title }) {
                                                 width: '100%',
                                             }}
                                         >
-                                            {t('accountgroup-title-infor')}
+                                            {t('SupAccount-title-infor')}
                                         </h5>
                                     </Stack>
                                     <Stack direction={'row'} spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
@@ -563,7 +563,7 @@ function AccountGroup({ title }) {
                                         <Stack spacing={3}>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <div>{t('accountgroup-groupcode')}</div>
+                                                    <div>{t('SupAccount-groupcode')}</div>
                                                 </div>
                                                 <Input
                                                     variant="outlined"
@@ -587,7 +587,7 @@ function AccountGroup({ title }) {
                                             </Stack>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <div>{t('accountgroup-groupname')}</div>
+                                                    <div>{t('SupAccount-AccountSubName')}</div>
                                                 </div>
                                                 <Input
                                                     variant="outlined"
@@ -644,4 +644,4 @@ function AccountGroup({ title }) {
     );
 }
 
-export default AccountGroup;
+export default SubAccount;

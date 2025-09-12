@@ -55,7 +55,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ConfigProvider, Switch } from 'antd';
 import { useTranslation } from 'react-i18next';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { LibraryAdd } from '@mui/icons-material';
+import { GroupAdd, LibraryAdd } from '@mui/icons-material';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -798,9 +798,11 @@ function Header() {
                                                 color: '#ed6c02',
                                             }}
                                         >
-                                            {index === 0 ? (
+                                            {route.title === 'menu-acc-group' ? (
                                                 <GroupIcon />
-                                            ) : index === 1 ? (
+                                            ) : route.title === 'menu-sub-acc' ? (
+                                                <GroupAdd />
+                                            ) : route.title === 'menu-acc' ? (
                                                 <PersonIcon />
                                             ) : (
                                                 <PercentIcon />
