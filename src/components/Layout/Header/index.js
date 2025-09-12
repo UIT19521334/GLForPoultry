@@ -66,6 +66,7 @@ import { Button, Stack } from '@mui/material';
 import ReactNiceAvatar, { genConfig } from 'react-nice-avatar';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import PercentIcon from '@mui/icons-material/Percent';
+import { useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
 
@@ -186,6 +187,7 @@ function Header() {
     const activeAccount = instance.getActiveAccount();
     const [openReport, setOpenReport] = React.useState(false);
     const [avaConfig, setAvaConfig] = React.useState(genConfig());
+    const dataUnit = useSelector((state) => state.FetchApi.userAccess.units);
 
     const handleClickReport = () => {
         setOpenReport(!openReport);
@@ -634,6 +636,39 @@ function Header() {
                                 checked={i18n.language === 'en' ? true : false}
                             />
                         </Typography>
+
+                        <FormControl
+                            sx={{
+                                m: 1,
+                                // minWidth: 100,
+                                // maxWidth: 200,
+                                width: '100%',
+                                // height: 48,
+                                paddingTop: 0.5,
+                                marginRight: 2,
+                            }}
+                            size="small"
+                        >
+                            <Select
+                                labelId="demo-simple-select-helper-label"
+                                id="demo-simple-select-helper"
+                                value={valueUnit}
+                                // label="Age"
+                                displayEmpty
+                                onChange={handleChangeUnit}
+                                sx={{
+                                    backgroundColor: 'white',
+                                }}
+                            >
+                                {dataUnit.map((unit) => {
+                                    return (
+                                        <MenuItem key={unit.UnitId} value={unit.UnitId}>
+                                            {unit.UnitName}
+                                        </MenuItem>
+                                    );
+                                })}
+                            </Select>
+                        </FormControl>
 
                         <Typography
                             variant="h7"

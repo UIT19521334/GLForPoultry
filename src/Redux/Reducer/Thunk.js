@@ -9,6 +9,7 @@ import {
     fetchApiListAccount,
     fetchApiListUser,
     fetchApiProduct,
+    fetchApiAuthInfo,
 } from '../FetchApi/fetchApiMaster';
 import { toast } from 'react-toastify';
 
@@ -35,6 +36,10 @@ const initialState = {
     listData_AccountGroup: [],
     listData_Account: [],
     listData_User: [],
+    userAccess: {
+        menus: [],
+        units: []
+    },
     token: '',
     isLoading: false,
     isError: false,
@@ -124,6 +129,26 @@ export const period = createSlice({
                 state.isError = false;
             })
             .addCase(fetchApiToken.rejected, (state) => {
+                // Add user to the state array
+                state.isLoading = false;
+                state.isError = true;
+                toast.error(' Error api get token!');
+            })
+            /* #endregion */
+
+            /* #region  auth_info */
+            .addCase(fetchApiAuthInfo.pending, (state) => {
+                // Add user to the state array
+                state.isLoading = true;
+                state.isError = false;
+            })
+            .addCase(fetchApiAuthInfo.fulfilled, (state, action) => {
+                // Add user to the state array
+                state.userAccess = action.payload;
+                state.isLoading = false;
+                state.isError = false;
+            })
+            .addCase(fetchApiAuthInfo.rejected, (state) => {
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;

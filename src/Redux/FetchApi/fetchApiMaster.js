@@ -21,6 +21,16 @@ export const fetchPeriod = createAsyncThunk('master/fetchPeriod', async (unitcod
     }
 });
 
+export const fetchApiAuthInfo = createAsyncThunk('master/fetchApiAuthInfo', async (email) => {
+    if (email) {
+        const body = {
+            email: email,
+        };
+        const response = await DomainPoultry.post(`auth/info`, body);
+        return response.data?.Response;
+    }
+});
+
 export const fetchApiToken = createAsyncThunk('master/fetchApiToken', async (email) => {
     if (email) {
         const model = {

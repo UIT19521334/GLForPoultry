@@ -11,6 +11,7 @@ import {
     fetchApiListAccountGroup,
     fetchApiListAccount,
     fetchApiListUser,
+    fetchApiAuthInfo,
     fetchApiProduct,
 } from '~/Redux/FetchApi/fetchApiMaster';
 import { useMsal } from '@azure/msal-react';
@@ -41,7 +42,8 @@ export default function CallApiMaster() {
     fetchCallApiToken();
     useEffect(() => {
         if (activeAccount) {
-            dispatch(fetchApiToken(activeAccount ? activeAccount.username : ''));
+            dispatch(fetchApiToken(activeAccount ? activeAccount.username : '')); // this will remove
+            dispatch(fetchApiAuthInfo(activeAccount ? activeAccount.username : ''));
         }
     }, [callApiToken]);
 
