@@ -1,3 +1,4 @@
+/* eslint-disable no-inner-declarations */
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import SearchIcon from '@mui/icons-material/Search';
 import { LoadingButton } from '@mui/lab';

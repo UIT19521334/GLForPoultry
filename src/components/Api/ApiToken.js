@@ -1,9 +1,12 @@
 import React from 'react';
 import { useMsal } from '@azure/msal-react';
+import { useDispatch } from 'react-redux';
+import { updateToken } from '~/Redux/Reducer/Thunk';
 import DomainApi from '~/DomainApi';
 
 export default function ApiToken() {
     const { instance } = useMsal();
+    const dispatch = useDispatch();
     const activeAccount = instance.getActiveAccount();
     const [valueAccessToken, setValueAccessToken] = React.useState({ token: '', status: null });
     const [callApiToken, setCallApiToken] = React.useState(false);
@@ -20,12 +23,16 @@ export default function ApiToken() {
                     const model = {
                         email: activeAccount.username,
                     };
+                    // const response = await instance.acquireTokenSilent({
+                    //     scopes: ['User.Read'],
+                    //     account: activeAccount,
+                    // });
                     const response = await DomainApi.post(`auth/email`, model);
-                    setValueAccessToken({ token: response.data.access_token, status: true });
+                    dispatch(updateToken(response.accessToken));
+                    setValueAccessToken({ token: response.accessToken, status: true });
                 } catch (error) {
                     console.log(error);
                     setValueAccessToken({ token: error.response ? error.response.data : error, status: false });
-                    // await instance.logout();
                 }
             }
         }

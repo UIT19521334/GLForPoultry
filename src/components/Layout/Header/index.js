@@ -391,7 +391,7 @@ function Header() {
             </ListItemButton>
             {reportRoutes.map((route, index) => {
                 return (
-                    <Collapse in={openReport} timeout="auto" unmountOnExit>
+                    <Collapse key={route.title} in={openReport} timeout="auto" unmountOnExit>
                         <ListItem
                             key={route.title}
                             disablePadding
@@ -847,7 +847,7 @@ function Header() {
                     </ListItemButton>
                     {reportRoutes.map((route, index) => {
                         return (
-                            <Collapse in={openReport} timeout="auto" unmountOnExit>
+                            <Collapse key={route.title} in={openReport} timeout="auto" unmountOnExit>
                                 <ListItem
                                     key={route.title}
                                     disablePadding

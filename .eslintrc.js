@@ -39,7 +39,8 @@ module.exports = {
     "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",
     "react-hooks/exhaustive-deps": "off",
-    "no-unused-vars": "warn"
+    "no-unused-vars": "warn",
+    "no-inner-declarations": "warn"
 
   }
 };

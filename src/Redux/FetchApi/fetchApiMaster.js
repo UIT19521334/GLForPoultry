@@ -1,6 +1,5 @@
-import DomainApi from '~/DomainApi';
+import DomainApi, { DomainPoultry } from '~/DomainApi';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { useMsal, AuthenticatedTemplate, UnauthenticatedTemplate } from '@azure/msal-react';
 
 export const fetchApiChannel = createAsyncThunk('master/fetchApiChannel', async (unitcode) => {
     if (unitcode) {
@@ -10,8 +9,9 @@ export const fetchApiChannel = createAsyncThunk('master/fetchApiChannel', async 
 });
 
 export const fetchApiCurrency = createAsyncThunk('master/fetchApiCurrency', async () => {
-    const response = await DomainApi.get('master/currency');
-    return response.data;
+    const response = await DomainPoultry.get('master/currency');
+    const data = await response.data;
+    return data.Response;
 });
 
 export const fetchPeriod = createAsyncThunk('master/fetchPeriod', async (unitcode) => {
@@ -40,13 +40,9 @@ export const fetchApiCostCenter = createAsyncThunk('master/fetchApiCostCenter', 
 });
 
 export const fetchApiListAccountGroup = createAsyncThunk('master/fetchApiListAccountGroup', async (valueSearch) => {
-    let url = `master/group-account/search?username=${localStorage.getItem('UserName')}`;
-    if (valueSearch) {
-        url += `&searchtxt=${valueSearch}`;
-    }
-    const response = await DomainApi.get(url);
-    const data = response.data.sort((a, b) => parseFloat(a.gr_acc_code) - parseFloat(b.gr_acc_code));
-    return data;
+    const response = await DomainPoultry.get(`master/account-group`);
+    const data = await response.data;
+    return data.Response;
 });
 
 export const fetchApiListAccount = createAsyncThunk('master/fetchApiListAccount', async (valueSearch) => {

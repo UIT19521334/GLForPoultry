@@ -1,5 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import DomainApi from '~/DomainApi';
+import { createSlice } from '@reduxjs/toolkit';
 import {
     fetchApiChannel,
     fetchApiCurrency,
@@ -14,9 +13,24 @@ import {
 import { toast } from 'react-toastify';
 
 const initialState = {
-    listData_Channel: [],
-    listData_Currency: [],
-    listData_Period: [],
+    listData_Channel: [
+        { code: "CHL0001", channel_name: "Traditional Trade(TT)", isactive: true },
+        { code: "CHL0002", channel_name: "Modern Trade(MT)", isactive: true },
+        { code: "CHL0003", channel_name: "Food Services(FS)", isactive: true },
+        { code: "CHL0004", channel_name: "Meat Shop", isactive: true },
+        { code: "CHL0005", channel_name: "General", isactive: true }
+    ],
+    listData_Currency: [{ code: "VND", name: "VND", description: null }],
+    listData_Period: [{
+        acc_date: "2025-08-01T00:00:00",
+        acc_period_month: "08",
+        acc_period_year: "2025",
+        last_period_month: "08",
+        last_period_year: "2025",
+        next_period_month: "09",
+        next_period_year: "2025",
+        unitcode: "UN001"
+    }],
     listData_CostCenter: [],
     listData_AccountGroup: [],
     listData_Account: [],
@@ -30,12 +44,16 @@ const initialState = {
 export const period = createSlice({
     name: 'period',
     initialState: initialState,
-    reducers: {},
+    reducers: {
+        updateToken: (state, action) => {
+            state.token = action.payload;
+        },
+    },
     extraReducers: (builder) => {
         // Add reducers for additional action types here, and handle loading state as needed
         builder
             /* #region  period */
-            .addCase(fetchApiChannel.pending, (state, action) => {
+            .addCase(fetchApiChannel.pending, (state) => {
                 // Add user to the state array
                 state.isLoading = true;
                 state.isError = false;
@@ -46,7 +64,7 @@ export const period = createSlice({
                 state.isLoading = false;
                 state.isError = false;
             })
-            .addCase(fetchApiChannel.rejected, (state, action) => {
+            .addCase(fetchApiChannel.rejected, (state) => {
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
@@ -54,7 +72,7 @@ export const period = createSlice({
             })
             /* #endregion */
             /* #region  period */
-            .addCase(fetchApiCurrency.pending, (state, action) => {
+            .addCase(fetchApiCurrency.pending, (state) => {
                 // Add user to the state array
                 state.isLoading = true;
                 state.isError = false;
@@ -65,7 +83,7 @@ export const period = createSlice({
                 state.isLoading = false;
                 state.isError = false;
             })
-            .addCase(fetchApiCurrency.rejected, (state, action) => {
+            .addCase(fetchApiCurrency.rejected, (state) => {
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
@@ -74,7 +92,7 @@ export const period = createSlice({
             /* #endregion */
 
             /* #region  period */
-            .addCase(fetchPeriod.pending, (state, action) => {
+            .addCase(fetchPeriod.pending, (state) => {
                 // Add user to the state array
                 state.isLoading = true;
                 state.isError = false;
@@ -85,7 +103,7 @@ export const period = createSlice({
                 state.isLoading = false;
                 state.isError = false;
             })
-            .addCase(fetchPeriod.rejected, (state, action) => {
+            .addCase(fetchPeriod.rejected, (state) => {
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
@@ -94,7 +112,7 @@ export const period = createSlice({
             /* #endregion */
 
             /* #region  access_token */
-            .addCase(fetchApiToken.pending, (state, action) => {
+            .addCase(fetchApiToken.pending, (state) => {
                 // Add user to the state array
                 state.isLoading = true;
                 state.isError = false;
@@ -105,7 +123,7 @@ export const period = createSlice({
                 state.isLoading = false;
                 state.isError = false;
             })
-            .addCase(fetchApiToken.rejected, (state, action) => {
+            .addCase(fetchApiToken.rejected, (state) => {
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
@@ -114,7 +132,7 @@ export const period = createSlice({
             /* #endregion */
 
             /* #region  cost center */
-            .addCase(fetchApiCostCenter.pending, (state, action) => {
+            .addCase(fetchApiCostCenter.pending, (state) => {
                 // Add user to the state array
                 state.isLoading = true;
                 state.isError = false;
@@ -125,7 +143,7 @@ export const period = createSlice({
                 state.isLoading = false;
                 state.isError = false;
             })
-            .addCase(fetchApiCostCenter.rejected, (state, action) => {
+            .addCase(fetchApiCostCenter.rejected, (state) => {
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
@@ -134,7 +152,7 @@ export const period = createSlice({
             /* #endregion */
 
             /* #region  account group */
-            .addCase(fetchApiListAccountGroup.pending, (state, action) => {
+            .addCase(fetchApiListAccountGroup.pending, (state) => {
                 // Add user to the state array
                 state.isLoading = true;
                 state.isError = false;
@@ -145,7 +163,7 @@ export const period = createSlice({
                 state.isLoading = false;
                 state.isError = false;
             })
-            .addCase(fetchApiListAccountGroup.rejected, (state, action) => {
+            .addCase(fetchApiListAccountGroup.rejected, (state) => {
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
@@ -154,7 +172,7 @@ export const period = createSlice({
             /* #endregion */
 
             /* #region  account  */
-            .addCase(fetchApiListAccount.pending, (state, action) => {
+            .addCase(fetchApiListAccount.pending, (state) => {
                 // Add user to the state array
                 state.isLoading = true;
                 state.isError = false;
@@ -165,7 +183,7 @@ export const period = createSlice({
                 state.isLoading = false;
                 state.isError = false;
             })
-            .addCase(fetchApiListAccount.rejected, (state, action) => {
+            .addCase(fetchApiListAccount.rejected, (state) => {
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
@@ -174,7 +192,7 @@ export const period = createSlice({
             /* #endregion */
 
             /* #region  User  */
-            .addCase(fetchApiListUser.pending, (state, action) => {
+            .addCase(fetchApiListUser.pending, (state) => {
                 // Add user to the state array
                 state.isLoading = true;
                 state.isError = false;
@@ -185,7 +203,7 @@ export const period = createSlice({
                 state.isLoading = false;
                 state.isError = false;
             })
-            .addCase(fetchApiListUser.rejected, (state, action) => {
+            .addCase(fetchApiListUser.rejected, (state) => {
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
@@ -194,7 +212,7 @@ export const period = createSlice({
             /* #endregion */
 
             /* #region  Product  */
-            .addCase(fetchApiProduct.pending, (state, action) => {
+            .addCase(fetchApiProduct.pending, (state) => {
                 // Add Product to the state array
                 state.isLoading = true;
                 state.isError = false;
@@ -205,7 +223,7 @@ export const period = createSlice({
                 state.isLoading = false;
                 state.isError = false;
             })
-            .addCase(fetchApiProduct.rejected, (state, action) => {
+            .addCase(fetchApiProduct.rejected, (state) => {
                 // Add Product to the state array
                 state.isLoading = false;
                 state.isError = true;
@@ -214,5 +232,7 @@ export const period = createSlice({
         /* #endregion */
     },
 });
+
+export const { updateToken } = period.actions;
 
 export default period.reducer;

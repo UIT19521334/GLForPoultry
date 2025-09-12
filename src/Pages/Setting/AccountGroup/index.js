@@ -46,19 +46,20 @@ function Account({ title }) {
     //! columns header
     const columns = [
         {
-            field: 'gr_acc_code',
+            field: 'AccountId',
             headerName: t('accountgroup-groupcode'),
             minWidth: 100,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'gr_acc_name',
+            field: 'AccountName',
             headerName: t('accountgroup-groupname'),
-            minWidth: 200,
+            minWidth: 300,
+            flex: 1,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'description',
+            field: 'Description',
             headerName: t('description'),
             flex: 1,
             minWidth: 300,
@@ -82,13 +83,13 @@ function Account({ title }) {
 
     //! select row in datagrid
     const onRowsSelectionHandler = (ids) => {
-        const selectedRowsData = ids.map((id) => dataList.find((row) => row.gr_acc_code === id));
+        const selectedRowsData = ids.map((id) => dataList.find((row) => row.AccountId === id));
         if (selectedRowsData) {
             {
                 selectedRowsData.map((key) => {
-                    setValueCode(key.gr_acc_code);
-                    setValueName(key.gr_acc_name ?? '');
-                    setValueDescription(key.description ?? '');
+                    setValueCode(key.AccountId);
+                    setValueName(key.AccountName ?? '');
+                    setValueDescription(key.Description ?? '');
                 });
                 setValueReadonly(true);
                 setValueReadonlyCode(true);
@@ -361,7 +362,7 @@ function Account({ title }) {
                                         <DataGrid
                                             rows={dataList}
                                             columns={columns}
-                                            getRowId={(row) => row.gr_acc_code}
+                                            getRowId={(row) => row.AccountId}
                                             initialState={{
                                                 pagination: {
                                                     paginationModel: { page: 0, pageSize: 5 },
