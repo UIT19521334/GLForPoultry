@@ -42,37 +42,26 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SearchIcon from '@mui/icons-material/Search';
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
-import ApiToken from '~/components/Api/ApiToken';
-import DomainApi from '~/DomainApi';
 import { toast, ToastContainer } from 'react-toastify';
 import AlertDialog from '~/components/AlertDialog';
-import { ApiCostCenter, ApiCurrency } from '~/components/Api/Master';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import {
     ApiAccountEntryListDetail,
     ApiAccountEntryListHeader,
-    ApiCreateAccountEntryDetail,
     ApiCreateAccountEntryHeader,
-    ApiDeleteAccountEntryDetail,
     ApiDeleteAccountEntryHeader,
     ApiImportAccountEntry,
     ApiLoadMemoFromFA,
     ApiMemoListHeader,
-    ApiUpdateAccountEntryDetail,
     ApiUpdateAccountEntryHeader,
 } from '~/components/Api/AccountingEntryApi';
-import { type } from '@testing-library/user-event/dist/type';
+
 import TextField from '@mui/material/TextField';
 // import MuiTextField from '@mui/material/TextField';
-import { ApiListAccountGroup } from '~/components/Api/AccountGroup';
 import SaveIcon from '@mui/icons-material/Save';
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import CancelIcon from '@mui/icons-material/Close';
-import AddIcon from '@mui/icons-material/Add';
-import { ApiAccountList } from '~/components/Api/Account';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import DialogDetail from './DialogDetail';
 import DialogDetailMemo from './DialogDetailMemo';
 import { OnKeyEvent } from '~/components/Event/OnKeyEvent';
@@ -519,6 +508,7 @@ function AccountingEntry({ title }) {
             getActions: ({ id }) => {
                 return [
                     <GridActionsCellItem
+                        key={id}
                         icon={<DeleteIcon />}
                         label="Delete"
                         onClick={handleDeleteClick(id)}
@@ -816,6 +806,7 @@ function AccountingEntry({ title }) {
             getActions: ({ id }) => {
                 return [
                     <GridActionsCellItem
+                        key={id}
                         icon={<DeleteIcon />}
                         label="Delete"
                         onClick={handleDeleteClickMemo(id)}
@@ -2145,7 +2136,7 @@ function AccountingEntry({ title }) {
                                                                     onRowSelectionModelChange={(ids) =>
                                                                         onHandleRowsSelectionMemo(ids)
                                                                     }
-                                                                    // checkboxSelection={buttonSelectMode}
+                                                                // checkboxSelection={buttonSelectMode}
                                                                 />
                                                             </div>
                                                         </Stack>

@@ -27,7 +27,7 @@ module.exports = {
     }
   },
   rules: {
-    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+    "import/no-extraneous-dependencies": ["off", { "devDependencies": true }],
     "import/prefer-default-export": "off",
     "react/jsx-props-no-spreading": "off",
     "no-console": "off",
@@ -39,8 +39,7 @@ module.exports = {
     "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",
     "react-hooks/exhaustive-deps": "off",
-    "import/no-extraneous-dependencies": "off",
-    "no-unused-vars": "warning"
+    "no-unused-vars": "warn"
 
   }
 };

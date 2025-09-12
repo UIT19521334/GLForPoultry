@@ -28,8 +28,6 @@ import {
     ApiProcessCostAllocation,
     ApiUpdateCostAllocationHeader,
 } from '~/components/Api/CostAllocation';
-import ApiToken from '~/components/Api/ApiToken';
-import { ApiCurrency } from '~/components/Api/Master';
 import LoadingButton from '@mui/lab/LoadingButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SearchIcon from '@mui/icons-material/Search';
@@ -41,8 +39,6 @@ import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import TextField from '@mui/material/TextField';
 import { toast, ToastContainer } from 'react-toastify';
 import AlertDialog from '~/components/AlertDialog';
-import { ApiAccountList } from '~/components/Api/Account';
-import { ApiListAccountGroup } from '~/components/Api/AccountGroup';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import Autocomplete from '@mui/material/Autocomplete';
 import * as xlsx from 'xlsx';
@@ -298,7 +294,7 @@ function CostAllocation({ title }) {
     /* #region button new header */
     const [valueButtonNew, setValueButtonNew] = React.useState(false);
 
-    const handleClickNewHeader = (event) => {
+    const handleClickNewHeader = () => {
         setValueDisabledSaveButton(false);
         setValueReadonly(false);
         // setValueReadonlyDocdate(false);
@@ -327,7 +323,7 @@ function CostAllocation({ title }) {
     //! handler click button update
     /* #region button update header */
     const [valueButtonUpdate, setValueButtonUpdate] = React.useState(false);
-    const handleClickUpdateHeader = (event) => {
+    const handleClickUpdateHeader = () => {
         setValueDisabledSaveButton(false);
         setValueReadonly(false);
         // setValueReadonlyDocdate(true);
@@ -340,7 +336,7 @@ function CostAllocation({ title }) {
 
     //! handler click button save
     /* #region button save header */
-    const handleClickSaveHeader = (event) => {
+    const handleClickSaveHeader = () => {
         if (valueDescription && valueAccountGroup) {
             if (
                 (valueCreditEntry.includes(costChannel641) && !valueChannel) ||
@@ -364,7 +360,7 @@ function CostAllocation({ title }) {
     //todo: call api process
     /* #region button Process */
     const [valueButtonProcess, setValueButtonProcess] = React.useState(false);
-    const handleClickButtonProcess = (event) => {
+    const handleClickButtonProcess = () => {
         if (valueAllocationCode) {
             setCallApiProcess(!callApiProcess);
         } else {
@@ -392,7 +388,7 @@ function CostAllocation({ title }) {
     //todo: call api pause
     /* #region button Pause */
     const [valueButtonPause, setValueButtonPause] = React.useState(false);
-    const handleClickButtonPause = (event) => {
+    const handleClickButtonPause = () => {
         if (valueAllocationCode) {
             setCallApiPause(!callApiPause);
         } else {
@@ -659,6 +655,7 @@ function CostAllocation({ title }) {
             getActions: ({ id }) => {
                 return [
                     <GridActionsCellItem
+                        key={id}
                         icon={<DeleteIcon />}
                         label="Delete"
                         onClick={handleDeleteClick(id)}
@@ -751,15 +748,12 @@ function CostAllocation({ title }) {
     };
 
     /* #endregion */
-
-    let number = 0;
-
     //! handler click import file
     const [fileExcel, setFileExcell] = React.useState([]);
     const handleClickChoseFile = (event) => {
         setFileExcell(event.target.files);
     };
-    const handleClickImportFile = (event) => {
+    const handleClickImportFile = () => {
         let fileType = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
         if (fileExcel.length === 0) {
             toast.warn(t('toast-nofile'));
@@ -1049,7 +1043,7 @@ function CostAllocation({ title }) {
                                                     value={valueStatus}
                                                     displayEmpty
                                                     onChange={handleChangeStatus}
-                                                    // onChange={(e) => setValueStatus(e.target.value)}
+                                                // onChange={(e) => setValueStatus(e.target.value)}
                                                 >
                                                     {status.map((data) => {
                                                         return (
@@ -1287,8 +1281,8 @@ function CostAllocation({ title }) {
                                                             value={valueAllocationCode}
                                                             onChange={(e) => setValueAllocationCode(e.target.value)}
                                                             disabled
-                                                            // inputProps={{ readOnly: { valueDisabledText } }}
-                                                            // disabled={valueDisabledText}
+                                                        // inputProps={{ readOnly: { valueDisabledText } }}
+                                                        // disabled={valueDisabledText}
                                                         />
                                                     </Stack>
                                                 </Grid>
@@ -1573,8 +1567,7 @@ function CostAllocation({ title }) {
                                                                     }}
                                                                     options={dataListAccount}
                                                                     getOptionLabel={(option) =>
-                                                                        `${option.account_code_display ?? ''} - ${
-                                                                            option.account_name ?? ''
+                                                                        `${option.account_code_display ?? ''} - ${option.account_name ?? ''
                                                                         }`
                                                                     }
                                                                     renderInput={(params) => <TextField {...params} />}
@@ -1610,8 +1603,7 @@ function CostAllocation({ title }) {
                                                                     }}
                                                                     options={dataListAccount}
                                                                     getOptionLabel={(option) =>
-                                                                        `${option.account_code_display ?? ''} - ${
-                                                                            option.account_name ?? ''
+                                                                        `${option.account_code_display ?? ''} - ${option.account_name ?? ''
                                                                         }`
                                                                     }
                                                                     renderInput={(params) => <TextField {...params} />}

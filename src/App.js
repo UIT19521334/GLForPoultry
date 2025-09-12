@@ -18,8 +18,8 @@ import '@boldreports/javascript-reporting-controls/Scripts/data-visualization/ej
 import '@boldreports/react-reporting-components/Scripts/bold.reports.react.min';
 import ApiToken from './components/Api/ApiToken';
 import LoginError from './Pages/Login/loginError';
-import { useTheme, ThemeProvider, createTheme } from '@mui/material/styles';
-import { I18nextProvider, useTranslation } from 'react-i18next';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { I18nextProvider } from 'react-i18next';
 import i18next from 'i18next';
 import './TranslationLanguage/i18n.js';
 import { Spin } from 'antd';
