@@ -131,7 +131,7 @@ function UserProfile({ title }) {
     return (
         <Spin size="large" tip={'Loading'} spinning={isLoading}>
             <div className="main">
-                <ToastContainer />
+                <ToastContainer position='bottom-right' stacked />
 
                 {dialogIsOpenReopen && (
                     <AlertDialog

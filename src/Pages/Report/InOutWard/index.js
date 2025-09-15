@@ -311,7 +311,7 @@ export default function Report_InOut_Ward({ title }) {
     return (
         <Spin size="large" tip={t('loading')} spinning={isLoading}>
             <div className="main">
-                <ToastContainer />
+                <ToastContainer position='bottom-right' stacked />
                 <div role="presentation">
                     <Breadcrumbs aria-label="breadcrumb">
                         <Link

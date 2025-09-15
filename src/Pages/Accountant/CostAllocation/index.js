@@ -953,7 +953,7 @@ function CostAllocation({ title }) {
     return (
         <Spin size="large" tip={'Loading'} spinning={valueIsLoading}>
             <div className="main">
-                <ToastContainer />
+                <ToastContainer position='bottom-right' stacked />
                 {dialogIsOpenNewHeader && (
                     <AlertDialog
                         title={t('allocation-toast-new')}

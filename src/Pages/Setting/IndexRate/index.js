@@ -491,7 +491,7 @@ function IndexRate({ title }) {
     OnMultiKeyEvent(handleOnClickDeleteDetail, 'd');
     return (
         <Spin size="large" tip={t('loading')} spinning={isLoading}>
-            <ToastContainer />
+            <ToastContainer position='bottom-right' stacked />
             <div className="main">
                 {dialogIsOpenNew && (
                     <AlertDialog

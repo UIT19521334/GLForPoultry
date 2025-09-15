@@ -468,7 +468,7 @@ function CloseAccountingPeriod({ title }) {
     return (
         <Spin size="large" tip="Loading" spinning={isLoading}>
             <div className="main">
-                <ToastContainer />
+                <ToastContainer position='bottom-right' stacked />
                 {dialogIsOpen && (
                     <AlertDialog
                         title={t('close-toast-new')}

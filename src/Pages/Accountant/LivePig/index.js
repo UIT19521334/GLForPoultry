@@ -355,7 +355,7 @@ function LivePig({ title }) {
     return (
         <Spin size="large" tip={'Loading'} spinning={isLoading}>
             <div className="main">
-                <ToastContainer />
+                <ToastContainer position='bottom-right' stacked />
                 {dialogIsOpenNew && (
                     <AlertDialog
                         title={t('livepig-toast-new')}

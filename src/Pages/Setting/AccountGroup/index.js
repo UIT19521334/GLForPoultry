@@ -354,7 +354,7 @@ function AccountGroup({ title }) {
     return (
         <Spin size="large" tip={t('loading')} spinning={isLoading}>
             <div className="main">
-                <ToastContainer />
+                <ToastContainer position='bottom-right' stacked />
                 {dialogIsOpenNew && (
                     <AlertDialog
                         title={t('accountgroup-toast-new')}
