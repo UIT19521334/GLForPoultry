@@ -16,35 +16,18 @@ import Report_COGS_Meat from '~/Pages/Report/COGSMeat';
 import IndexRate from '~/Pages/Setting/IndexRate';
 import SubAccount from '~/Pages/Setting/SubAccount';
 import SubAccountType from '~/Pages/Setting/SubAccountType';
+import Expense from '~/Pages/Setting/Expense';
 
-export const publicRoutes = [
+const otherRoutes = [
     { path: '/', component: Home, title: 'Dashboard' },
-    { path: '/accountgroup', component: AccountGroup, title: 'menu-acc-group' },
-    { path: '/subaccount', component: SubAccount, title: 'menu-sub-acc' },
-    { path: '/subaccounttype', component: SubAccountType, title: 'menu-sub-acc-type' },
-    { path: '/account', component: Account, title: 'menu-acc' },
-    { path: '/indexrate', component: IndexRate, title: 'Index Rate' },
-
-    { path: '/accountingentry', component: AccountingEntry, title: 'menu-entry' },
-    { path: '/costallocation', component: CostAllocation, title: 'menu-allocation' },
-    { path: '/closeaccountingperiod', component: CloseAccountingPeriod, title: 'menu-close-period' },
-    { path: '/openaccountingperiod', component: OpenAccountingPeriod, title: 'menu-open-period' },
-    { path: '/reportcogm', component: Report_COGM, title: 'menu-report-cogm' },
-    { path: '/reportinout', component: Report_InOut_Ward, title: 'menu-report-inout-ward' },
     { path: '/userprofile', component: UserProfile, title: 'menu-profile' },
-    { path: '/reportcogs', component: Report_COGS, title: 'menu-report-cogs' },
-    { path: '/reportcogsmeat', component: Report_COGS_Meat, title: 'menu-report-cogs-meat' },
-
-    // { path: '/livepig', component: LivePig, title: 'live-pig' },
-    // { path: '/reportcogm', component: Report_COGM, title: 'menu-report-cogm' },
-    // { path: '/following', component: Following, layout: HeaderLayoutOnly },
-    // { path: '/login', component: Login, layout: null },
 ];
 
 export const settingRoutes = [
     { path: '/accountgroup', component: AccountGroup, title: 'menu-acc-group' },
     { path: '/subaccount', component: SubAccount, title: 'menu-sub-acc' },
     { path: '/subaccounttype', component: SubAccountType, title: 'menu-sub-acc-type' },
+    { path: '/expense', component: Expense, title: 'menu-expense' },
     { path: '/account', component: Account, title: 'menu-acc' },
     { path: '/indexrate', component: IndexRate, title: 'Index Rate' },
 ];
@@ -60,4 +43,11 @@ export const reportRoutes = [
     { path: '/reportinout', component: Report_InOut_Ward, title: 'menu-report-inout-ward' },
     { path: '/reportcogs', component: Report_COGS, title: 'menu-report-cogs' },
     { path: '/reportcogsmeat', component: Report_COGS_Meat, title: 'menu-report-cogs-meat' },
+];
+
+export const publicRoutes = [
+    ...otherRoutes,
+    ...settingRoutes,
+    ...accountantRoutes,
+    ...reportRoutes,
 ];

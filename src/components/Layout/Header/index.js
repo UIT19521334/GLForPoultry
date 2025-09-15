@@ -55,7 +55,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ConfigProvider, Switch } from 'antd';
 import { useTranslation } from 'react-i18next';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { GroupAdd, LibraryAdd, ManageAccounts, SupervisedUserCircle } from '@mui/icons-material';
+import { AttachMoney, GroupAdd, LibraryAdd, ManageAccounts, SupervisedUserCircle } from '@mui/icons-material';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -804,6 +804,8 @@ function Header() {
                                                 <GroupAdd />
                                             ) : route.title === 'menu-sub-acc-type' ? (
                                                 <ManageAccounts />
+                                            ) : route.title === 'menu-expense' ? (
+                                                <AttachMoney />
                                             ) : route.title === 'menu-acc' ? (
                                                 <PersonIcon />
                                             ) : (
