@@ -82,6 +82,7 @@
     "subaccount-title-infor": "Thông tin tài khoản phụ",
     "subaccount-code": "Mã tài khoản phụ",
     "subaccount-name": "Tên tài khoản phụ",
+    "subaccount-type-name": "Tên loại tài khoản phụ",
     "subaccount-toast-error": "Mã tài khoản phụ | tên tài khoản phụ trống!",
     "subaccount-toast-new": "Tạo mới tài khoản phụ?",
     "subaccount-toast-update": "Cập nhật tài khoản phụ?",

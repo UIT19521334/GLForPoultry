@@ -25,6 +25,8 @@ import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
+import { MenuItem, Select } from '@mui/material';
+import { useSelector } from 'react-redux';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -40,32 +42,40 @@ function SubAccount({ title }) {
     const [isLoading, setIsLoading] = React.useState(false);
     const [reloadListAccGroup, setReloadListAccGroup] = React.useState(false);
     const [dataList, setDataList] = useState([]);
+    const listSubAccountType = useSelector((state) => state.FetchApi.listData_SubAccountType);
 
     //! columns header
     const columns = [
         {
             field: 'AccountSubId',
-            headerName: t('supaccount-code'),
-            minWidth: 100,
+            headerName: t('subaccount-code'),
+            minWidth: 150,
             headerClassName: 'super-app-theme--header',
         },
         {
             field: 'AccountSubName',
-            headerName: t('supaccount-name'),
-            minWidth: 200,
-            headerClassName: 'super-app-theme--header',
-        },
-        {
-            field: 'SubTypeName',
-            headerName: t('description'),
-            minWidth: 200,
+            headerName: t('subaccount-name'),
+            minWidth: 300,
             headerClassName: 'super-app-theme--header',
         },
         {
             field: 'TypeId',
-            headerName: t('content'),
-            flex: 1,
+            headerName: t('memo-type'),
+
+            minWidth: 100,
+            headerClassName: 'super-app-theme--header',
+        },
+        {
+            field: 'SubTypeName',
+            headerName: t('subaccount-type-name'),
+            minWidth: 100,
+            headerClassName: 'super-app-theme--header',
+        },
+        {
+            field: 'Description',
+            headerName: t('description'),
             minWidth: 300,
+            flex: 1,
             headerClassName: 'super-app-theme--header',
         }
     ];
@@ -85,7 +95,7 @@ function SubAccount({ title }) {
     const handleSearch = () => {
         let filteredData = dataList;
         if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["AccountSubId", "AccountSubName", "SubTypeName", "TypeId"];
+            const fieldsToSearch = ["AccountSubId", "AccountSubName", "SubTypeName", "TypeId", "Description"];
 
             filteredData = _.filter(dataList, (item) => {
                 const search = _.toLower(valueSearch);
@@ -97,8 +107,9 @@ function SubAccount({ title }) {
 
     const [valueCode, setValueCode] = React.useState('');
     const [valueName, setValueName] = React.useState('');
+    const [valueTypeID, setValueTypeID] = React.useState('');
+    const [valueTypeName, setValueTypeName] = React.useState('');
     const [valueDescription, setValueDescription] = React.useState('');
-    const [valueContent, setValueContent] = React.useState('');
 
     //! select row in datagrid
     const onRowsSelectionHandler = (ids) => {
@@ -108,8 +119,8 @@ function SubAccount({ title }) {
                 selectedRowsData.map((key) => {
                     setValueCode(key.AccountSubId ?? "XXXX");
                     setValueName(key.AccountSubName ?? '');
-                    setValueDescription(key.SubTypeName ?? '');
-                    setValueContent(key.TypeId ?? '');
+                    setValueDescription(key.Description ?? '');
+                    setValueTypeID(key.TypeId ?? '');
                 });
                 setValueReadonly(true);
                 setValueReadonlyCode(true);
@@ -138,12 +149,12 @@ function SubAccount({ title }) {
 
     const asyncApiCreateSupAccount = async () => {
         setIsLoading(true);
-        const statusCode = await ApiCreateSupAccount(valueCode, valueName, valueDescription, valueContent);
+        const statusCode = await ApiCreateSupAccount(valueCode, valueName, valueTypeID, valueTypeName, valueDescription);
         if (statusCode) {
             setValueCode('');
             setValueName('');
             setValueDescription('');
-            setValueContent('');
+            setValueTypeID('');
             setValueNewButton(false);
             setValueDisableSaveButton(true);
             setValueDisableDeleteButton(true);
@@ -157,8 +168,8 @@ function SubAccount({ title }) {
 
     const handleOnChangeValueCode = (event) => {
         const inputValue = event.target.value;
-        // Regex: chỉ cho phép số (0-9) và dấu cách
-        if (/^[0-9 ]*$/.test(inputValue)) {
+        // Regex: không cho ký tự đăc biệt, chỉ cho phép chữ cái, số và khoảng trắng
+        if (/^[\p{L}0-9 ]*$/u.test(inputValue)) {
             setValueCode(inputValue);
         }
     };
@@ -168,8 +179,10 @@ function SubAccount({ title }) {
     const handleOnChangeValueDescription = (event) => {
         setValueDescription(event.target.value);
     };
-    const handleOnChangeValueContent = (event) => {
-        setValueContent(event.target.value);
+    const handleOnChangeValueTypeID = (e) => {
+        const data = e.target.value && listSubAccountType.find(item => item.SubTypeId === e.target.value);
+        setValueTypeID(data.SubTypeId);
+        setValueTypeName(data.SubTypeName);
     };
 
     // TODO call api update
@@ -185,7 +198,7 @@ function SubAccount({ title }) {
 
     const asyncApiUpdateSupAccount = async () => {
         setIsLoading(true);
-        const statusCode = await ApiUpdateSupAccount(valueCode, valueName, valueDescription, valueContent);
+        const statusCode = await ApiUpdateSupAccount(valueCode, valueName, valueTypeID, valueTypeName, valueDescription);
         if (statusCode) {
             setValueReadonly(true);
             setValueUpdateButton(false);
@@ -216,7 +229,7 @@ function SubAccount({ title }) {
             setValueCode('');
             setValueName('');
             setValueDescription('');
-            setValueContent('');
+            setValueTypeID('');
             setValueReadonly(true);
             setValueDisableSaveButton(true);
             setValueDisableDeleteButton(true);
@@ -239,7 +252,7 @@ function SubAccount({ title }) {
         setValueCode('');
         setValueName('');
         setValueDescription('');
-        setValueContent('');
+        setValueTypeID('');
         setValueReadonly(false);
         setValueReadonlyCode(false);
         setValueDisableSaveButton(false);
@@ -272,7 +285,7 @@ function SubAccount({ title }) {
                 setDialogIsOpenUpdate(true);
             }
         } else {
-            toast.error(t('SupAccount-toast-error'));
+            toast.error(t('subaccount-toast-error'));
         }
     };
     /* #endregion */
@@ -297,7 +310,7 @@ function SubAccount({ title }) {
             direction={'row'}
             spacing={1}
             sx={{ display: { xs: 'flex', md: 'none' } }}
-            justifyContent={'space-between'}
+            justifyTypeID={'space-between'}
             marginTop={1.5}
         >
             <LoadingButton
@@ -357,13 +370,13 @@ function SubAccount({ title }) {
                 <ToastContainer />
                 {dialogIsOpenNew && (
                     <AlertDialog
-                        title={t('SupAccount-toast-new')}
+                        title={t('subaccount-toast-new')}
                         content={
                             <>
                                 {t('subaccount-code')}: {valueCode}
                                 <br /> {t('subaccount-name')}: {valueName}
+                                <br /> {t('memo-type')}:{`[${valueTypeID}] - ${valueTypeName}`}
                                 <br /> {t('description')}:{valueDescription}
-                                <br /> {t('content')}:{valueContent}
                             </>
                         }
                         onOpen={dialogIsOpenNew}
@@ -373,13 +386,13 @@ function SubAccount({ title }) {
                 )}
                 {dialogIsOpenUpdate && (
                     <AlertDialog
-                        title={t('SupAccount-toast-update')}
+                        title={t('subaccount-toast-update')}
                         content={
                             <>
                                 {t('subaccount-code')}: {valueCode}
                                 <br /> {t('subaccount-name')}: {valueName}
+                                <br /> {t('memo-type')}:{`[${valueTypeID}] - ${valueTypeName}`}
                                 <br /> {t('description')}:{valueDescription}
-                                <br /> {t('content')}:{valueContent}
                             </>
                         }
                         onOpen={dialogIsOpenUpdate}
@@ -389,13 +402,13 @@ function SubAccount({ title }) {
                 )}
                 {dialogIsOpenDelete && (
                     <AlertDialog
-                        title={t('SupAccount-toast-delete')}
+                        title={t('subaccount-toast-delete')}
                         content={
                             <>
-                                {t('SupAccount-groupcode')}: {valueCode}
-                                <br /> {t('SupAccount-AccountSubName')}: {valueName}
+                                {t('subaccount-code')}: {valueCode}
+                                <br /> {t('subaccount-name')}: {valueName}
+                                <br /> {t('memo-type')}:{`[${valueTypeID}] - ${valueTypeName}`}
                                 <br /> {t('description')}:{valueDescription}
-                                <br /> {t('content')}:{valueContent}
                             </>
                         }
                         onOpen={dialogIsOpenDelete}
@@ -453,7 +466,7 @@ function SubAccount({ title }) {
                             <Item>
                                 <Stack spacing={0}>
                                     <h5 style={{ textAlign: 'left', fontWeight: 'bold' }}>
-                                        {t('SupAccount-title-list')}
+                                        {t('subaccount-title-list')}
                                     </h5>
                                     <div style={{ width: '100%' }}>
                                         <DataGrid
@@ -501,7 +514,7 @@ function SubAccount({ title }) {
                                         direction={'row'}
                                         spacing={2}
                                         alignItems={'center'}
-                                        justifyContent={'flex-end'}
+                                        justifyTypeID={'flex-end'}
                                         height={50}
                                     >
                                         <h5
@@ -511,7 +524,7 @@ function SubAccount({ title }) {
                                                 width: '100%',
                                             }}
                                         >
-                                            {t('SupAccount-title-infor')}
+                                            {t('subaccount-title-infor')}
                                         </h5>
                                     </Stack>
                                     <Stack direction={'row'} spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
@@ -563,31 +576,31 @@ function SubAccount({ title }) {
                                         <Stack spacing={3}>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <div>{t('SupAccount-groupcode')}</div>
+                                                    <div>{t('subaccount-code')}</div>
                                                 </div>
                                                 <Input
                                                     variant="outlined"
-                                                    type="number"
+                                                    type="text"
                                                     size="large"
                                                     status={!valueCode ? 'error' : ''}
                                                     count={{
                                                         show: !valueReadonlyCode,
-                                                        max: 4,
+                                                        max: 5,
                                                         // strategy: (txt) => txt.length,
                                                         // exceedFormatter: (txt, { max }) => txt.slice(0, max),
                                                     }}
                                                     value={valueCode}
                                                     onChange={(event) =>
-                                                        event.target.value.length <= 4 && handleOnChangeValueCode(event)
+                                                        event.target.value.length <= 5 && handleOnChangeValueCode(event)
                                                     }
-                                                    placeholder="xxxx"
+                                                    placeholder="xxxxx"
                                                     disabled={valueReadonlyCode}
                                                     style={{ color: '#000' }}
                                                 />
                                             </Stack>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <div>{t('SupAccount-AccountSubName')}</div>
+                                                    <div>{t('subaccount-name')}</div>
                                                 </div>
                                                 <Input
                                                     variant="outlined"
@@ -602,29 +615,37 @@ function SubAccount({ title }) {
                                             </Stack>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <div>{t('description')}</div>
+                                                    <div>{t('memo-type')}</div>
                                                 </div>
-                                                <Input
-                                                    variant="outlined"
-                                                    size="large"
-                                                    status={!valueDescription ? 'error' : ''}
-                                                    value={valueDescription}
-                                                    onChange={(event) => handleOnChangeValueDescription(event)}
-                                                    placeholder="name..."
+                                                <Select
+                                                    autoFocus
+                                                    size="small"
+                                                    fullWidth
+                                                    style={{ textAlign: 'left' }}
+                                                    value={valueTypeID}
+                                                    onChange={handleOnChangeValueTypeID}
                                                     disabled={valueReadonly}
-                                                    style={{ color: '#000' }}
-                                                />
+                                                >
+                                                    {_.isArray(listSubAccountType) &&
+                                                        listSubAccountType.map((data) => {
+                                                            return (
+                                                                <MenuItem style={{ textAlign: 'left' }} key={data.SubTypeId} value={data.SubTypeId}>
+                                                                    {`[${data.SubTypeId}] - ${data.SubTypeName}`}
+                                                                </MenuItem>
+                                                            );
+                                                        })}
+                                                </Select>
                                             </Stack>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <div>{t('content')}</div>
+                                                    <div>{t('description')}</div>
                                                 </div>
                                                 <Input.TextArea
                                                     size="large"
-                                                    status={!valueContent ? 'error' : ''}
+                                                    status={!valueDescription ? 'error' : ''}
                                                     maxLength={250}
-                                                    value={valueContent}
-                                                    onChange={(event) => handleOnChangeValueContent(event)}
+                                                    value={valueDescription}
+                                                    onChange={(event) => handleOnChangeValueDescription(event)}
                                                     rows={2}
                                                     placeholder="..."
                                                     disabled={valueReadonly}

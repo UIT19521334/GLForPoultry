@@ -6,6 +6,7 @@ import {
     fetchApiToken,
     fetchApiCostCenter,
     fetchApiListAccountGroup,
+    fetchApiListSubAccountType,
     fetchApiListAccount,
     fetchApiListUser,
     fetchApiProduct,
@@ -34,6 +35,7 @@ const initialState = {
     }],
     listData_CostCenter: [],
     listData_AccountGroup: [],
+    listData_SubAccountType: [],
     listData_Account: [],
     listData_User: [],
     userAccess: {
@@ -193,6 +195,26 @@ export const period = createSlice({
                 state.isLoading = false;
                 state.isError = true;
                 toast.error(' Error api account group!');
+            })
+            /* #endregion */
+
+            /* #region  account  */
+            .addCase(fetchApiListSubAccountType.pending, (state) => {
+                // Add user to the state array
+                state.isLoading = true;
+                state.isError = false;
+            })
+            .addCase(fetchApiListSubAccountType.fulfilled, (state, action) => {
+                // Add user to the state array
+                state.listData_SubAccountType = action.payload;
+                state.isLoading = false;
+                state.isError = false;
+            })
+            .addCase(fetchApiListSubAccountType.rejected, (state) => {
+                // Add user to the state array
+                state.isLoading = false;
+                state.isError = true;
+                toast.error(' Error api account!');
             })
             /* #endregion */
 

@@ -9,6 +9,7 @@ import {
     fetchApiToken,
     fetchApiCostCenter,
     fetchApiListAccountGroup,
+    fetchApiListSubAccountType,
     fetchApiListAccount,
     fetchApiListUser,
     fetchApiAuthInfo,
@@ -52,6 +53,9 @@ export default function CallApiMaster() {
     }, []);
     useEffect(() => {
         dispatch(fetchApiListAccountGroup());
+    }, []);
+    useEffect(() => {
+        dispatch(fetchApiListSubAccountType());
     }, []);
     useEffect(() => {
         dispatch(fetchApiListAccount());

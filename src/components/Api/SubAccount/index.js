@@ -8,9 +8,7 @@ export async function ApiListSupAccount(valueSearch, setDataList) {
         const data = await response.data?.Response ?? [];
         let filteredData = data;
         if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["AccountSubId", "AccountSubName", "SubTypeName", "TypeId"];
-            console.log(valueSearch);
-
+            const fieldsToSearch = ["AccountSubId", "AccountSubName", "SubTypeName", "TypeId", "Description"];
             filteredData = _.filter(data, (item) => {
                 const search = _.toLower(valueSearch);
                 return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
@@ -20,11 +18,11 @@ export async function ApiListSupAccount(valueSearch, setDataList) {
         setDataList(filteredData);
     } catch (error) {
         console.log(error);
-        toast.error(' Error api get data account group list!');
+        toast.error(' Error api get data sub account list!');
     }
 }
 
-export async function ApiCreateSupAccount(valueCode, valueName, valueDescription, valueContent) {
+export async function ApiCreateSupAccount(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
     if (valueCode && valueName) {
         try {
             var statusCode = false;
@@ -32,22 +30,23 @@ export async function ApiCreateSupAccount(valueCode, valueName, valueDescription
                 // Authorization: access_token,
             };
             const body = {
-                GroupId: valueCode,
-                GroupName: valueName,
+                SubTypeName: valueTypeName,
+                AccountSubId: valueCode,
+                AccountSubName: valueName,
                 Active: true,
                 Username: localStorage.getItem('UserName'),
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 Description: valueDescription,
-                Content: valueContent
+                TypeId: valueTypeID
             };
 
             await DomainPoultry.post(
-                `master/account-group`,
+                `master/sub-account`,
                 body
             );
 
-            toast.success(' Success create new account group!');
+            toast.success(' Success create new sub account!');
             statusCode = true;
         } catch (error) {
             console.log('>>Error: ', error);
@@ -62,25 +61,26 @@ export async function ApiCreateSupAccount(valueCode, valueName, valueDescription
     }
 }
 
-export async function ApiUpdateSupAccount(valueCode, valueName, valueDescription, valueContent) {
+export async function ApiUpdateSupAccount(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
     if (valueCode && valueName) {
         try {
             var statusCode = false;
             const body = {
-                GroupId: valueCode,
-                GroupName: valueName,
+                SubTypeName: valueTypeName,
+                AccountSubId: valueCode,
+                AccountSubName: valueName,
                 Active: true,
                 Username: localStorage.getItem('UserName'),
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 Description: valueDescription,
-                Content: valueContent
+                TypeId: valueTypeID
             };
             await DomainPoultry.put(
-                `master/account-group/${valueCode}`,
+                `master/sub-account/${valueCode}`,
                 body
             );
-            toast.success(' Success update account group!');
+            toast.success(' Success update sub account!');
             statusCode = true;
         } catch (error) {
             console.log('>>Error: ', error);
@@ -99,8 +99,8 @@ export async function ApiDeleteSupAccount(valueCode) {
     if (valueCode) {
         try {
             var statusCode = false;
-            await DomainPoultry.delete(`master/account-group/${valueCode}`);
-            toast.success(' Success delete account group!');
+            await DomainPoultry.delete(`master/sub-account/${valueCode}`);
+            toast.success(' Success delete sub account !');
             statusCode = true;
         } catch (error) {
             console.log('>>Error: ', error);

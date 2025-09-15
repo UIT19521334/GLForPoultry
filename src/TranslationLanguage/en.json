@@ -82,6 +82,7 @@
     "subaccount-title-infor": "Sub account information",
     "subaccount-code": "Sub account code",
     "subaccount-name": "Sub account name",
+    "subaccount-type-name": "Sub account type name",
     "subaccount-toast-error": "Empty sub account code | sub account name!",
     "subaccount-toast-new": "Create new sub account?",
     "subaccount-toast-update": "Update sub account?",
