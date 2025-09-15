@@ -1,5 +1,6 @@
 import DomainApi, { DomainPoultry } from '~/DomainApi';
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import _ from 'lodash';
 
 export const fetchApiChannel = createAsyncThunk('master/fetchApiChannel', async (unitcode) => {
     if (unitcode) {
@@ -55,10 +56,18 @@ export const fetchApiListAccountGroup = createAsyncThunk('master/fetchApiListAcc
     return data.Response;
 });
 
-export const fetchApiListSubAccountType = createAsyncThunk('master/fetchApiListSubAccountType', async () => {
+export const fetchApiListSubAccountType = createAsyncThunk('master/fetchApiListSubAccountType', async (valueSearch) => {
     const response = await DomainPoultry.get(`master/sub-account-type`);
-    const data = await response.data;
-    return data.Response;
+    const data = await response.data?.Response ?? [];
+    let filteredData = data;
+    if (valueSearch && valueSearch.trim() !== "") {
+        const fieldsToSearch = ["SubTypeId", "SubTypeName", "Description"];
+        filteredData = _.filter(data, (item) => {
+            const search = _.toLower(valueSearch);
+            return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
+        });
+    }
+    return filteredData;
 });
 
 export const fetchApiListAccount = createAsyncThunk('master/fetchApiListAccount', async (valueSearch) => {

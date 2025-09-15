@@ -55,7 +55,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ConfigProvider, Switch } from 'antd';
 import { useTranslation } from 'react-i18next';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { GroupAdd, LibraryAdd } from '@mui/icons-material';
+import { GroupAdd, LibraryAdd, ManageAccounts, SupervisedUserCircle } from '@mui/icons-material';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -773,7 +773,7 @@ function Header() {
                             backgroundColor: '#ed6c02',
                         }}
                     />
-                    {settingRoutes.map((route, index) => {
+                    {settingRoutes.map((route) => {
                         return (
                             <ListItem
                                 key={route.title}
@@ -802,6 +802,8 @@ function Header() {
                                                 <GroupIcon />
                                             ) : route.title === 'menu-sub-acc' ? (
                                                 <GroupAdd />
+                                            ) : route.title === 'menu-sub-acc-type' ? (
+                                                <ManageAccounts />
                                             ) : route.title === 'menu-acc' ? (
                                                 <PersonIcon />
                                             ) : (

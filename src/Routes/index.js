@@ -15,11 +15,13 @@ import Report_COGS from '~/Pages/Report/COGS/COGSindex';
 import Report_COGS_Meat from '~/Pages/Report/COGSMeat';
 import IndexRate from '~/Pages/Setting/IndexRate';
 import SubAccount from '~/Pages/Setting/SubAccount';
+import SubAccountType from '~/Pages/Setting/SubAccountType';
 
 export const publicRoutes = [
     { path: '/', component: Home, title: 'Dashboard' },
     { path: '/accountgroup', component: AccountGroup, title: 'menu-acc-group' },
     { path: '/subaccount', component: SubAccount, title: 'menu-sub-acc' },
+    { path: '/subaccounttype', component: SubAccountType, title: 'menu-sub-acc-type' },
     { path: '/account', component: Account, title: 'menu-acc' },
     { path: '/indexrate', component: IndexRate, title: 'Index Rate' },
 
@@ -42,6 +44,7 @@ export const publicRoutes = [
 export const settingRoutes = [
     { path: '/accountgroup', component: AccountGroup, title: 'menu-acc-group' },
     { path: '/subaccount', component: SubAccount, title: 'menu-sub-acc' },
+    { path: '/subaccounttype', component: SubAccountType, title: 'menu-sub-acc-type' },
     { path: '/account', component: Account, title: 'menu-acc' },
     { path: '/indexrate', component: IndexRate, title: 'Index Rate' },
 ];
