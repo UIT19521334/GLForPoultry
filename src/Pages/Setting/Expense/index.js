@@ -21,7 +21,6 @@ function ExpenseLayout({ title }) {
     const currentTab = location.pathname.includes('expense-group') ? 'expense-group' : 'expense-details';
 
     const handleChangeTab = (event, newValue) => {
-        // navigate(`/expense/${newValue}`);
         navigate(newValue);
     };
 

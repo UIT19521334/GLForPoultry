@@ -403,16 +403,7 @@ function SubAccountType({ title }) {
                         onAgree={agreeDialogDelete}
                     />
                 )}
-                <div role="presentation">
-                    <Breadcrumbs aria-label="breadcrumb">
-                        <Link
-                            underline="hover"
-                            color="inherit"
-                            href="/material-ui/getting-started/installation/"
-                        ></Link>
-                        <Typography color="text.primary">{t(title)}</Typography>
-                    </Breadcrumbs>
-                </div>
+
                 <Box
                     sx={{
                         flexGrow: 1,

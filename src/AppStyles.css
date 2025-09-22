@@ -6,7 +6,7 @@ body {
 }
 .main {
     display: flex;
-    height: 100vh;
+    height: 100dvh - 10px;
     width: 100%;
     /* align-items: center; */
     flex-direction: column;
