@@ -11,6 +11,7 @@ import {
     fetchApiListUser,
     fetchApiProduct,
     fetchApiAuthInfo,
+    fetchApiListExpenseGroup,
 } from '../FetchApi/fetchApiMaster';
 import { toast } from 'react-toastify';
 
@@ -46,6 +47,7 @@ const initialState = {
     isLoading: false,
     isError: false,
     listData_Product: [],
+    listData_ExpenseGroup: [],
 };
 
 export const period = createSlice({
@@ -191,6 +193,26 @@ export const period = createSlice({
                 state.isError = false;
             })
             .addCase(fetchApiListAccountGroup.rejected, (state) => {
+                // Add user to the state array
+                state.isLoading = false;
+                state.isError = true;
+                toast.error(' Error api account group!');
+            })
+            /* #endregion */
+
+            /* #region  expense group */
+            .addCase(fetchApiListExpenseGroup.pending, (state) => {
+                // Add user to the state array
+                state.isLoading = true;
+                state.isError = false;
+            })
+            .addCase(fetchApiListExpenseGroup.fulfilled, (state, action) => {
+                // Add user to the state array
+                state.listData_ExpenseGroup = action.payload;
+                state.isLoading = false;
+                state.isError = false;
+            })
+            .addCase(fetchApiListExpenseGroup.rejected, (state) => {
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;

@@ -1,39 +1,30 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import Typography from '@mui/material/Typography';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Link from '@mui/material/Link';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import { DataGrid } from '@mui/x-data-grid';
-import './AccountStyles.css';
-import '../../../Container.css';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import Checkbox from '@mui/material/Checkbox';
+import { DataGrid, GridDeleteIcon } from '@mui/x-data-grid';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import AlertDialog from '~/components/AlertDialog';
 import LoadingButton from '@mui/lab/LoadingButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SearchIcon from '@mui/icons-material/Search';
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
-import { ToastContainer, toast } from 'react-toastify';
-import AlertDialog from '~/components/AlertDialog';
-import { ApiAccountList, ApiCreateAccount, ApiImportFileAccount, ApiUpdateAccount } from '~/components/Api/Account';
+import { ApiCreateAccount, ApiDeleteAccount, ApiListAccount, ApiUpdateAccount } from '~/components/Api/Account';
 import SaveIcon from '@mui/icons-material/Save';
+import '../../../Container.css';
 import TextField from '@mui/material/TextField';
-import { ApiGroupCost, ApiTypeCost } from '~/components/Api/Master';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { useSelector, useDispatch } from 'react-redux';
-import PostAddIcon from '@mui/icons-material/PostAdd';
 import { OnKeyEvent } from '~/components/Event/OnKeyEvent';
 import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
-import { Form, Input, InputNumber, Space, Spin } from 'antd';
+import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { fetchApiListAccount } from '~/Redux/FetchApi/fetchApiMaster';
+import _ from 'lodash';
+import { MenuItem, Select } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchApiListExpenseGroup } from '~/Redux/FetchApi/fetchApiMaster';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -44,102 +35,143 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-});
-function Account({ title }) {
+function Account() {
     const { t } = useTranslation();
+    const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [reloadListAccount, setReloadListAccount] = React.useState(false);
+    const [dataList, setDataList] = useState([]);
+    const listExpenseGroup = useSelector((state) => state.FetchApi.listData_ExpenseGroup);
 
-    // TODO call api cost center
-    /* #region  call api data cost center */
-    const dataCostCenter = useSelector((state) => state.FetchApi.listData_CostCenter);
-    const [valueCostCenter, setValueCostCenter] = React.useState('');
-    /* #endregion */
-
-    //! column datagrid header
+    //! columns header
     const columns = [
         {
-            field: 'account_code_display',
-            headerName: t('account-code'),
-            width: 130,
+            field: 'AccountId',
+            headerName: t('code'),
+            minWidth: 150,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'account_name',
-            headerName: t('account-name'),
+            field: 'AccountName',
+            headerName: t('name'),
+            minWidth: 200,
+            headerClassName: 'super-app-theme--header',
+        },
+        {
+            field: 'ExpenseId',
+            headerName: t('memo-type'),
+
+            minWidth: 100,
+            headerClassName: 'super-app-theme--header',
+        },
+        {
+            field: 'GroupName_VN',
+            headerName: t('account-group-name'),
+            minWidth: 200,
+            headerClassName: 'super-app-theme--header',
+        },
+        {
+            field: 'Description',
+            headerName: t('description'),
             minWidth: 300,
             flex: 1,
             headerClassName: 'super-app-theme--header',
-        },
-        {
-            field: 'expense_name',
-            headerName: t('account-expensegroup'),
-            width: 150,
-            headerClassName: 'super-app-theme--header',
-            headerAlign: 'center',
-        },
-        {
-            field: 'expense_type_name',
-            headerName: t('account-expense'),
-            width: 150,
-            headerClassName: 'super-app-theme--header',
-            headerAlign: 'center',
-        },
-        {
-            field: 'cost_center',
-            headerName: t('cost-center'),
-            width: 150,
-            headerClassName: 'super-app-theme--header',
-            headerAlign: 'center',
-            type: 'singleSelect',
-            getOptionValue: (value) => value.code,
-            getOptionLabel: (value) => value.name,
-            valueOptions: dataCostCenter,
-        },
-        {
-            field: 'is_shared_expense',
-            headerName: t('account-general'),
-            width: 130,
-            type: 'boolean',
-            headerClassName: 'super-app-theme--header',
-            valueGetter: (value) => {
-                if (value.value === false) {
-                    return null;
-                }
-                // Convert the decimal value to a percentage
-                return value;
-            },
-        },
+        }
     ];
 
-    const [isLoading, setIsLoading] = React.useState(false);
-    const access_token = useSelector((state) => state.FetchApi.token);
-    var dispatch = useDispatch();
+    // TODO call api get data account group
+    useEffect(() => {
+        const fetchApiGetDataAccount = async () => {
+            setIsLoading(true);
+            await ApiListAccount(valueSearch, setDataList);
+            dispatch(fetchApiListExpenseGroup());
+            setIsLoading(false);
+        };
+        fetchApiGetDataAccount();
+    }, [reloadListAccount]);
 
-    const [valueReadonly, setValueReadonly] = React.useState(true);
-    const [valueReadonlyCode, setValueReadonlyCode] = React.useState(true);
-
+    // Handle search
     const [valueSearch, setValueSearch] = React.useState('');
+    const handleSearch = () => {
+        let filteredData = dataList;
+        if (valueSearch && valueSearch.trim() !== "") {
+            const fieldsToSearch = ["AccountName", "AccountId", "Description"];
+
+            filteredData = _.filter(dataList, (item) => {
+                const search = _.toLower(valueSearch);
+                return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
+            });
+        }
+        setDataList(filteredData);
+    }
+
     const [valueCode, setValueCode] = React.useState('');
-    const [valueId, setValueId] = React.useState('');
-    const [valueCodeMain, setValueCodeMain] = React.useState('');
-    const [valueCodeSub, setValueCodeSub] = React.useState('');
     const [valueName, setValueName] = React.useState('');
+    const [valueGroupID, setValueGroupID] = React.useState('');
+    const [valueTypeName, setValueTypeName] = React.useState('');
     const [valueDescription, setValueDescription] = React.useState('');
 
-    const handleOnChangeValueCodeMain = (event) => {
-        setValueCodeMain(event.target.value);
+    //! select row in datagrid
+    const onRowsSelectionHandler = (ids) => {
+        const selectedRowsData = ids.map((id) => dataList.find((row) => row.AccountId === id));
+        if (selectedRowsData) {
+            {
+                selectedRowsData.map((key) => {
+                    setValueCode(key.AccountId ?? "XXXX");
+                    setValueName(key.AccountName ?? '');
+                    setValueDescription(key.Description ?? '');
+                    setValueGroupID(key.ExpenseId ?? '');
+                });
+                setValueReadonly(true);
+                setValueReadonlyCode(true);
+                setValueDisableSaveButton(true);
+                setValueDisableDeleteButton(false)
+                setValueNewButton(false);
+                setValueUpdateButton(false);
+                setValueDisableUpdateButton(false);
+            }
+        }
     };
-    const handleOnChangeValueCodeSub = (event) => {
-        setValueCodeSub(event.target.value);
+
+    // TODO call api new
+    /* #region  call api new */
+    const [dialogIsOpenNew, setDialogIsOpenNew] = React.useState(false);
+    const [dialogIsOpenUpdate, setDialogIsOpenUpdate] = React.useState(false);
+    const [dialogIsOpenDelete, setDialogIsOpenDelete] = React.useState(false);
+    const agreeDialogNew = () => {
+        setDialogIsOpenNew(false);
+        asyncApiCreateAccount();
+    };
+    const closeDialogNew = () => {
+        setDialogIsOpenNew(false);
+        toast.warning(t('toast-cancel-new'));
+    };
+
+    const asyncApiCreateAccount = async () => {
+        setIsLoading(true);
+        const statusCode = await ApiCreateAccount(valueCode, valueName, valueGroupID, valueTypeName, valueDescription);
+        if (statusCode) {
+            setValueCode('');
+            setValueName('');
+            setValueDescription('');
+            setValueGroupID('');
+            setValueNewButton(false);
+            setValueDisableSaveButton(true);
+            setValueDisableDeleteButton(true);
+            setValueReadonly(true);
+            setValueReadonlyCode(true);
+        }
+        setIsLoading(false);
+        setReloadListAccount(!reloadListAccount);
+    };
+    /* #endregion */
+
+    const handleOnChangeValueCode = (event) => {
+        const inputValue = event.target.value;
+        // Regex: không cho ký tự đăc biệt, chỉ cho phép chữ cái, số và khoảng trắng
+        if (/^[\p{L}0-9 ]*$/u.test(inputValue)) {
+            setValueCode(inputValue);
+        }
     };
     const handleOnChangeValueName = (event) => {
         setValueName(event.target.value);
@@ -147,107 +179,70 @@ function Account({ title }) {
     const handleOnChangeValueDescription = (event) => {
         setValueDescription(event.target.value);
     };
-    const handleOnChangeValueSearch = (event) => {
-        setValueSearch(event.target.value);
+    const handleOnChangeValueGroupID = (e) => {
+        console.log(e.target.value);
+        const data = e.target.value && listExpenseGroup.find(item => item.GroupId === e.target.value);
+        setValueGroupID(data.GroupId);
+        setValueTypeName(data.GroupName_EN);
     };
 
-    // TODO call api get data account
-    /* #region  call api list */
-    const [reloadListAccount, setReloadListAccount] = React.useState(false);
-    const [dataList, setDataList] = useState([]);
+    // TODO call api update
+    /* #region  call api update */
+    const agreeDialogUpdate = () => {
+        setDialogIsOpenUpdate(false);
+        asyncApiUpdateAccount();
+    };
+    const closeDialogUpdate = () => {
+        setDialogIsOpenUpdate(false);
+        toast.warning(t('toast-cancel-update'));
+    };
 
-    useEffect(() => {
-        const asyncApiListAccount = async () => {
-            setIsLoading(true);
-            await ApiAccountList(valueSearch, setDataList);
-            dispatch(fetchApiListAccount());
-            setIsLoading(false);
-        };
-        asyncApiListAccount();
-    }, [reloadListAccount]);
-    /* #endregion */
-
-    //! select row in datagrid
-    const onRowsSelectionHandler = (ids) => {
-        const selectedRowsData = ids.map((id) => dataList.find((row) => row.account_code === id));
-        if (selectedRowsData) {
-            {
-                selectedRowsData.map((key) => {
-                    setValueCode(key.account_code_display);
-                    setValueId(key.ids);
-                    setValueCodeMain(key.account_main);
-                    setValueCodeSub(key.account_sub);
-                    setValueName(key.account_name);
-                    setValueDescription(key.description ?? '');
-                    setValueGroupCost(key.expense_acc ?? '');
-                    setValueTypeCost(key.expense_type ?? '');
-                    setValueCostCenter(key.cost_center);
-                });
-                setValueReadonly(true);
-                setValueReadonlyCode(true);
-                setValueDisableSaveButton(true);
-                setValueNewButton(false);
-                setValueUpdateButton(false);
-            }
+    const asyncApiUpdateAccount = async () => {
+        setIsLoading(true);
+        const statusCode = await ApiUpdateAccount(valueCode, valueName, valueGroupID, valueTypeName, valueDescription);
+        if (statusCode) {
+            setValueReadonly(true);
+            setValueUpdateButton(false);
+            setValueDisableSaveButton(true);
+            setValueDisableDeleteButton(true);
         }
+        setIsLoading(false);
+        setReloadListAccount(!reloadListAccount);
     };
 
-    // TODO call api expense group
-    /* #region  call api data group cost */
-    const [dataGroupCost, setDataGroupCost] = React.useState([]);
-    const [valueGroupCost, setValueGroupCost] = React.useState('');
-    const handleChangeGroupCost = (event) => {
-        setValueGroupCost(event.target.value);
-        if (!event.target.value) {
-            setDataTypeCostFilter(dataTypeCost);
-        } else {
-            const expense = dataTypeCost.filter((data) => data.group_code_ref == event.target.value);
-            const data = [{ code: null, name: 'Not selected' }, ...expense];
-            setDataTypeCostFilter(data);
+    /* #endregion */
+
+    // TODO call api delete
+    /* #region  call api delete */
+    const agreeDialogDelete = () => {
+        setDialogIsOpenDelete(false);
+        asyncApiDeleteAccount();
+    };
+    const closeDialogDelete = () => {
+        setDialogIsOpenDelete(false);
+        toast.warning(t('toast-cancel-delete'));
+    };
+
+    const asyncApiDeleteAccount = async () => {
+        setIsLoading(true);
+        const statusCode = await ApiDeleteAccount(valueCode);
+        if (statusCode) {
+            setValueCode('');
+            setValueName('');
+            setValueDescription('');
+            setValueGroupID('');
+            setValueReadonly(true);
+            setValueDisableSaveButton(true);
+            setValueDisableDeleteButton(true);
         }
+        setIsLoading(false);
+        setReloadListAccount(!reloadListAccount);
     };
-    React.useEffect(() => {
-        const fetchApiExpenseGroup = async () => {
-            setIsLoading(true);
-            await ApiGroupCost(setDataGroupCost);
-            setIsLoading(false);
-        };
-        fetchApiExpenseGroup();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+
     /* #endregion */
 
-    // TODO call api expense
-    /* #region  call api data type cost */
-    const [dataTypeCost, setDataTypeCost] = React.useState([]);
-    const [dataTypeCostFilter, setDataTypeCostFilter] = React.useState([]);
-    const [valueTypeCost, setValueTypeCost] = React.useState('');
-    const handleChangeTypeCost = (event) => {
-        setValueTypeCost(event.target.value);
-    };
-    React.useEffect(() => {
-        const fetchApiExpense = async () => {
-            setIsLoading(true);
-            await ApiTypeCost(setDataTypeCost, setDataTypeCostFilter);
-            setIsLoading(false);
-        };
-        fetchApiExpense();
-    }, []);
-    /* #endregion */
-
-    const [dialogIsOpenNew, setDialogIsOpenNew] = React.useState(false);
-    const [dialogIsOpenUpdate, setDialogIsOpenUpdate] = React.useState(false);
-    const [callApiNew, setCallApiNew] = React.useState(false);
-    const [callApiUpdate, setCallApiUpdate] = React.useState(false);
-
-    const agreeDialogNew = () => {
-        setDialogIsOpenNew(false);
-        setCallApiNew(!callApiNew);
-    };
-    const closeDialogNew = () => {
-        setDialogIsOpenNew(false);
-        toast.warning(t('toast-cancel-new'));
-    };
+    const [valueReadonly, setValueReadonly] = React.useState(true);
+    const [valueReadonlyCode, setValueReadonlyCode] = React.useState(true);
 
     /* #region  button new */
 
@@ -255,106 +250,35 @@ function Account({ title }) {
     const handleOnClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
-
         setValueCode('');
-        setValueCodeMain('');
-        setValueCodeSub('');
         setValueName('');
         setValueDescription('');
-        setValueGroupCost('');
-        setValueTypeCost('');
-        setValueCostCenter('');
-
+        setValueGroupID('');
         setValueReadonly(false);
         setValueReadonlyCode(false);
         setValueDisableSaveButton(false);
+        setValueDisableDeleteButton(true);
+        setValueDisableUpdateButton(true);
     };
     /* #endregion */
-
-    // TODO call api create
-    useEffect(() => {
-        const asyncApiCreateAccount = async () => {
-            setIsLoading(true);
-            const statusCode = await ApiCreateAccount(
-                access_token,
-                valueCodeMain,
-                valueCodeSub,
-                valueName,
-                valueDescription,
-                valueGroupCost,
-                valueTypeCost,
-                valueCostCenter,
-            );
-            if (statusCode) {
-                setValueCodeMain('');
-                setValueCodeSub('');
-                setValueName('');
-                setValueDescription('');
-                setValueGroupCost('');
-                setValueTypeCost('');
-                setValueCostCenter('');
-                setValueNewButton(false);
-                setValueDisableSaveButton(true);
-                setValueReadonly(true);
-                setValueReadonlyCode(true);
-            }
-        };
-        setIsLoading(false);
-        asyncApiCreateAccount();
-        setReloadListAccount(!reloadListAccount);
-    }, [callApiNew]);
-
-    const agreeDialogUpdate = () => {
-        setDialogIsOpenUpdate(false);
-        setCallApiUpdate(!callApiUpdate);
-    };
-    const closeDialogUpdate = () => {
-        setDialogIsOpenUpdate(false);
-        toast.warning(t('toast-cancel-update'));
-    };
 
     /* #region  button update */
     const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
+    const [valueDisableUpdateButton, setValueDisableUpdateButton] = React.useState(true);
     const handleOnClickUpdate = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
-        setValueReadonly(false);
         setValueReadonlyCode(true);
+        setValueReadonly(false);
         setValueDisableSaveButton(false);
+        setValueDisableDeleteButton(true);
     };
     /* #endregion */
 
-    //TODO call api update account
-    useEffect(() => {
-        const asyncApiUpdateAccount = async () => {
-            setIsLoading(true);
-            const statusCode = await ApiUpdateAccount(
-                access_token,
-                valueId,
-                valueCodeMain,
-                valueCodeSub,
-                valueName,
-                valueDescription,
-                valueGroupCost,
-                valueTypeCost,
-                valueCostCenter,
-            );
-            if (statusCode) {
-                setValueReadonly(true);
-                setValueUpdateButton(false);
-                setValueDisableSaveButton(true);
-            }
-            setIsLoading(false);
-        };
-        asyncApiUpdateAccount();
-        setReloadListAccount(!reloadListAccount);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [callApiUpdate]);
-
-    //! handle click save
+    /* #region  button save */
     const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
-    const handleClickSave = (event) => {
-        if (valueCodeMain && valueName) {
+    const handleClickSave = () => {
+        if (valueCode && valueName) {
             if (valueNewButton) {
                 setDialogIsOpenNew(true);
             }
@@ -365,156 +289,82 @@ function Account({ title }) {
             toast.error(t('account-toast-error'));
         }
     };
+    /* #endregion */
 
-    const [fileExcel, setFileExcell] = React.useState([]);
-    const handleClickChoseFile = (event) => {
-        setFileExcell(event.target.files);
+    /* #region  button delete */
+    const [valueDisableDeleteButton, setValueDisableDeleteButton] = React.useState(true);
+    const handleClickDelete = async () => {
+        setDialogIsOpenDelete(true);
     };
+    /* #endregion */
 
-    const [dialogIsOpenImportFile, setDialogIsOpenImportFile] = React.useState(false);
-    const [callApiImportFile, setCallApiImportFile] = React.useState(false);
-    const agreeDialogImportFile = async () => {
-        setDialogIsOpenImportFile(false);
-        setCallApiImportFile(!callApiImportFile);
-    };
-    const closeDialogImportFile = () => {
-        setDialogIsOpenImportFile(false);
-        toast.warning(t('toast-cancel-upload'));
-    };
-
-    //TODO call api import file excel
-    useEffect(() => {
-        const apiImportFile = async () => {
-            setIsLoading(true);
-            const statusCode = await ApiImportFileAccount(access_token, fileExcel);
-            setIsLoading(false);
-            setFileExcell([]);
-            setReloadListAccount(!reloadListAccount);
-        };
-        apiImportFile();
-    }, [callApiImportFile]);
-    const handleClickImportFile = (event) => {
-        let fileType = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
-        if (fileExcel.length === 0) {
-            toast.error(t('toast-nofile'));
-        } else {
-            if (fileExcel && fileType.includes(fileExcel[0].type)) {
-                setDialogIsOpenImportFile(true);
-            } else {
-                setFileExcell([]);
-                toast.error(t('toast-fileexcel'));
-            }
-        }
-    };
-
+    //! on key event
     OnKeyEvent(() => setReloadListAccount(!reloadListAccount), 'Enter');
     OnMultiKeyEvent(handleOnClickNew, valueNewButton ? '' : 'n');
-    OnMultiKeyEvent(handleOnClickUpdate, valueUpdateButton ? '' : 'u');
+    OnMultiKeyEvent(handleOnClickUpdate, valueDisableUpdateButton ? '' : 'u');
     OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
-    OnMultiKeyEvent(handleClickImportFile, 'f');
+    OnMultiKeyEvent(handleClickDelete, valueDisableDeleteButton ? '' : 'd');
 
     //! mobile responsive
-    const mobilefile = (
-        <Grid xs={12} md={12}>
-            <Stack
-                width={'100%'}
-                direction={'row'}
-                spacing={2}
-                alignItems={'center'}
-                justifyContent={'flex-end'}
-                sx={{ display: { xs: 'flex', md: 'none' } }}
+    const mobileResponsive = (
+        <Stack
+            direction={'row'}
+            spacing={1}
+            sx={{ display: { xs: 'flex', md: 'none' } }}
+            justifyGroupID={'space-between'}
+            marginTop={1.5}
+        >
+            <LoadingButton
+                size="small"
+                fullWidth
+                startIcon={<AddBoxIcon />}
+                variant="contained"
+                color="success"
+                onClick={handleOnClickNew}
+                loading={valueNewButton}
+                loadingPosition="start"
+                sx={{ whiteSpace: 'nowrap' }}
             >
-                <Button
-                    size="small"
-                    component="label"
-                    role={undefined}
-                    variant="outlined"
-                    tabIndex={-1}
-                    startIcon={<PostAddIcon />}
-                    sx={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                    }}
-                >
-                    {fileExcel
-                        ? fileExcel.length > 0
-                            ? fileExcel[0].name.slice(0, 25) + '...'
-                            : t('button-import')
-                        : t('button-import')}
-                    <VisuallyHiddenInput type="file" onChange={handleClickChoseFile} />
-                </Button>
-                <Button
-                    size="small"
-                    component="label"
-                    role={undefined}
-                    variant="contained"
-                    tabIndex={-1}
-                    startIcon={<CloudUploadIcon />}
-                    onClick={handleClickImportFile}
-                    sx={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                    }}
-                >
-                    {t('button-upload')}
-                </Button>
-            </Stack>
-        </Grid>
-    );
-
-    const mobilebutton = (
-        <Grid xs={12} md={12}>
-            <Stack
-                direction={'row'}
-                spacing={1}
-                justifyContent={'space-between'}
-                sx={{ display: { xs: 'flex', md: 'none' } }}
-                paddingBottom={2}
+                {t('button-new')}
+            </LoadingButton>
+            <LoadingButton
+                size="small"
+                fullWidth
+                startIcon={<SystemUpdateAltIcon />}
+                variant="contained"
+                color="warning"
+                onClick={handleOnClickUpdate}
+                loading={valueUpdateButton}
+                loadingPosition="start"
+                sx={{ whiteSpace: 'nowrap' }}
+                disabled={valueDisableUpdateButton}
             >
-                <LoadingButton
-                    size="small"
-                    fullWidth
-                    startIcon={<AddBoxIcon />}
-                    variant="contained"
-                    color="success"
-                    onClick={handleOnClickNew}
-                    loading={valueNewButton}
-                    loadingPosition="start"
-                    sx={{ whiteSpace: 'nowrap' }}
-                >
-                    {t('button-new')}
-                </LoadingButton>
-
-                <LoadingButton
-                    size="small"
-                    fullWidth
-                    startIcon={<SystemUpdateAltIcon />}
-                    variant="contained"
-                    color="warning"
-                    onClick={handleOnClickUpdate}
-                    loading={valueUpdateButton}
-                    loadingPosition="start"
-                    sx={{ whiteSpace: 'nowrap' }}
-                >
-                    {t('button-update')}
-                </LoadingButton>
-                <LoadingButton
-                    size="small"
-                    fullWidth
-                    startIcon={<SaveIcon />}
-                    variant="contained"
-                    color="primary"
-                    onClick={handleClickSave}
-                    disabled={valueDisableSaveButton}
-                >
-                    {t('button-save')}
-                </LoadingButton>
-            </Stack>
-        </Grid>
+                {t('button-update')}
+            </LoadingButton>
+            <LoadingButton
+                size="small"
+                fullWidth
+                startIcon={<SaveIcon />}
+                variant="contained"
+                color="primary"
+                onClick={handleClickSave}
+                disabled={valueDisableSaveButton}
+            >
+                {t('button-save')}
+            </LoadingButton>
+            <LoadingButton
+                size="small"
+                fullWidth
+                startIcon={<GridDeleteIcon />}
+                variant="contained"
+                color="error"
+                onClick={handleClickDelete}
+                disabled={valueDisableDeleteButton}
+            >
+                {t('button-delete')}
+            </LoadingButton>
+        </Stack>
     );
-
     return (
         <Spin size="large" tip={t('loading')} spinning={isLoading}>
             <div className="main">
@@ -524,11 +374,10 @@ function Account({ title }) {
                         title={t('account-toast-new')}
                         content={
                             <>
-                                {t('account-maincode')}: {valueCodeMain}
-                                <br /> {t('account-subcode')}: {valueCodeSub}
-                                <br /> {t('account-name')}: {valueName}
-                                <br />
-                                {t('description')}: {valueDescription}
+                                {t('code')}: {valueCode}
+                                <br /> {t('name')}: {valueName}
+                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueTypeName}`}
+                                <br /> {t('description')}:{valueDescription}
                             </>
                         }
                         onOpen={dialogIsOpenNew}
@@ -536,17 +385,15 @@ function Account({ title }) {
                         onAgree={agreeDialogNew}
                     />
                 )}
-
                 {dialogIsOpenUpdate && (
                     <AlertDialog
                         title={t('account-toast-update')}
                         content={
                             <>
-                                {t('account-maincode')}: {valueCodeMain}
-                                <br /> {t('account-subcode')}: {valueCodeSub}
-                                <br /> {t('account-name')}: {valueName}
-                                <br />
-                                {t('description')}: {valueDescription}
+                                {t('code')}: {valueCode}
+                                <br /> {t('name')}: {valueName}
+                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueTypeName}`}
+                                <br /> {t('description')}:{valueDescription}
                             </>
                         }
                         onOpen={dialogIsOpenUpdate}
@@ -554,27 +401,22 @@ function Account({ title }) {
                         onAgree={agreeDialogUpdate}
                     />
                 )}
-
-                {dialogIsOpenImportFile && (
+                {dialogIsOpenDelete && (
                     <AlertDialog
-                        title={t('account-toast-upload')}
-                        content={<>File: {fileExcel ? fileExcel[0].name : ''}</>}
-                        onOpen={dialogIsOpenImportFile}
-                        onClose={closeDialogImportFile}
-                        onAgree={agreeDialogImportFile}
+                        title={t('account-toast-delete')}
+                        content={
+                            <>
+                                {t('code')}: {valueCode}
+                                <br /> {t('name')}: {valueName}
+                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueTypeName}`}
+                                <br /> {t('description')}:{valueDescription}
+                            </>
+                        }
+                        onOpen={dialogIsOpenDelete}
+                        onClose={closeDialogDelete}
+                        onAgree={agreeDialogDelete}
                     />
                 )}
-
-                <div role="presentation">
-                    <Breadcrumbs aria-label="breadcrumb">
-                        <Link
-                            underline="hover"
-                            color="inherit"
-                            href="/material-ui/getting-started/installation/"
-                        ></Link>
-                        <Typography color="text.primary">{t(title)}</Typography>
-                    </Breadcrumbs>
-                </div>
                 <Box
                     sx={{
                         flexGrow: 1,
@@ -583,26 +425,27 @@ function Account({ title }) {
                         },
                     }}
                 >
-                    <Grid container spacing={1}>
+                    <Grid container direction={'row'} spacing={1}>
                         <Grid xs={12} md={6}>
                             <Item>
                                 <Stack direction="row" spacing={2}>
                                     <TextField
-                                        id="search"
+                                        id="outlined-basic"
                                         variant="outlined"
                                         fullWidth
                                         label={t('button-search')}
                                         size="small"
+                                        // type="number"
                                         value={valueSearch}
-                                        onChange={(event) => handleOnChangeValueSearch(event)}
+                                        onChange={(event) => setValueSearch(event.target.value)}
                                     />
                                     <div>
                                         <LoadingButton
                                             startIcon={<SearchIcon />}
                                             variant="contained"
                                             color="warning"
-                                            onClick={() => setReloadListAccount(!reloadListAccount)}
                                             sx={{ whiteSpace: 'nowrap' }}
+                                            onClick={() => handleSearch()}
                                         >
                                             {t('button-search')}
                                         </LoadingButton>
@@ -613,11 +456,14 @@ function Account({ title }) {
                         <Grid xs={12} md={12}>
                             <Item>
                                 <Stack spacing={0}>
-                                    <h5 style={{ textAlign: 'left', fontWeight: 'bold' }}>{t('account-title-list')}</h5>
+                                    <h5 style={{ textAlign: 'left', fontWeight: 'bold' }}>
+                                        {t('account-title-list')}
+                                    </h5>
                                     <div style={{ width: '100%' }}>
                                         <DataGrid
                                             rows={dataList}
                                             columns={columns}
+                                            getRowId={(row) => row.AccountId}
                                             initialState={{
                                                 pagination: {
                                                     paginationModel: { page: 0, pageSize: 5 },
@@ -627,9 +473,25 @@ function Account({ title }) {
                                             autoHeight
                                             showCellVerticalBorder
                                             showColumnVerticalBorder
-                                            getRowId={(row) => row.account_code}
                                             loading={isLoading}
                                             onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
+                                            // checkboxSelection
+                                            slotProps={{
+                                                pagination: {
+                                                    sx: {
+                                                        "& .MuiTablePagination-selectLabel": {
+                                                            marginBottom: 0, // align label vertically
+                                                        },
+                                                        "& .MuiTablePagination-displayedRows": {
+                                                            marginBottom: 0, // align displayed rows text
+                                                        },
+                                                        "& .MuiTablePagination-select": {
+                                                            paddingTop: "8px",
+                                                            paddingBottom: "8px",
+                                                        },
+                                                    },
+                                                },
+                                            }}
                                         />
                                     </div>
                                 </Stack>
@@ -637,223 +499,99 @@ function Account({ title }) {
                         </Grid>
                         <Grid xs={12} md={12}>
                             <Item>
-                                <Grid container spacing={1}>
-                                    {mobilefile}
-                                    <Grid xs={12} md={12}>
-                                        <Stack
-                                            width={'100%'}
-                                            direction={'row'}
-                                            spacing={2}
-                                            alignItems={'center'}
-                                            justifyContent={'flex-end'}
-                                            height={50}
+                                <Stack direction={'row'} spacing={2} alignItems={'center'}>
+                                    <Stack
+                                        width={'100%'}
+                                        direction={'row'}
+                                        spacing={2}
+                                        alignItems={'center'}
+                                        justifyGroupID={'flex-end'}
+                                        height={50}
+                                    >
+                                        <h5
+                                            style={{
+                                                fontWeight: 'bold',
+                                                textAlign: 'left',
+                                                width: '100%',
+                                            }}
                                         >
-                                            <h5
-                                                style={{
-                                                    fontWeight: 'bold',
-                                                    textAlign: 'left',
-                                                    width: '100%',
-                                                }}
-                                            >
-                                                {t('account-title-infor')}
-                                            </h5>
-
-                                            <Stack
-                                                width={'100%'}
-                                                direction={'row'}
-                                                spacing={1}
-                                                alignItems={'center'}
-                                                sx={{ display: { xs: 'none', md: 'flex' } }}
-                                            >
-                                                <Button
-                                                    component="label"
-                                                    role={undefined}
-                                                    variant="outlined"
-                                                    tabIndex={-1}
-                                                    startIcon={<PostAddIcon />}
-                                                    sx={{
-                                                        width: 300,
-                                                        whiteSpace: 'nowrap',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                    }}
-                                                >
-                                                    {fileExcel
-                                                        ? fileExcel.length > 0
-                                                            ? fileExcel[0].name.slice(0, 25) + '...'
-                                                            : t('button-import')
-                                                        : t('button-import')}
-                                                    <VisuallyHiddenInput type="file" onChange={handleClickChoseFile} />
-                                                </Button>
-                                                <Button
-                                                    component="label"
-                                                    role={undefined}
-                                                    variant="contained"
-                                                    tabIndex={-1}
-                                                    startIcon={<CloudUploadIcon />}
-                                                    onClick={handleClickImportFile}
-                                                    sx={{
-                                                        whiteSpace: 'nowrap',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                    }}
-                                                >
-                                                    {t('button-upload')}
-                                                    {/* Upload&nbsp;
-                                                    <u>f</u>
-                                                    ile */}
-                                                </Button>
-                                                <LoadingButton
-                                                    startIcon={<AddBoxIcon />}
-                                                    variant="contained"
-                                                    color="success"
-                                                    onClick={handleOnClickNew}
-                                                    loading={valueNewButton}
-                                                    loadingPosition="start"
-                                                    sx={{ whiteSpace: 'nowrap' }}
-                                                >
-                                                    {t('button-new')}
-                                                </LoadingButton>
-
-                                                <LoadingButton
-                                                    startIcon={<SystemUpdateAltIcon />}
-                                                    variant="contained"
-                                                    color="warning"
-                                                    onClick={handleOnClickUpdate}
-                                                    loading={valueUpdateButton}
-                                                    loadingPosition="start"
-                                                    sx={{ whiteSpace: 'nowrap' }}
-                                                >
-                                                    {t('button-update')}
-                                                </LoadingButton>
-                                                <LoadingButton
-                                                    startIcon={<SaveIcon />}
-                                                    variant="contained"
-                                                    color="primary"
-                                                    onClick={handleClickSave}
-                                                    disabled={valueDisableSaveButton}
-                                                >
-                                                    {t('button-save')}
-                                                </LoadingButton>
-                                            </Stack>
-                                        </Stack>
-                                    </Grid>
-
-                                    <Grid container xs={12} md={12} spacing={2}>
-                                        <Grid xs={12} md={12}>
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">{t('account-code')}</div>
-
-                                                <Input
-                                                    variant="borderless"
-                                                    size="large"
-                                                    value={valueCode}
-                                                    placeholder="xxxxx xxx"
-                                                    readOnly
-                                                />
-                                                {/* <TextField
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    size="small"
-                                                    type="text"
-                                                    value={valueCode}
-                                                    placeholder="xxxxx xxx"
-                                                    disabled
-                                                /> */}
-                                            </Stack>
-                                        </Grid>
-
-                                        <Grid xs={12} md={12}>
+                                            {t('account-title-infor')}
+                                        </h5>
+                                    </Stack>
+                                    <Stack direction={'row'} spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
+                                        <LoadingButton
+                                            startIcon={<AddBoxIcon />}
+                                            variant="contained"
+                                            color="success"
+                                            onClick={handleOnClickNew}
+                                            loading={valueNewButton}
+                                            loadingPosition="start"
+                                            sx={{ whiteSpace: 'nowrap' }}
+                                        >
+                                            {t('button-new')}
+                                        </LoadingButton>
+                                        <LoadingButton
+                                            startIcon={<SystemUpdateAltIcon />}
+                                            variant="contained"
+                                            color="warning"
+                                            onClick={handleOnClickUpdate}
+                                            loading={valueUpdateButton}
+                                            loadingPosition="start"
+                                            sx={{ whiteSpace: 'nowrap' }}
+                                            disabled={valueDisableUpdateButton}
+                                        >
+                                            {t('button-update')}
+                                        </LoadingButton>
+                                        <LoadingButton
+                                            startIcon={<SaveIcon />}
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={handleClickSave}
+                                            disabled={valueDisableSaveButton}
+                                        >
+                                            {t('button-save')}
+                                        </LoadingButton>
+                                        <LoadingButton
+                                            startIcon={<SaveIcon />}
+                                            variant="contained"
+                                            color="error"
+                                            onClick={handleClickDelete}
+                                            disabled={valueDisableDeleteButton}
+                                        >
+                                            {t('button-delete')}
+                                        </LoadingButton>
+                                    </Stack>
+                                </Stack>
+                                <Grid xs={12} md={12}>
+                                    <Item>
+                                        <Stack spacing={3}>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <div>{t('account-maincode')}</div>
+                                                    <div>{t('code')}</div>
                                                 </div>
                                                 <Input
                                                     variant="outlined"
+                                                    type="text"
                                                     size="large"
-                                                    type="number"
-                                                    status={!valueCodeMain ? 'error' : ''}
+                                                    status={!valueCode ? 'error' : ''}
                                                     count={{
                                                         show: !valueReadonlyCode,
                                                         max: 5,
                                                         // strategy: (txt) => txt.length,
                                                         // exceedFormatter: (txt, { max }) => txt.slice(0, max),
                                                     }}
-                                                    disabled={valueReadonlyCode}
-                                                    placeholder="xxxxx"
-                                                    value={valueCodeMain}
+                                                    value={valueCode}
                                                     onChange={(event) =>
-                                                        event.target.value.length <= 5 &&
-                                                        handleOnChangeValueCodeMain(event)
+                                                        event.target.value.length <= 5 && handleOnChangeValueCode(event)
                                                     }
-                                                />
-                                                {/* <TextField
-                                                    id="field-code-main"
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    size="small"
-                                                    type="number"
-                                                    value={valueCodeMain}
-                                                    onChange={(event) => handleOnChangeValueCodeMain(event)}
                                                     placeholder="xxxxx"
                                                     disabled={valueReadonlyCode}
-                                                    onInput={(e) => {
-                                                        e.target.value = Math.max(0, parseInt(e.target.value))
-                                                            .toString()
-                                                            .slice(0, 5);
-                                                    }}
-                                                    min={0}
-                                                /> */}
-                                            </Stack>
-                                        </Grid>
-                                        <Grid xs={12} md={12}>
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('account-subcode')}</div>
-                                                </div>
-                                                <Input
-                                                    variant="outlined"
-                                                    size="large"
-                                                    type="number"
-                                                    //status={!valueCodeSub ? 'error' : ''}
-                                                    count={{
-                                                        show: !valueReadonlyCode,
-                                                        max: 3,
-                                                        // strategy: (txt) => txt.length,
-                                                        // exceedFormatter: (txt, { max }) => txt.slice(0, max),
-                                                    }}
-                                                    value={valueCodeSub}
-                                                    onChange={(event) =>
-                                                        event.target.value.length <= 3 &&
-                                                        handleOnChangeValueCodeSub(event)
-                                                    }
-                                                    placeholder="xxx"
-                                                    disabled={valueReadonlyCode}
+                                                    style={{ color: '#000' }}
                                                 />
-                                                {/* <TextField
-                                                    id="field-code-sub"
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    size="small"
-                                                    type="number"
-                                                    value={valueCodeSub}
-                                                    onChange={(event) => handleOnChangeValueCodeSub(event)}
-                                                    placeholder="xxx"
-                                                    disabled={valueReadonlyCode}
-                                                    onInput={(e) => {
-                                                        e.target.value = Math.max(0, parseInt(e.target.value))
-                                                            .toString()
-                                                            .slice(0, 3);
-                                                    }}
-                                                    min={0}
-                                                /> */}
                                             </Stack>
-                                        </Grid>
-
-                                        <Grid xs={12} md={12}>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <div>{t('account-name')}</div>
+                                                    <div>{t('name')}</div>
                                                 </div>
                                                 <Input
                                                     variant="outlined"
@@ -863,117 +601,52 @@ function Account({ title }) {
                                                     onChange={(event) => handleOnChangeValueName(event)}
                                                     placeholder="name..."
                                                     disabled={valueReadonly}
+                                                    style={{ color: '#000' }}
                                                 />
-                                                {/* <TextField
-                                                    id="field-name"
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    size="medium"
-                                                    type="text"
-                                                    value={valueName}
-                                                    onChange={(event) => handleOnChangeValueName(event)}
-                                                    placeholder="name..."
-                                                    disabled={valueReadonly}
-                                                /> */}
                                             </Stack>
-                                        </Grid>
-                                        <Grid xs={12} md={12}>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <p>{t('description')}</p>
+                                                    <div>{t('memo-type')}</div>
+                                                </div>
+                                                <Select
+                                                    autoFocus
+                                                    size="small"
+                                                    fullWidth
+                                                    style={{ textAlign: 'left' }}
+                                                    value={valueGroupID}
+                                                    onChange={handleOnChangeValueGroupID}
+                                                    disabled={valueReadonly}
+                                                >
+                                                    {_.isArray(listExpenseGroup) &&
+                                                        listExpenseGroup.map((data) => {
+                                                            return (
+                                                                <MenuItem style={{ textAlign: 'left' }} key={data.GroupId} value={data.GroupId}>
+                                                                    {`[${data.GroupId}] - ${data.GroupName_EN}`}
+                                                                </MenuItem>
+                                                            );
+                                                        })}
+                                                </Select>
+                                            </Stack>
+                                            <Stack direction={'row'} spacing={2}>
+                                                <div className="form-title">
+                                                    <div>{t('description')}</div>
                                                 </div>
                                                 <Input.TextArea
                                                     size="large"
+                                                    status={!valueDescription ? 'error' : ''}
                                                     maxLength={250}
                                                     value={valueDescription}
                                                     onChange={(event) => handleOnChangeValueDescription(event)}
                                                     rows={2}
                                                     placeholder="..."
                                                     disabled={valueReadonly}
+                                                    style={{ color: '#000' }}
                                                 />
                                             </Stack>
-                                        </Grid>
-                                        <Grid xs={12} md={12}>
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('cost-center')}</div>
-                                                </div>
-
-                                                <Select
-                                                    labelId="demo-simple-select-helper-label"
-                                                    id="group-cost"
-                                                    value={valueCostCenter}
-                                                    displayEmpty
-                                                    fullWidth
-                                                    onChange={(event) => setValueCostCenter(event.target.value)}
-                                                    // sx={{ width: 250 }}
-                                                    disabled={valueReadonly}
-                                                    size="small"
-                                                >
-                                                    {dataCostCenter.map((data) => {
-                                                        return (
-                                                            <MenuItem key={data.code} value={data.code}>
-                                                                {data.name}
-                                                            </MenuItem>
-                                                        );
-                                                    })}
-                                                </Select>
-                                            </Stack>
-                                        </Grid>
-                                        <Grid xs={12} md={12}>
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('account-expensegroup')}</div>
-                                                </div>
-
-                                                <Select
-                                                    labelId="demo-simple-select-helper-label"
-                                                    id="group-cost"
-                                                    value={valueGroupCost}
-                                                    displayEmpty
-                                                    fullWidth
-                                                    onChange={handleChangeGroupCost}
-                                                    // sx={{ width: 250 }}
-                                                    disabled={valueReadonly}
-                                                    size="small"
-                                                >
-                                                    {dataGroupCost.map((data) => {
-                                                        return (
-                                                            <MenuItem key={data.gr_expense_ids} value={data.code}>
-                                                                {data.name}
-                                                            </MenuItem>
-                                                        );
-                                                    })}
-                                                </Select>
-                                            </Stack>
-                                        </Grid>
-                                        <Grid xs={12} md={12} paddingBottom={4}>
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('account-expense')}</div>
-                                                </div>
-                                                <Select
-                                                    labelId="demo-simple-select-helper-label"
-                                                    size="small"
-                                                    fullWidth
-                                                    value={valueTypeCost}
-                                                    displayEmpty
-                                                    onChange={handleChangeTypeCost}
-                                                    disabled={valueReadonly}
-                                                >
-                                                    {dataTypeCostFilter.map((data) => {
-                                                        return (
-                                                            <MenuItem key={data.type_expense_id} value={data.code}>
-                                                                {data.name}
-                                                            </MenuItem>
-                                                        );
-                                                    })}
-                                                </Select>
-                                            </Stack>
-                                        </Grid>
-                                    </Grid>
-                                    {mobilebutton}
+                                        </Stack>
+                                    </Item>
                                 </Grid>
+                                {mobileResponsive}
                             </Item>
                         </Grid>
                     </Grid>

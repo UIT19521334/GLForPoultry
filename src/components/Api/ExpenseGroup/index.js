@@ -2,13 +2,13 @@ import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
 import _ from 'lodash';
 
-export async function ApiListAccount(valueSearch, setDataList) {
+export async function ApiListExpenseGroup(valueSearch, setDataList) {
     try {
-        const response = await DomainPoultry.get(`master/account`);
+        const response = await DomainPoultry.get(`master/expense-group`);
         const data = await response.data?.Response ?? [];
         let filteredData = data;
         if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["AccountName", "AccountId", "Description"];
+            const fieldsToSearch = ["GroupId", "GroupName_EN", "Description"];
             filteredData = _.filter(data, (item) => {
                 const search = _.toLower(valueSearch);
                 return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
@@ -22,7 +22,7 @@ export async function ApiListAccount(valueSearch, setDataList) {
     }
 }
 
-export async function ApiCreateAccount(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
+export async function ApiCreateExpenseGroup(valueCode, valueName, valueDescription) {
     if (valueCode && valueName) {
         try {
             var statusCode = false;
@@ -30,23 +30,18 @@ export async function ApiCreateAccount(valueCode, valueName, valueTypeID, valueT
                 // Authorization: access_token,
             };
             const body = {
-                GroupName_EN: valueTypeName,
-                GroupName_VN: valueTypeName,
-                AccountId: valueCode,
-                AccountName: valueName,
-                Description: valueDescription,
+                GroupId: valueCode,
+                GroupName_EN: valueName,
+                GroupName_VN: valueName,
                 Active: true,
                 Username: localStorage.getItem('UserName'),
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
-                RegionId: null,
-                IsShow: false,
-                GroupId: valueTypeID,
+                Description: valueDescription,
             };
 
-
             await DomainPoultry.post(
-                `master/account`,
+                `master/expense-group`,
                 body
             );
 
@@ -65,23 +60,22 @@ export async function ApiCreateAccount(valueCode, valueName, valueTypeID, valueT
     }
 }
 
-export async function ApiUpdateAccount(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
+export async function ApiUpdateExpenseGroup(valueCode, valueName, valueDescription) {
     if (valueCode && valueName) {
         try {
             var statusCode = false;
             const body = {
-                SubTypeName: valueTypeName,
-                AccountSubId: valueCode,
-                AccountSubName: valueName,
+                GroupId: valueCode,
+                GroupName_EN: valueName,
+                GroupName_VN: valueName,
                 Active: true,
                 Username: localStorage.getItem('UserName'),
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 Description: valueDescription,
-                TypeId: valueTypeID
             };
             await DomainPoultry.put(
-                `master/account/${valueCode}`,
+                `master/expense-group/${valueCode}`,
                 body
             );
             toast.success(' Success update expense!');
@@ -99,11 +93,11 @@ export async function ApiUpdateAccount(valueCode, valueName, valueTypeID, valueT
     }
 }
 
-export async function ApiDeleteAccount(valueCode) {
+export async function ApiDeleteExpenseGroup(valueCode) {
     if (valueCode) {
         try {
             var statusCode = false;
-            await DomainPoultry.delete(`master/account/${valueCode}`);
+            await DomainPoultry.delete(`master/expense-group/${valueCode}`);
             toast.success(' Success delete expense !');
             statusCode = true;
         } catch (error) {

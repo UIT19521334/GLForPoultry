@@ -2,13 +2,13 @@ import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
 import _ from 'lodash';
 
-export async function ApiListAccount(valueSearch, setDataList) {
+export async function ApiListExpense(valueSearch, setDataList) {
     try {
-        const response = await DomainPoultry.get(`master/account`);
+        const response = await DomainPoultry.get(`master/expense`);
         const data = await response.data?.Response ?? [];
         let filteredData = data;
         if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["AccountName", "AccountId", "Description"];
+            const fieldsToSearch = ["ExpenseName", "ExpenseId", "GroupId", "GroupName_VN", "Description"];
             filteredData = _.filter(data, (item) => {
                 const search = _.toLower(valueSearch);
                 return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
@@ -22,18 +22,19 @@ export async function ApiListAccount(valueSearch, setDataList) {
     }
 }
 
-export async function ApiCreateAccount(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
+export async function ApiCreateExpense(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
     if (valueCode && valueName) {
         try {
             var statusCode = false;
             const header = {
                 // Authorization: access_token,
             };
+
             const body = {
                 GroupName_EN: valueTypeName,
                 GroupName_VN: valueTypeName,
-                AccountId: valueCode,
-                AccountName: valueName,
+                ExpenseId: valueCode,
+                ExpenseName: valueName,
                 Description: valueDescription,
                 Active: true,
                 Username: localStorage.getItem('UserName'),
@@ -44,9 +45,10 @@ export async function ApiCreateAccount(valueCode, valueName, valueTypeID, valueT
                 GroupId: valueTypeID,
             };
 
+            console.log("body", body)
 
             await DomainPoultry.post(
-                `master/account`,
+                `master/expense`,
                 body
             );
 
@@ -65,23 +67,26 @@ export async function ApiCreateAccount(valueCode, valueName, valueTypeID, valueT
     }
 }
 
-export async function ApiUpdateAccount(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
+export async function ApiUpdateExpense(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
     if (valueCode && valueName) {
         try {
             var statusCode = false;
             const body = {
-                SubTypeName: valueTypeName,
-                AccountSubId: valueCode,
-                AccountSubName: valueName,
+                GroupName_EN: valueTypeName,
+                GroupName_VN: valueTypeName,
+                ExpenseId: valueCode,
+                ExpenseName: valueName,
+                Description: valueDescription,
                 Active: true,
                 Username: localStorage.getItem('UserName'),
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
-                Description: valueDescription,
-                TypeId: valueTypeID
+                RegionId: null,
+                IsShow: false,
+                GroupId: valueTypeID,
             };
             await DomainPoultry.put(
-                `master/account/${valueCode}`,
+                `master/expense/${valueCode}`,
                 body
             );
             toast.success(' Success update expense!');
@@ -99,11 +104,11 @@ export async function ApiUpdateAccount(valueCode, valueName, valueTypeID, valueT
     }
 }
 
-export async function ApiDeleteAccount(valueCode) {
+export async function ApiDeleteExpense(valueCode) {
     if (valueCode) {
         try {
             var statusCode = false;
-            await DomainPoultry.delete(`master/account/${valueCode}`);
+            await DomainPoultry.delete(`master/expense/${valueCode}`);
             toast.success(' Success delete expense !');
             statusCode = true;
         } catch (error) {

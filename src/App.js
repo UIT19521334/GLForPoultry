@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { publicRoutes } from '~/Routes';
 import { DefaultLayout } from './components/Layout';
-import { AuthenticatedTemplate, UnauthenticatedTemplate, MsalProvider, useMsal } from '@azure/msal-react';
+import { AuthenticatedTemplate, UnauthenticatedTemplate, MsalProvider } from '@azure/msal-react';
 import Login from './Pages/Login';
 import '~/AppStyles.css';
 import CallApiMaster from './CallApiMaster';
@@ -18,11 +18,11 @@ import '@boldreports/javascript-reporting-controls/Scripts/data-visualization/ej
 import '@boldreports/react-reporting-components/Scripts/bold.reports.react.min';
 import ApiToken from './components/Api/ApiToken';
 import LoginError from './Pages/Login/loginError';
+import { RemoveAsteriskRedirect } from './Routes/RemoveAsteriskRedirect';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { I18nextProvider } from 'react-i18next';
 import i18next from 'i18next';
 import './TranslationLanguage/i18n.js';
-import { Spin } from 'antd';
 
 const WrapperView = () => {
     CallApiMaster();
@@ -39,6 +39,7 @@ const WrapperView = () => {
     return (
         <ThemeProvider theme={darkTheme}>
             <Router>
+                <RemoveAsteriskRedirect />
                 <div className="App">
                     <UnauthenticatedTemplate>
                         <Routes>

@@ -56,6 +56,12 @@ export const fetchApiListAccountGroup = createAsyncThunk('master/fetchApiListAcc
     return data.Response;
 });
 
+export const fetchApiListExpenseGroup = createAsyncThunk('master/fetchApiListExpenseGroup', async () => {
+    const response = await DomainPoultry.get(`master/expense-group`);
+    const data = await response.data;
+    return data.Response;
+});
+
 export const fetchApiListSubAccountType = createAsyncThunk('master/fetchApiListSubAccountType', async (valueSearch) => {
     const response = await DomainPoultry.get(`master/sub-account-type`);
     const data = await response.data?.Response ?? [];

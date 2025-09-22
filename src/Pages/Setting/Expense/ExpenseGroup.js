@@ -16,7 +16,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SearchIcon from '@mui/icons-material/Search';
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
-import { ApiCreateSubAccountType, ApiDeleteSubAccountType, ApiUpdateSubAccountType } from '~/components/Api/SubAccountType';
+import { ApiCreateExpenseGroup, ApiDeleteExpenseGroup, ApiListExpenseGroup, ApiUpdateExpenseGroup } from '~/components/Api/ExpenseGroup';
 import SaveIcon from '@mui/icons-material/Save';
 import '../../../Container.css';
 import TextField from '@mui/material/TextField';
@@ -25,8 +25,6 @@ import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchApiListSubAccountType } from '~/Redux/FetchApi/fetchApiMaster';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -37,26 +35,23 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-function SubAccountType({ title }) {
+function ExpenseGroupGroup({ title }) {
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = React.useState(false);
     const [reloadListAccGroup, setReloadListAccGroup] = React.useState(false);
     const [dataList, setDataList] = useState([]);
-    const listSubAccountType = useSelector((state) => state.FetchApi.listData_SubAccountType);
-    const isGlobalLoading = useSelector((state) => state.FetchApi.isLoading);
-    const dispatch = useDispatch();
     //! columns header
     const columns = [
         {
-            field: 'SubTypeId',
+            field: 'GroupId',
             headerName: t('code'),
             minWidth: 150,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'SubTypeName',
+            field: 'GroupName_EN',
             headerName: t('name'),
-            minWidth: 300,
+            minWidth: 200,
             headerClassName: 'super-app-theme--header',
         },
         {
@@ -71,33 +66,19 @@ function SubAccountType({ title }) {
     // TODO call api get data account group
     useEffect(() => {
         const fetchApiGetDataAccGroup = async () => {
-            // setIsLoading(true);
-            // await ApiListSubAccountType(valueSearch, setDataList);
-            // setIsLoading(false);
-            dispatch(fetchApiListSubAccountType());
+            setIsLoading(true);
+            await ApiListExpenseGroup(valueSearch, setDataList);
+            setIsLoading(false);
         };
         fetchApiGetDataAccGroup();
     }, [reloadListAccGroup]);
-
-    useEffect(() => {
-        let filteredData = listSubAccountType;
-        if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["SubTypeId", "SubTypeName", "Description"];
-            filteredData = _.filter(dataList, (item) => {
-                const search = _.toLower(valueSearch);
-                return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
-            });
-        }
-        setDataList(filteredData);
-    }, [listSubAccountType]);
 
     // Handle search
     const [valueSearch, setValueSearch] = React.useState('');
     const handleSearch = () => {
         let filteredData = dataList;
         if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["SubTypeId", "SubTypeName", "Description"];
-
+            const fieldsToSearch = ["GroupId", "GroupName_EN", "Description"];
             filteredData = _.filter(dataList, (item) => {
                 const search = _.toLower(valueSearch);
                 return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
@@ -112,12 +93,12 @@ function SubAccountType({ title }) {
 
     //! select row in datagrid
     const onRowsSelectionHandler = (ids) => {
-        const selectedRowsData = ids.map((id) => dataList.find((row) => row.SubTypeId === id));
+        const selectedRowsData = ids.map((id) => dataList.find((row) => row.GroupId === id));
         if (selectedRowsData) {
             {
                 selectedRowsData.map((key) => {
-                    setValueCode(key.SubTypeId ?? "XXXX");
-                    setValueName(key.SubTypeName ?? '');
+                    setValueCode(key.GroupId ?? "XXXXX");
+                    setValueName(key.GroupName_EN ?? '');
                     setValueDescription(key.Description ?? '');
                 });
                 setValueReadonly(true);
@@ -138,16 +119,16 @@ function SubAccountType({ title }) {
     const [dialogIsOpenDelete, setDialogIsOpenDelete] = React.useState(false);
     const agreeDialogNew = () => {
         setDialogIsOpenNew(false);
-        asyncApiCreateSubAccountType();
+        asyncApiCreateExpenseGroup();
     };
     const closeDialogNew = () => {
         setDialogIsOpenNew(false);
         toast.warning(t('toast-cancel-new'));
     };
 
-    const asyncApiCreateSubAccountType = async () => {
+    const asyncApiCreateExpenseGroup = async () => {
         setIsLoading(true);
-        const statusCode = await ApiCreateSubAccountType(valueCode, valueName, valueDescription);
+        const statusCode = await ApiCreateExpenseGroup(valueCode, valueName, valueDescription);
         if (statusCode) {
             setValueCode('');
             setValueName('');
@@ -181,16 +162,16 @@ function SubAccountType({ title }) {
     /* #region  call api update */
     const agreeDialogUpdate = () => {
         setDialogIsOpenUpdate(false);
-        asyncApiUpdateSubAccountType();
+        asyncApiUpdateExpenseGroup();
     };
     const closeDialogUpdate = () => {
         setDialogIsOpenUpdate(false);
         toast.warning(t('toast-cancel-update'));
     };
 
-    const asyncApiUpdateSubAccountType = async () => {
+    const asyncApiUpdateExpenseGroup = async () => {
         setIsLoading(true);
-        const statusCode = await ApiUpdateSubAccountType(valueCode, valueName, valueDescription);
+        const statusCode = await ApiUpdateExpenseGroup(valueCode, valueName, valueDescription);
         if (statusCode) {
             setValueReadonly(true);
             setValueUpdateButton(false);
@@ -207,16 +188,16 @@ function SubAccountType({ title }) {
     /* #region  call api delete */
     const agreeDialogDelete = () => {
         setDialogIsOpenDelete(false);
-        asyncApiDeleteSubAccountType();
+        asyncApiDeleteExpenseGroup();
     };
     const closeDialogDelete = () => {
         setDialogIsOpenDelete(false);
         toast.warning(t('toast-cancel-delete'));
     };
 
-    const asyncApiDeleteSubAccountType = async () => {
+    const asyncApiDeleteExpenseGroup = async () => {
         setIsLoading(true);
-        const statusCode = await ApiDeleteSubAccountType(valueCode);
+        const statusCode = await ApiDeleteExpenseGroup(valueCode);
         if (statusCode) {
             setValueCode('');
             setValueName('');
@@ -275,7 +256,7 @@ function SubAccountType({ title }) {
                 setDialogIsOpenUpdate(true);
             }
         } else {
-            toast.error(t('subaccount-type-toast-error'));
+            toast.error(t('expense-toast-error'));
         }
     };
     /* #endregion */
@@ -300,7 +281,7 @@ function SubAccountType({ title }) {
             direction={'row'}
             spacing={1}
             sx={{ display: { xs: 'flex', md: 'none' } }}
-            justifyTypeID={'space-between'}
+            justifyGroupID={'space-between'}
             marginTop={1.5}
         >
             <LoadingButton
@@ -360,7 +341,7 @@ function SubAccountType({ title }) {
                 <ToastContainer position='bottom-right' stacked />
                 {dialogIsOpenNew && (
                     <AlertDialog
-                        title={t('subaccount-type-toast-new')}
+                        title={t('expense-toast-new')}
                         content={
                             <>
                                 {t('code')}: {valueCode}
@@ -375,7 +356,7 @@ function SubAccountType({ title }) {
                 )}
                 {dialogIsOpenUpdate && (
                     <AlertDialog
-                        title={t('subaccount-type-toast-update')}
+                        title={t('expense-toast-update')}
                         content={
                             <>
                                 {t('code')}: {valueCode}
@@ -390,7 +371,7 @@ function SubAccountType({ title }) {
                 )}
                 {dialogIsOpenDelete && (
                     <AlertDialog
-                        title={t('subaccount-type-toast-delete')}
+                        title={t('expense-toast-delete')}
                         content={
                             <>
                                 {t('code')}: {valueCode}
@@ -403,16 +384,6 @@ function SubAccountType({ title }) {
                         onAgree={agreeDialogDelete}
                     />
                 )}
-                <div role="presentation">
-                    <Breadcrumbs aria-label="breadcrumb">
-                        <Link
-                            underline="hover"
-                            color="inherit"
-                            href="/material-ui/getting-started/installation/"
-                        ></Link>
-                        <Typography color="text.primary">{t(title)}</Typography>
-                    </Breadcrumbs>
-                </div>
                 <Box
                     sx={{
                         flexGrow: 1,
@@ -453,13 +424,13 @@ function SubAccountType({ title }) {
                             <Item>
                                 <Stack spacing={0}>
                                     <h5 style={{ textAlign: 'left', fontWeight: 'bold' }}>
-                                        {t('subaccount-type-title-list')}
+                                        {t('expense-title-list')}
                                     </h5>
                                     <div style={{ width: '100%' }}>
                                         <DataGrid
                                             rows={dataList}
                                             columns={columns}
-                                            getRowId={(row) => row.SubTypeId}
+                                            getRowId={(row) => row.GroupId}
                                             initialState={{
                                                 pagination: {
                                                     paginationModel: { page: 0, pageSize: 5 },
@@ -469,7 +440,7 @@ function SubAccountType({ title }) {
                                             autoHeight
                                             showCellVerticalBorder
                                             showColumnVerticalBorder
-                                            loading={isGlobalLoading}
+                                            loading={isLoading}
                                             onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
                                             // checkboxSelection
                                             slotProps={{
@@ -501,7 +472,7 @@ function SubAccountType({ title }) {
                                         direction={'row'}
                                         spacing={2}
                                         alignItems={'center'}
-                                        justifyTypeID={'flex-end'}
+                                        justifyGroupID={'flex-end'}
                                         height={50}
                                     >
                                         <h5
@@ -511,7 +482,7 @@ function SubAccountType({ title }) {
                                                 width: '100%',
                                             }}
                                         >
-                                            {t('subaccount-type-title-infor')}
+                                            {t('expense-title-infor')}
                                         </h5>
                                     </Stack>
                                     <Stack direction={'row'} spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
@@ -600,6 +571,7 @@ function SubAccountType({ title }) {
                                                     style={{ color: '#000' }}
                                                 />
                                             </Stack>
+
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
                                                     <div>{t('description')}</div>
@@ -629,4 +601,4 @@ function SubAccountType({ title }) {
     );
 }
 
-export default SubAccountType;
+export default ExpenseGroupGroup;
