@@ -23,48 +23,47 @@ export default function CallApiMaster() {
     var dispatch = useDispatch();
     const unitcode = useSelector((state) => state.Actions.unitcode);
 
-    useEffect(() => {
-        dispatch(fetchApiChannel(unitcode));
-    }, []);
+    // useEffect(() => {
+    //     dispatch(fetchApiChannel(unitcode));
+    // }, []);
     useEffect(() => {
         dispatch(fetchApiCurrency());
     }, []);
 
-    useEffect(() => {
-        dispatch(fetchPeriod(unitcode));
-    }, []);
+    // useEffect(() => {
+    //     dispatch(fetchPeriod(unitcode));
+    // }, []);
 
     const [callApiToken, setCallApiToken] = React.useState(false);
-    const fetchCallApiToken = () => {
-        if (activeAccount && !callApiToken) {
-            setCallApiToken(true);
-        }
-    };
-    fetchCallApiToken();
+    // const fetchCallApiToken = () => {
+    //     if (activeAccount && !callApiToken) {
+    //         setCallApiToken(true);
+    //     }
+    // };
+    // fetchCallApiToken();
     useEffect(() => {
         if (activeAccount) {
-            dispatch(fetchApiToken(activeAccount ? activeAccount.username : '')); // this will remove
+            // dispatch(fetchApiToken(activeAccount ? activeAccount.username : '')); // this will remove
             dispatch(fetchApiAuthInfo(activeAccount ? activeAccount.username : ''));
         }
     }, [callApiToken]);
 
-    useEffect(() => {
-        dispatch(fetchApiCostCenter());
-    }, []);
+    // useEffect(() => {
+    //     dispatch(fetchApiCostCenter());
+    // }, []);
     useEffect(() => {
         dispatch(fetchApiListAccountGroup());
     }, []);
     useEffect(() => {
         dispatch(fetchApiListSubAccountType());
     }, []);
-    useEffect(() => {
-        dispatch(fetchApiListAccount());
-    }, []);
-    useEffect(() => {
-        dispatch(fetchApiListUser());
-    }, []);
-    useEffect(() => {
-        dispatch(fetchApiProduct());
-    }, []);
-    // return <div>CallApiMaster</div>;
+    // useEffect(() => {
+    //     dispatch(fetchApiListAccount());
+    // }, []);
+    // useEffect(() => {
+    //     dispatch(fetchApiListUser());
+    // }, []);
+    // useEffect(() => {
+    //     dispatch(fetchApiProduct());
+    // }, []);
 }

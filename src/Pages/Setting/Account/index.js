@@ -21,10 +21,10 @@ import { OnKeyEvent } from '~/components/Event/OnKeyEvent';
 import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import _ from 'lodash';
+import _, { set } from 'lodash';
 import { MenuItem, Select } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchApiListExpenseGroup } from '~/Redux/FetchApi/fetchApiMaster';
+import { fetchApiListExpense, fetchApiListExpenseGroup, fetchApiListMethod, fetchApiListSubAccountType } from '~/Redux/FetchApi/fetchApiMaster';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -42,6 +42,10 @@ function Account() {
     const [reloadListAccount, setReloadListAccount] = React.useState(false);
     const [dataList, setDataList] = useState([]);
     const listExpenseGroup = useSelector((state) => state.FetchApi.listData_ExpenseGroup);
+    const listSubAccountType = useSelector((state) => state.FetchApi.listData_SubAccountType);
+    const listMethod = useSelector((state) => state.FetchApi.listData_Method);
+    const listExpense = useSelector((state) => state.FetchApi.listData_Expense);
+    const listUnit = useSelector((state) => state.FetchApi.userAccess.units);
 
     //! columns header
     const columns = [
@@ -55,29 +59,55 @@ function Account() {
             field: 'AccountName',
             headerName: t('name'),
             minWidth: 200,
+            flex: 1,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'ExpenseId',
-            headerName: t('memo-type'),
-
+            field: 'UnitId',
+            headerName: t('unit'),
             minWidth: 100,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'GroupName_VN',
-            headerName: t('account-group-name'),
+            field: 'ExpenseGroupName',
+            headerName: t('expense-group'),
             minWidth: 200,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'Description',
-            headerName: t('description'),
-            minWidth: 300,
+            field: 'ExpenseName',
+            headerName: t('expense'),
+            minWidth: 100,
+            headerClassName: 'super-app-theme--header',
+        },
+        {
+            field: 'MethodId',
+            headerName: t('method'),
+            minWidth: 200,
+            headerClassName: 'super-app-theme--header',
+        },
+        {
+            field: 'AccountSubTypeName',
+            headerName: t('menu-sub-acc-type'),
+            minWidth: 200,
             flex: 1,
             headerClassName: 'super-app-theme--header',
         }
     ];
+
+    const [valueAccountId, setValueAccountId] = React.useState('');
+    const [valueAccountName, setValueAccountName] = React.useState('');
+    const [valueUnitId, setValueUnitId] = React.useState('');
+    const [valueUnitName, setValueUnitName] = React.useState('');
+    const [valueExpenseGroupName, setValueExpenseGroupName] = React.useState('');
+    const [valueExpenseGroupId, setValueExpenseGroupId] = React.useState('');
+    const [valueExpenseId, setValueExpenseId] = React.useState('');
+    const [valueExpenseName, setValueExpenseName] = React.useState('');
+    const [valueMethodId, setValueMethodId] = React.useState('');
+    const [valueMethodName, setValueMethodName] = React.useState('');
+    const [valueSubAccountTypeId, setValueSubAccountTypeId] = React.useState('');
+    const [valueSubAccountTypeName, setValueSubAccountTypeName] = React.useState('');
+    const [valueDescription, setValueDescription] = React.useState('');
 
     // TODO call api get data account group
     useEffect(() => {
@@ -85,6 +115,9 @@ function Account() {
             setIsLoading(true);
             await ApiListAccount(valueSearch, setDataList);
             dispatch(fetchApiListExpenseGroup());
+            dispatch(fetchApiListExpense());
+            dispatch(fetchApiListMethod());
+            dispatch(fetchApiListSubAccountType());
             setIsLoading(false);
         };
         fetchApiGetDataAccount();
@@ -105,22 +138,19 @@ function Account() {
         setDataList(filteredData);
     }
 
-    const [valueCode, setValueCode] = React.useState('');
-    const [valueName, setValueName] = React.useState('');
-    const [valueGroupID, setValueGroupID] = React.useState('');
-    const [valueTypeName, setValueTypeName] = React.useState('');
-    const [valueDescription, setValueDescription] = React.useState('');
-
     //! select row in datagrid
     const onRowsSelectionHandler = (ids) => {
         const selectedRowsData = ids.map((id) => dataList.find((row) => row.AccountId === id));
         if (selectedRowsData) {
             {
                 selectedRowsData.map((key) => {
-                    setValueCode(key.AccountId ?? "XXXX");
-                    setValueName(key.AccountName ?? '');
-                    setValueDescription(key.Description ?? '');
-                    setValueGroupID(key.ExpenseId ?? '');
+                    setValueAccountId(key.AccountId ?? "XXXX");
+                    setValueAccountName(key.AccountName ?? '');
+                    setValueUnitId(key.UnitId ?? '');
+                    setValueExpenseGroupId(key.ExpenseGroupId ?? '');
+                    setValueExpenseId(key.ExpenseId ?? '');
+                    setValueMethodId(key.MethodId ?? '');
+                    setValueSubAccountTypeId(key.AccountSubTypeId ?? '');
                 });
                 setValueReadonly(true);
                 setValueReadonlyCode(true);
@@ -149,12 +179,35 @@ function Account() {
 
     const asyncApiCreateAccount = async () => {
         setIsLoading(true);
-        const statusCode = await ApiCreateAccount(valueCode, valueName, valueGroupID, valueTypeName, valueDescription);
+        const body = {
+            UnitName: valueUnitName,
+            ExpenseName: valueExpenseName,
+            ExpenseGroupName: valueExpenseGroupName,
+            MethodName: valueMethodName,
+            AccountSubTypeName: valueSubAccountTypeName,
+            Id: "",
+            AccountId: valueAccountId,
+            AccountName: valueAccountName,
+            Description: valueDescription,
+            Active: true,
+            Username: localStorage.getItem('UserName'),
+            CreatedAt: new Date().toISOString(),
+            UpdatedAt: new Date().toISOString(),
+            UnitId: valueUnitId,
+            ExpenseId: valueExpenseId,
+            MethodId: valueMethodId,
+            AccountSubTypeId: valueSubAccountTypeId,
+        }
+        const statusCode = await ApiCreateAccount(body);
         if (statusCode) {
-            setValueCode('');
-            setValueName('');
+            setValueAccountId('');
+            setValueAccountName('');
+            setValueUnitId('');
+            setValueExpenseGroupId('');
+            setValueExpenseId('');
+            setValueMethodId('');
+            setValueSubAccountTypeId('');
             setValueDescription('');
-            setValueGroupID('');
             setValueNewButton(false);
             setValueDisableSaveButton(true);
             setValueDisableDeleteButton(true);
@@ -170,20 +223,47 @@ function Account() {
         const inputValue = event.target.value;
         // Regex: không cho ký tự đăc biệt, chỉ cho phép chữ cái, số và khoảng trắng
         if (/^[\p{L}0-9 ]*$/u.test(inputValue)) {
-            setValueCode(inputValue);
+            setValueAccountId(inputValue);
         }
     };
     const handleOnChangeValueName = (event) => {
-        setValueName(event.target.value);
+        setValueAccountName(event.target.value);
     };
+
     const handleOnChangeValueDescription = (event) => {
         setValueDescription(event.target.value);
     };
-    const handleOnChangeValueGroupID = (e) => {
+
+    const handleOnChangeValueUnit = (e) => {
+        console.log(e.target.value);
+        const data = e.target.value && listUnit.find(item => item.UnitId === e.target.value);
+        setValueUnitId(data.UnitId);
+        setValueUnitName(data.UnitName);
+    };
+
+    const handleOnChangeValueExpenseGroupID = (e) => {
         console.log(e.target.value);
         const data = e.target.value && listExpenseGroup.find(item => item.GroupId === e.target.value);
-        setValueGroupID(data.GroupId);
-        setValueTypeName(data.GroupName_EN);
+        setValueExpenseGroupId(data.GroupId);
+        setValueExpenseGroupName(data.GroupName_EN);
+    };
+
+    const handleOnChangeValueExpenseID = (e) => {
+        console.log(e.target.value);
+        const data = e.target.value && listExpense.find(item => item.ExpenseId === e.target.value);
+        setValueExpenseId(data.ExpenseId);
+        setValueExpenseName(data.ExpenseName);
+    };
+    const handleOnChangeValueMethod = (e) => {
+        const data = e.target.value && listMethod.find(item => item.MethodId === e.target.value);
+        setValueMethodId(data.MethodId);
+        setValueMethodName(data.MethodName);
+    };
+    const handleOnChangeValueSubAccountType = (e) => {
+        console.log(e.target.value);
+        const data = e.target.value && listSubAccountType.find(item => item.SubTypeId === e.target.value);
+        setValueSubAccountTypeId(data.SubTypeId);
+        setValueSubAccountTypeName(data.SubTypeName);
     };
 
     // TODO call api update
@@ -199,7 +279,26 @@ function Account() {
 
     const asyncApiUpdateAccount = async () => {
         setIsLoading(true);
-        const statusCode = await ApiUpdateAccount(valueCode, valueName, valueGroupID, valueTypeName, valueDescription);
+        const body = {
+            UnitName: valueUnitName,
+            ExpenseName: valueExpenseName,
+            ExpenseGroupName: valueExpenseGroupName,
+            MethodName: valueMethodName,
+            AccountSubTypeName: valueSubAccountTypeName,
+            Id: "",
+            AccountId: valueAccountId,
+            AccountName: valueAccountName,
+            Description: valueDescription,
+            Active: true,
+            Username: localStorage.getItem('UserName'),
+            CreatedAt: new Date().toISOString(),
+            UpdatedAt: new Date().toISOString(),
+            UnitId: valueUnitId,
+            ExpenseId: valueExpenseId,
+            MethodId: valueMethodId,
+            AccountSubTypeId: valueSubAccountTypeId,
+        }
+        const statusCode = await ApiUpdateAccount(body);
         if (statusCode) {
             setValueReadonly(true);
             setValueUpdateButton(false);
@@ -225,12 +324,16 @@ function Account() {
 
     const asyncApiDeleteAccount = async () => {
         setIsLoading(true);
-        const statusCode = await ApiDeleteAccount(valueCode);
+        const statusCode = await ApiDeleteAccount(valueAccountId);
         if (statusCode) {
-            setValueCode('');
-            setValueName('');
+            setValueAccountId('');
+            setValueAccountName('');
+            setValueUnitId('');
+            setValueExpenseGroupId('');
+            setValueExpenseId('');
+            setValueMethodId('');
+            setValueSubAccountTypeId('');
             setValueDescription('');
-            setValueGroupID('');
             setValueReadonly(true);
             setValueDisableSaveButton(true);
             setValueDisableDeleteButton(true);
@@ -250,10 +353,14 @@ function Account() {
     const handleOnClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
-        setValueCode('');
-        setValueName('');
+        setValueAccountId('');
+        setValueAccountName('');
+        setValueUnitId('');
+        setValueExpenseGroupId('');
+        setValueExpenseId('');
+        setValueMethodId('');
+        setValueSubAccountTypeId('');
         setValueDescription('');
-        setValueGroupID('');
         setValueReadonly(false);
         setValueReadonlyCode(false);
         setValueDisableSaveButton(false);
@@ -278,7 +385,7 @@ function Account() {
     /* #region  button save */
     const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
     const handleClickSave = () => {
-        if (valueCode && valueName) {
+        if (valueAccountId && valueAccountName) {
             if (valueNewButton) {
                 setDialogIsOpenNew(true);
             }
@@ -374,10 +481,13 @@ function Account() {
                         title={t('account-toast-new')}
                         content={
                             <>
-                                {t('code')}: {valueCode}
-                                <br /> {t('name')}: {valueName}
-                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueTypeName}`}
-                                <br /> {t('description')}:{valueDescription}
+                                {t('code')}: {valueAccountId}
+                                <br /> {t('name')}: {valueAccountName}
+                                <br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
+                                <br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
+                                <br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
+                                <br /> {t('method')}:{`${valueMethodId}`}
+                                <br /> {t('menu-sub-acc-type')}:{`[${valueSubAccountTypeId}] - ${valueSubAccountTypeName}`}
                             </>
                         }
                         onOpen={dialogIsOpenNew}
@@ -390,10 +500,13 @@ function Account() {
                         title={t('account-toast-update')}
                         content={
                             <>
-                                {t('code')}: {valueCode}
-                                <br /> {t('name')}: {valueName}
-                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueTypeName}`}
-                                <br /> {t('description')}:{valueDescription}
+                                {t('code')}: {valueAccountId}
+                                <br /> {t('name')}: {valueAccountName}
+                                <br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
+                                <br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
+                                <br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
+                                <br /> {t('method')}:{`[${valueMethodId}] - ${valueMethodName}`}
+                                <br /> {t('menu-sub-acc-type')}:{`[${valueSubAccountTypeId}] - ${valueSubAccountTypeName}`}
                             </>
                         }
                         onOpen={dialogIsOpenUpdate}
@@ -406,10 +519,13 @@ function Account() {
                         title={t('account-toast-delete')}
                         content={
                             <>
-                                {t('code')}: {valueCode}
-                                <br /> {t('name')}: {valueName}
-                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueTypeName}`}
-                                <br /> {t('description')}:{valueDescription}
+                                {t('code')}: {valueAccountId}
+                                <br /> {t('name')}: {valueAccountName}
+                                <br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
+                                <br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
+                                <br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
+                                <br /> {t('method')}:{`[${valueMethodId}] - ${valueMethodName}`}
+                                <br /> {t('menu-sub-acc-type')}:{`[${valueSubAccountTypeId}] - ${valueSubAccountTypeName}`}
                             </>
                         }
                         onOpen={dialogIsOpenDelete}
@@ -573,14 +689,14 @@ function Account() {
                                                     variant="outlined"
                                                     type="text"
                                                     size="large"
-                                                    status={!valueCode ? 'error' : ''}
+                                                    status={!valueAccountId ? 'error' : ''}
                                                     count={{
                                                         show: !valueReadonlyCode,
                                                         max: 5,
                                                         // strategy: (txt) => txt.length,
                                                         // exceedFormatter: (txt, { max }) => txt.slice(0, max),
                                                     }}
-                                                    value={valueCode}
+                                                    value={valueAccountId}
                                                     onChange={(event) =>
                                                         event.target.value.length <= 5 && handleOnChangeValueCode(event)
                                                     }
@@ -596,8 +712,8 @@ function Account() {
                                                 <Input
                                                     variant="outlined"
                                                     size="large"
-                                                    status={!valueName ? 'error' : ''}
-                                                    value={valueName}
+                                                    status={!valueAccountName ? 'error' : ''}
+                                                    value={valueAccountName}
                                                     onChange={(event) => handleOnChangeValueName(event)}
                                                     placeholder="name..."
                                                     disabled={valueReadonly}
@@ -606,15 +722,38 @@ function Account() {
                                             </Stack>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <div>{t('memo-type')}</div>
+                                                    <div>{t('unit')}</div>
                                                 </div>
                                                 <Select
                                                     autoFocus
                                                     size="small"
                                                     fullWidth
                                                     style={{ textAlign: 'left' }}
-                                                    value={valueGroupID}
-                                                    onChange={handleOnChangeValueGroupID}
+                                                    value={valueUnitId}
+                                                    onChange={handleOnChangeValueUnit}
+                                                    disabled={valueReadonly}
+                                                >
+                                                    {_.isArray(listUnit) &&
+                                                        listUnit.map((data) => {
+                                                            return (
+                                                                <MenuItem style={{ textAlign: 'left' }} key={data.UnitId} value={data.UnitId}>
+                                                                    {`[${data.UnitId}] - ${data.UnitName}`}
+                                                                </MenuItem>
+                                                            );
+                                                        })}
+                                                </Select>
+                                            </Stack>
+                                            <Stack direction={'row'} spacing={2}>
+                                                <div className="form-title">
+                                                    <div>{t('expense-group')}</div>
+                                                </div>
+                                                <Select
+                                                    autoFocus
+                                                    size="small"
+                                                    fullWidth
+                                                    style={{ textAlign: 'left' }}
+                                                    value={valueExpenseGroupId}
+                                                    onChange={handleOnChangeValueExpenseGroupID}
                                                     disabled={valueReadonly}
                                                 >
                                                     {_.isArray(listExpenseGroup) &&
@@ -627,6 +766,80 @@ function Account() {
                                                         })}
                                                 </Select>
                                             </Stack>
+
+                                            <Stack direction={'row'} spacing={2}>
+                                                <div className="form-title">
+                                                    <div>{t('expense')}</div>
+                                                </div>
+                                                <Select
+                                                    autoFocus
+                                                    size="small"
+                                                    fullWidth
+                                                    style={{ textAlign: 'left' }}
+                                                    value={valueExpenseId}
+                                                    onChange={handleOnChangeValueExpenseID}
+                                                    disabled={valueReadonly}
+                                                >
+                                                    {_.isArray(listExpense) &&
+                                                        listExpense.map((data) => {
+                                                            return (
+                                                                <MenuItem style={{ textAlign: 'left' }} key={data.ExpenseId} value={data.ExpenseName}>
+                                                                    {`[${data.ExpenseId}] - ${data.ExpenseName}`}
+                                                                </MenuItem>
+                                                            );
+                                                        })}
+                                                </Select>
+                                            </Stack>
+
+                                            <Stack direction={'row'} spacing={2}>
+                                                <div className="form-title">
+                                                    <div>{t('method')}</div>
+                                                </div>
+                                                <Select
+                                                    autoFocus
+                                                    size="small"
+                                                    fullWidth
+                                                    style={{ textAlign: 'left' }}
+                                                    value={valueMethodId}
+                                                    onChange={handleOnChangeValueMethod}
+                                                    disabled={valueReadonly}
+                                                >
+                                                    {_.isArray(listMethod) &&
+                                                        listMethod.map((data) => {
+                                                            return (
+                                                                <MenuItem style={{ textAlign: 'left' }} key={data.MethodId} value={data.MethodId}>
+                                                                    {`[${data.MethodId}] - ${data.MethodName}`}
+                                                                </MenuItem>
+                                                            );
+                                                        })}
+                                                </Select>
+                                            </Stack>
+
+
+                                            <Stack direction={'row'} spacing={2}>
+                                                <div className="form-title">
+                                                    <div>{t('menu-sub-acc-type')}</div>
+                                                </div>
+                                                <Select
+                                                    autoFocus
+                                                    size="small"
+                                                    fullWidth
+                                                    style={{ textAlign: 'left' }}
+                                                    value={valueSubAccountTypeId}
+                                                    onChange={handleOnChangeValueSubAccountType}
+                                                    disabled={valueReadonly}
+                                                >
+                                                    {_.isArray(listSubAccountType) &&
+                                                        listSubAccountType.map((data) => {
+                                                            return (
+                                                                <MenuItem style={{ textAlign: 'left' }} key={data.TypeId} value={data.SubTypeId}>
+                                                                    {`[${data.SubTypeId}] - ${data.SubTypeName}`}
+                                                                </MenuItem>
+                                                            );
+                                                        })}
+                                                </Select>
+                                            </Stack>
+
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
                                                     <div>{t('description')}</div>

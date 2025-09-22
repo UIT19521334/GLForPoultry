@@ -22,32 +22,17 @@ export async function ApiListAccount(valueSearch, setDataList) {
     }
 }
 
-export async function ApiCreateAccount(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
-    if (valueCode && valueName) {
+export async function ApiCreateAccount(params) {
+    if (params.valueAccountId && params.valueAccountName) {
         try {
             var statusCode = false;
             const header = {
                 // Authorization: access_token,
             };
-            const body = {
-                GroupName_EN: valueTypeName,
-                GroupName_VN: valueTypeName,
-                AccountId: valueCode,
-                AccountName: valueName,
-                Description: valueDescription,
-                Active: true,
-                Username: localStorage.getItem('UserName'),
-                CreatedAt: new Date().toISOString(),
-                UpdatedAt: new Date().toISOString(),
-                RegionId: localStorage.getItem('Unit'),
-                IsShow: false,
-                GroupId: valueTypeID,
-            };
-
 
             await DomainPoultry.post(
                 `master/account`,
-                body
+                params
             );
 
             toast.success(' Success create new expense!');
@@ -65,27 +50,13 @@ export async function ApiCreateAccount(valueCode, valueName, valueTypeID, valueT
     }
 }
 
-export async function ApiUpdateAccount(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
-    if (valueCode && valueName) {
+export async function ApiUpdateAccount(params) {
+    if (params.valueAccountId && params.valueAccountName) {
         try {
             var statusCode = false;
-            const body = {
-                GroupName_EN: valueTypeName,
-                GroupName_VN: valueTypeName,
-                AccountId: valueCode,
-                AccountName: valueName,
-                Description: valueDescription,
-                Active: true,
-                Username: localStorage.getItem('UserName'),
-                CreatedAt: new Date().toISOString(),
-                UpdatedAt: new Date().toISOString(),
-                RegionId: localStorage.getItem('Unit'),
-                IsShow: false,
-                GroupId: valueTypeID,
-            };
             await DomainPoultry.put(
-                `master/account/${valueCode}`,
-                body
+                `master/account/${params.valueAccountId}`,
+                params
             );
             toast.success(' Success update expense!');
             statusCode = true;

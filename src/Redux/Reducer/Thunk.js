@@ -12,6 +12,8 @@ import {
     fetchApiProduct,
     fetchApiAuthInfo,
     fetchApiListExpenseGroup,
+    fetchApiListExpense,
+    fetchApiListMethod,
 } from '../FetchApi/fetchApiMaster';
 import { toast } from 'react-toastify';
 
@@ -48,6 +50,8 @@ const initialState = {
     isError: false,
     listData_Product: [],
     listData_ExpenseGroup: [],
+    listData_Expense: [],
+    listData_Method: [],
 };
 
 export const period = createSlice({
@@ -213,6 +217,46 @@ export const period = createSlice({
                 state.isError = false;
             })
             .addCase(fetchApiListExpenseGroup.rejected, (state) => {
+                // Add user to the state array
+                state.isLoading = false;
+                state.isError = true;
+                toast.error(' Error api account group!');
+            })
+            /* #endregion */
+
+            /* #region  expense */
+            .addCase(fetchApiListExpense.pending, (state) => {
+                // Add user to the state array
+                state.isLoading = true;
+                state.isError = false;
+            })
+            .addCase(fetchApiListExpense.fulfilled, (state, action) => {
+                // Add user to the state array
+                state.listData_Expense = action.payload;
+                state.isLoading = false;
+                state.isError = false;
+            })
+            .addCase(fetchApiListExpense.rejected, (state) => {
+                // Add user to the state array
+                state.isLoading = false;
+                state.isError = true;
+                toast.error(' Error api account group!');
+            })
+            /* #endregion */
+
+            /* #region  expense */
+            .addCase(fetchApiListMethod.pending, (state) => {
+                // Add user to the state array
+                state.isLoading = true;
+                state.isError = false;
+            })
+            .addCase(fetchApiListMethod.fulfilled, (state, action) => {
+                // Add user to the state array
+                state.listData_Method = action.payload;
+                state.isLoading = false;
+                state.isError = false;
+            })
+            .addCase(fetchApiListMethod.rejected, (state) => {
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
