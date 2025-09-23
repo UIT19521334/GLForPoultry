@@ -808,7 +808,7 @@ function CostAllocation({ title }) {
     OnMultiKeyEvent(handleClickButtonProcess, valueButtonProcess ? '' : 'r');
     OnMultiKeyEvent(handleClickButtonPause, valueButtonPause ? '' : 'p');
     OnMultiKeyEvent(() => handleClickOpenDialogDetail(true), !valueEditGrid ? '' : 'a');
-    // OnMultiKeyEvent(handleOnClickNewAeDetail, !valueEditGrid ? '' : 'a');
+    // OnMultiKeyEvent(handleClickNewAeDetail, !valueEditGrid ? '' : 'a');
     OnMultiKeyEvent(handleClickImportFile, 'f');
 
     const [isNew, setIsNew] = React.useState(false);
@@ -1691,7 +1691,7 @@ function CostAllocation({ title }) {
                                                     variant="contained"
                                                     color="success"
                                                     onClick={() => handleClickOpenDialogDetail(true)}
-                                                    // onClick={handleOnClickNewAeDetail}
+                                                    // onClick={handleClickNewAeDetail}
                                                     sx={{ alignItems: 'left', whiteSpace: 'nowrap' }}
                                                     disabled={!valueEditGrid}
                                                 >

@@ -2,28 +2,20 @@ import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
 import _ from 'lodash';
 
-export async function ApiListAccount(valueSearch, setDataList) {
+export async function ApiListAccount() {
     try {
         const response = await DomainPoultry.get(`master/account`);
         const data = await response.data?.Response ?? [];
-        let filteredData = data;
-        if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["AccountName", "AccountId", "Description"];
-            filteredData = _.filter(data, (item) => {
-                const search = _.toLower(valueSearch);
-                return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
-            });
-        }
-
-        setDataList(filteredData);
+        return data
     } catch (error) {
         console.log(error);
         toast.error(' Error api get data expense list!');
+        return []
     }
 }
 
 export async function ApiCreateAccount(params) {
-    if (params.valueAccountId && params.valueAccountName) {
+    if (params.AccountId && params.AccountName) {
         try {
             var statusCode = false;
             const header = {
@@ -51,11 +43,11 @@ export async function ApiCreateAccount(params) {
 }
 
 export async function ApiUpdateAccount(params) {
-    if (params.valueAccountId && params.valueAccountName) {
+    if (params.AccountId && params.AccountName && params.Id) {
         try {
             var statusCode = false;
             await DomainPoultry.put(
-                `master/account/${params.valueAccountId}`,
+                `master/account/${params.Id}`,
                 params
             );
             toast.success(' Success update expense!');

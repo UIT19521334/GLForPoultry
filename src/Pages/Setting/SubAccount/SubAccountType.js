@@ -237,7 +237,7 @@ function SubAccountType({ title }) {
     /* #region  button new */
 
     const [valueNewButton, setValueNewButton] = React.useState(false);
-    const handleOnClickNew = () => {
+    const handleClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
         setValueCode('');
@@ -254,7 +254,7 @@ function SubAccountType({ title }) {
     /* #region  button update */
     const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
     const [valueDisableUpdateButton, setValueDisableUpdateButton] = React.useState(true);
-    const handleOnClickUpdate = () => {
+    const handleClickUpdate = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
         setValueReadonlyCode(true);
@@ -289,8 +289,8 @@ function SubAccountType({ title }) {
 
     //! on key event
     OnKeyEvent(() => setReloadListAccGroup(!reloadListAccGroup), 'Enter');
-    OnMultiKeyEvent(handleOnClickNew, valueNewButton ? '' : 'n');
-    OnMultiKeyEvent(handleOnClickUpdate, valueDisableUpdateButton ? '' : 'u');
+    OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
+    OnMultiKeyEvent(handleClickUpdate, valueDisableUpdateButton ? '' : 'u');
     OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
     OnMultiKeyEvent(handleClickDelete, valueDisableDeleteButton ? '' : 'd');
 
@@ -309,7 +309,7 @@ function SubAccountType({ title }) {
                 startIcon={<AddBoxIcon />}
                 variant="contained"
                 color="success"
-                onClick={handleOnClickNew}
+                onClick={handleClickNew}
                 loading={valueNewButton}
                 loadingPosition="start"
                 sx={{ whiteSpace: 'nowrap' }}
@@ -322,7 +322,7 @@ function SubAccountType({ title }) {
                 startIcon={<SystemUpdateAltIcon />}
                 variant="contained"
                 color="warning"
-                onClick={handleOnClickUpdate}
+                onClick={handleClickUpdate}
                 loading={valueUpdateButton}
                 loadingPosition="start"
                 sx={{ whiteSpace: 'nowrap' }}
@@ -510,7 +510,7 @@ function SubAccountType({ title }) {
                                             startIcon={<AddBoxIcon />}
                                             variant="contained"
                                             color="success"
-                                            onClick={handleOnClickNew}
+                                            onClick={handleClickNew}
                                             loading={valueNewButton}
                                             loadingPosition="start"
                                             sx={{ whiteSpace: 'nowrap' }}
@@ -521,7 +521,7 @@ function SubAccountType({ title }) {
                                             startIcon={<SystemUpdateAltIcon />}
                                             variant="contained"
                                             color="warning"
-                                            onClick={handleOnClickUpdate}
+                                            onClick={handleClickUpdate}
                                             loading={valueUpdateButton}
                                             loadingPosition="start"
                                             sx={{ whiteSpace: 'nowrap' }}

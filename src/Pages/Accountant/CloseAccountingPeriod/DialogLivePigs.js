@@ -266,7 +266,7 @@ export default function DialogLivePigs({ open, onClose }) {
     /* #region  button new */
 
     const [valueNewButton, setValueNewButton] = React.useState(false);
-    const handleOnClickNew = () => {
+    const handleClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
 
@@ -330,7 +330,7 @@ export default function DialogLivePigs({ open, onClose }) {
 
     /* #region  button update */
     const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
-    const handleOnClickUpdate = () => {
+    const handleClickUpdate = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
         setValueReadonly(false);
@@ -396,7 +396,7 @@ export default function DialogLivePigs({ open, onClose }) {
         setDialogIsOpenDelete(false);
         toast.warning(t('toast-cancel-delete'));
     };
-    const handleOnClickDelete = () => {
+    const handleClickDelete = () => {
         if (!access_token || !valueCode) {
             toast.warning(t('livepig-delete-error'));
             return;
@@ -427,10 +427,10 @@ export default function DialogLivePigs({ open, onClose }) {
 
     //! on key event
     // OnMultiKeyEvent(() => handleReopenPeriod(), 'r');
-    OnMultiKeyEvent(handleOnClickNew, valueNewButton ? '' : 'n');
-    OnMultiKeyEvent(handleOnClickUpdate, valueUpdateButton ? '' : 'u');
+    OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
+    OnMultiKeyEvent(handleClickUpdate, valueUpdateButton ? '' : 'u');
     OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
-    OnMultiKeyEvent(handleOnClickDelete, 'd');
+    OnMultiKeyEvent(handleClickDelete, 'd');
 
     //? Mobile
     //! button infor
@@ -451,7 +451,7 @@ export default function DialogLivePigs({ open, onClose }) {
                     startIcon={<AddBoxIcon />}
                     variant="contained"
                     color="success"
-                    onClick={handleOnClickNew}
+                    onClick={handleClickNew}
                     loading={valueNewButton}
                     loadingPosition="start"
                     sx={{ whiteSpace: 'nowrap' }}
@@ -463,7 +463,7 @@ export default function DialogLivePigs({ open, onClose }) {
                     startIcon={<SystemUpdateAltIcon />}
                     variant="contained"
                     color="warning"
-                    onClick={handleOnClickUpdate}
+                    onClick={handleClickUpdate}
                     loading={valueUpdateButton}
                     loadingPosition="start"
                     sx={{ whiteSpace: 'nowrap' }}
@@ -485,7 +485,7 @@ export default function DialogLivePigs({ open, onClose }) {
                 startIcon={<DeleteOutlineIcon />}
                 variant="contained"
                 color="error"
-                onClick={handleOnClickDelete}
+                onClick={handleClickDelete}
             >
                 {t('button-delete')}
             </LoadingButton>
@@ -620,7 +620,7 @@ export default function DialogLivePigs({ open, onClose }) {
                                                         startIcon={<AddBoxIcon />}
                                                         variant="contained"
                                                         color="success"
-                                                        onClick={handleOnClickNew}
+                                                        onClick={handleClickNew}
                                                         loading={valueNewButton}
                                                         loadingPosition="start"
                                                         sx={{ whiteSpace: 'nowrap' }}
@@ -632,7 +632,7 @@ export default function DialogLivePigs({ open, onClose }) {
                                                         startIcon={<SystemUpdateAltIcon />}
                                                         variant="contained"
                                                         color="warning"
-                                                        onClick={handleOnClickUpdate}
+                                                        onClick={handleClickUpdate}
                                                         loading={valueUpdateButton}
                                                         loadingPosition="start"
                                                         sx={{ whiteSpace: 'nowrap' }}
@@ -652,7 +652,7 @@ export default function DialogLivePigs({ open, onClose }) {
                                                         startIcon={<DeleteOutlineIcon />}
                                                         variant="contained"
                                                         color="error"
-                                                        onClick={handleOnClickDelete}
+                                                        onClick={handleClickDelete}
                                                     >
                                                         {t('button-delete')}
                                                     </LoadingButton>

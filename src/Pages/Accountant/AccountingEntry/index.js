@@ -277,7 +277,7 @@ function AccountingEntry({ title }) {
         setDialogIsOpenNewAeHeader(false);
         toast.warning(t('toast-cancel-new'));
     };
-    const handleOnClickNewAeHeader = () => {
+    const handleClickNewAeHeader = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
         setValueDisableSaveButton(false);
@@ -346,7 +346,7 @@ function AccountingEntry({ title }) {
         setDialogIsOpenUpdateAeHeader(false);
         toast.warning(t('toast-cancel-update'));
     };
-    const handleOnClickUpdateAeHeader = () => {
+    const handleClickUpdateAeHeader = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
         setValueDisableSaveButton(false);
@@ -413,7 +413,7 @@ function AccountingEntry({ title }) {
         setDialogIsOpenDeleteAeHeader(false);
         toast.warning(t('toast-cancel-delete'));
     };
-    const handleOnClickDeleteAeHeader = () => {
+    const handleClickDeleteAeHeader = () => {
         if (valueTab === 'entry') {
             if (!access_token || selectedRows.length === 0) {
                 toast.warning(t('entry-toast-chose'));
@@ -664,10 +664,10 @@ function AccountingEntry({ title }) {
 
     //! on key event
     OnKeyEvent(() => setReloadListAccountingEntryHeader(!reloadListAccountingEntryHeader), 'Enter');
-    OnMultiKeyEvent(handleOnClickNewAeHeader, valueNewButton ? '' : 'n');
-    OnMultiKeyEvent(handleOnClickUpdateAeHeader, valueUpdateButton ? '' : 'u');
+    OnMultiKeyEvent(handleClickNewAeHeader, valueNewButton ? '' : 'n');
+    OnMultiKeyEvent(handleClickUpdateAeHeader, valueUpdateButton ? '' : 'u');
     OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
-    OnMultiKeyEvent(handleOnClickDeleteAeHeader, 'd');
+    OnMultiKeyEvent(handleClickDeleteAeHeader, 'd');
     OnMultiKeyEvent(() => handleClickOpenDialogDetail(true), !valueEditGrid ? '' : 'a');
     OnMultiKeyEvent(handleClickImportFile, 'f');
 
@@ -936,7 +936,7 @@ function AccountingEntry({ title }) {
         setDialogIsOpenUpdateMemo(false);
         toast.warning(t('toast-cancel-update'));
     };
-    const handleOnClickUpdateMemo = () => {
+    const handleClickUpdateMemo = () => {
         setValueUpdateButtonMemo(true);
         setValueDisableSaveButtonMemo(false);
 
@@ -1092,7 +1092,7 @@ function AccountingEntry({ title }) {
                     startIcon={<AddBoxIcon />}
                     variant="contained"
                     color="success"
-                    onClick={handleOnClickNewAeHeader}
+                    onClick={handleClickNewAeHeader}
                     loading={valueNewButton}
                     loadingPosition="start"
                     sx={{ whiteSpace: 'nowrap' }}
@@ -1105,7 +1105,7 @@ function AccountingEntry({ title }) {
                     startIcon={<SystemUpdateAltIcon />}
                     variant="contained"
                     color="warning"
-                    onClick={handleOnClickUpdateAeHeader}
+                    onClick={handleClickUpdateAeHeader}
                     loading={valueUpdateButton}
                     loadingPosition="start"
                     sx={{ whiteSpace: 'nowrap' }}
@@ -1131,7 +1131,7 @@ function AccountingEntry({ title }) {
                 startIcon={<DeleteOutlineIcon />}
                 variant="contained"
                 color="error"
-                onClick={handleOnClickDeleteAeHeader}
+                onClick={handleClickDeleteAeHeader}
             >
                 {t('button-delete')}
             </LoadingButton>
@@ -1512,7 +1512,7 @@ function AccountingEntry({ title }) {
                                                                     startIcon={<AddBoxIcon />}
                                                                     variant="contained"
                                                                     color="success"
-                                                                    onClick={handleOnClickNewAeHeader}
+                                                                    onClick={handleClickNewAeHeader}
                                                                     loading={valueNewButton}
                                                                     loadingPosition="start"
                                                                     sx={{ whiteSpace: 'nowrap' }}
@@ -1523,7 +1523,7 @@ function AccountingEntry({ title }) {
                                                                     startIcon={<SystemUpdateAltIcon />}
                                                                     variant="contained"
                                                                     color="warning"
-                                                                    onClick={handleOnClickUpdateAeHeader}
+                                                                    onClick={handleClickUpdateAeHeader}
                                                                     loading={valueUpdateButton}
                                                                     loadingPosition="start"
                                                                     sx={{ whiteSpace: 'nowrap' }}
@@ -1543,7 +1543,7 @@ function AccountingEntry({ title }) {
                                                                     startIcon={<DeleteOutlineIcon />}
                                                                     variant="contained"
                                                                     color="error"
-                                                                    onClick={handleOnClickDeleteAeHeader}
+                                                                    onClick={handleClickDeleteAeHeader}
                                                                 >
                                                                     {t('button-delete')}
                                                                 </LoadingButton>
@@ -1865,7 +1865,7 @@ function AccountingEntry({ title }) {
                                                                     variant="contained"
                                                                     color="success"
                                                                     onClick={() => handleClickOpenDialogDetail(true)}
-                                                                    // onClick={handleOnClickNewAeDetail}
+                                                                    // onClick={handleClickNewAeDetail}
                                                                     sx={{ alignItems: 'left', whiteSpace: 'nowrap' }}
                                                                     disabled={!valueEditGrid}
                                                                 >
@@ -2176,7 +2176,7 @@ function AccountingEntry({ title }) {
                                                                     startIcon={<SystemUpdateAltIcon />}
                                                                     variant="contained"
                                                                     color="warning"
-                                                                    onClick={handleOnClickUpdateMemo}
+                                                                    onClick={handleClickUpdateMemo}
                                                                     loading={valueUpdateButtonMemo}
                                                                     loadingPosition="start"
                                                                     sx={{ whiteSpace: 'nowrap' }}
@@ -2196,7 +2196,7 @@ function AccountingEntry({ title }) {
                                                                     startIcon={<DeleteOutlineIcon />}
                                                                     variant="contained"
                                                                     color="error"
-                                                                    onClick={handleOnClickDeleteAeHeader}
+                                                                    onClick={handleClickDeleteAeHeader}
                                                                 >
                                                                     {t('button-delete')}
                                                                 </LoadingButton>
@@ -2501,7 +2501,7 @@ function AccountingEntry({ title }) {
                                                                     onClick={() =>
                                                                         handleClickOpenDialogDetailMemo(true)
                                                                     }
-                                                                    // onClick={handleOnClickNewAeDetail}
+                                                                    // onClick={handleClickNewAeDetail}
                                                                     sx={{ alignItems: 'left', whiteSpace: 'nowrap' }}
                                                                     disabled={!valueEditGridMemo}
                                                                 >

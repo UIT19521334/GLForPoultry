@@ -125,7 +125,7 @@
     "account-expensegroup": "Expense group",
     "account-expense": "Expense",
     "account-general": "General account",
-    "account-toast-error": "Empty main account | sub account | account name!",
+    "account-toast-error": "Error account code | account name!",
     "account-toast-new": "Create new account?",
     "account-toast-update": "Update account?",
     "account-toast-upload": "Upload file account?",

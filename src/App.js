@@ -25,7 +25,7 @@ import i18next from 'i18next';
 import './TranslationLanguage/i18n.js';
 
 const WrapperView = () => {
-    CallApiMaster();
+    // CallApiMaster();
     const login = ApiToken();
     const darkTheme = createTheme({
         palette: {

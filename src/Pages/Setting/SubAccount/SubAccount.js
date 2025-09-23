@@ -22,8 +22,9 @@ import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
-import { MenuItem, Select } from '@mui/material';
+import { IconButton, InputAdornment, MenuItem, Select } from '@mui/material';
 import { useSelector } from 'react-redux';
+import { ClearIcon } from '@mui/x-date-pickers';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -65,7 +66,7 @@ function SubAccountDetails({ title }) {
         {
             field: 'SubTypeName',
             headerName: t('subaccount-type-name'),
-            minWidth: 100,
+            minWidth: 200,
             headerClassName: 'super-app-theme--header',
         },
         {
@@ -158,6 +159,7 @@ function SubAccountDetails({ title }) {
             setValueName('');
             setValueDescription('');
             setValueTypeID('');
+            setValueTypeName('');
             setValueNewButton(false);
             setValueDisableSaveButton(true);
             setValueDisableDeleteButton(true);
@@ -233,6 +235,7 @@ function SubAccountDetails({ title }) {
             setValueName('');
             setValueDescription('');
             setValueTypeID('');
+            setValueTypeName('');
             setValueReadonly(true);
             setValueDisableSaveButton(true);
             setValueDisableDeleteButton(true);
@@ -249,13 +252,14 @@ function SubAccountDetails({ title }) {
     /* #region  button new */
 
     const [valueNewButton, setValueNewButton] = React.useState(false);
-    const handleOnClickNew = () => {
+    const handleClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
         setValueCode('');
         setValueName('');
         setValueDescription('');
         setValueTypeID('');
+        setValueTypeName('');
         setValueReadonly(false);
         setValueReadonlyCode(false);
         setValueDisableSaveButton(false);
@@ -267,7 +271,7 @@ function SubAccountDetails({ title }) {
     /* #region  button update */
     const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
     const [valueDisableUpdateButton, setValueDisableUpdateButton] = React.useState(true);
-    const handleOnClickUpdate = () => {
+    const handleClickUpdate = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
         setValueReadonlyCode(true);
@@ -280,7 +284,7 @@ function SubAccountDetails({ title }) {
     /* #region  button save */
     const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
     const handleClickSave = () => {
-        if (valueCode && valueName) {
+        if (valueCode && valueName && valueCode.length == 5) {
             if (valueNewButton) {
                 setDialogIsOpenNew(true);
             }
@@ -302,8 +306,8 @@ function SubAccountDetails({ title }) {
 
     //! on key event
     OnKeyEvent(() => setReloadListSubAcc(!reloadListSubAcc), 'Enter');
-    OnMultiKeyEvent(handleOnClickNew, valueNewButton ? '' : 'n');
-    OnMultiKeyEvent(handleOnClickUpdate, valueDisableUpdateButton ? '' : 'u');
+    OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
+    OnMultiKeyEvent(handleClickUpdate, valueDisableUpdateButton ? '' : 'u');
     OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
     OnMultiKeyEvent(handleClickDelete, valueDisableDeleteButton ? '' : 'd');
 
@@ -322,7 +326,7 @@ function SubAccountDetails({ title }) {
                 startIcon={<AddBoxIcon />}
                 variant="contained"
                 color="success"
-                onClick={handleOnClickNew}
+                onClick={handleClickNew}
                 loading={valueNewButton}
                 loadingPosition="start"
                 sx={{ whiteSpace: 'nowrap' }}
@@ -335,7 +339,7 @@ function SubAccountDetails({ title }) {
                 startIcon={<SystemUpdateAltIcon />}
                 variant="contained"
                 color="warning"
-                onClick={handleOnClickUpdate}
+                onClick={handleClickUpdate}
                 loading={valueUpdateButton}
                 loadingPosition="start"
                 sx={{ whiteSpace: 'nowrap' }}
@@ -526,7 +530,7 @@ function SubAccountDetails({ title }) {
                                             startIcon={<AddBoxIcon />}
                                             variant="contained"
                                             color="success"
-                                            onClick={handleOnClickNew}
+                                            onClick={handleClickNew}
                                             loading={valueNewButton}
                                             loadingPosition="start"
                                             sx={{ whiteSpace: 'nowrap' }}
@@ -537,7 +541,7 @@ function SubAccountDetails({ title }) {
                                             startIcon={<SystemUpdateAltIcon />}
                                             variant="contained"
                                             color="warning"
-                                            onClick={handleOnClickUpdate}
+                                            onClick={handleClickUpdate}
                                             loading={valueUpdateButton}
                                             loadingPosition="start"
                                             sx={{ whiteSpace: 'nowrap' }}
@@ -619,6 +623,23 @@ function SubAccountDetails({ title }) {
                                                     value={valueTypeID}
                                                     onChange={handleOnChangeValueTypeID}
                                                     disabled={valueReadonly}
+                                                    endAdornment={
+                                                        valueTypeID ? (
+                                                            <InputAdornment position="start">
+                                                                <IconButton
+                                                                    tabIndex={-1}
+                                                                    size="small"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation(); // chặn mở dropdown
+                                                                        setValueTypeID("");
+                                                                        setValueTypeName("");
+                                                                    }}
+                                                                >
+                                                                    <ClearIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        ) : null
+                                                    }
                                                 >
                                                     {_.isArray(listSubAccountType) &&
                                                         listSubAccountType.map((data) => {

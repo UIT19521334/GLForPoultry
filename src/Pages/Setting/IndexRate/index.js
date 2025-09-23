@@ -309,7 +309,7 @@ function IndexRate({ title }) {
     /* #region  button new */
 
     const [valueNewButton, setValueNewButton] = React.useState(false);
-    const handleOnClickNew = () => {
+    const handleClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
 
@@ -325,7 +325,7 @@ function IndexRate({ title }) {
 
     /* #region  button update */
     const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
-    const handleOnClickUpdate = () => {
+    const handleClickUpdate = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
         setValueReadonly(false);
@@ -334,7 +334,7 @@ function IndexRate({ title }) {
     /* #endregion */
 
     /* #region  button Delete */
-    const handleOnClickDeleteDetail = () => {
+    const handleClickDeleteDetail = () => {
         if (!valueProduct_id) {
             toast.warning(t('toast-error'));
             return;
@@ -485,10 +485,10 @@ function IndexRate({ title }) {
     //! on key event
     OnKeyEvent(() => setcallApiHeader(!callApiHeader), 'Enter');
     // OnMultiKeyEvent(() => handleReopenPeriod(), 'r');
-    OnMultiKeyEvent(handleOnClickNew, valueNewButton ? '' : 'n');
-    OnMultiKeyEvent(handleOnClickUpdate, valueUpdateButton ? '' : 'u');
+    OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
+    OnMultiKeyEvent(handleClickUpdate, valueUpdateButton ? '' : 'u');
     OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
-    OnMultiKeyEvent(handleOnClickDeleteDetail, 'd');
+    OnMultiKeyEvent(handleClickDeleteDetail, 'd');
     return (
         <Spin size="large" tip={t('loading')} spinning={isLoading}>
             <ToastContainer position='bottom-right' stacked />
@@ -766,7 +766,7 @@ function IndexRate({ title }) {
                                                     startIcon={<AddBoxIcon />}
                                                     variant="contained"
                                                     color="success"
-                                                    onClick={handleOnClickNew}
+                                                    onClick={handleClickNew}
                                                     loading={valueNewButton}
                                                     loadingPosition="start"
                                                     sx={{ whiteSpace: 'nowrap' }}
@@ -778,7 +778,7 @@ function IndexRate({ title }) {
                                                     startIcon={<SystemUpdateAltIcon />}
                                                     variant="contained"
                                                     color="warning"
-                                                    onClick={handleOnClickUpdate}
+                                                    onClick={handleClickUpdate}
                                                     loading={valueUpdateButton}
                                                     loadingPosition="start"
                                                     sx={{ whiteSpace: 'nowrap' }}
@@ -798,7 +798,7 @@ function IndexRate({ title }) {
                                                     startIcon={<DeleteOutlineIcon />}
                                                     variant="contained"
                                                     color="error"
-                                                    onClick={handleOnClickDeleteDetail}
+                                                    onClick={handleClickDeleteDetail}
                                                 >
                                                     {t('button-delete')}
                                                 </LoadingButton>

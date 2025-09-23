@@ -196,7 +196,7 @@ function LivePig({ title }) {
     /* #region  button new */
 
     const [valueNewButton, setValueNewButton] = React.useState(false);
-    const handleOnClickNew = () => {
+    const handleClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
 
@@ -253,7 +253,7 @@ function LivePig({ title }) {
 
     /* #region  button update */
     const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
-    const handleOnClickUpdate = () => {
+    const handleClickUpdate = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
         setValueReadonly(false);
@@ -316,7 +316,7 @@ function LivePig({ title }) {
         setDialogIsOpenDelete(false);
         toast.warning(t('toast-cancel-delete'));
     };
-    const handleOnClickDelete = () => {
+    const handleClickDelete = () => {
         if (!access_token || !valueCode) {
             toast.warning(t('livepig-delete-error'));
             return;
@@ -347,10 +347,10 @@ function LivePig({ title }) {
 
     //! on key event
     // OnMultiKeyEvent(() => handleReopenPeriod(), 'r');
-    OnMultiKeyEvent(handleOnClickNew, valueNewButton ? '' : 'n');
-    OnMultiKeyEvent(handleOnClickUpdate, valueUpdateButton ? '' : 'u');
+    OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
+    OnMultiKeyEvent(handleClickUpdate, valueUpdateButton ? '' : 'u');
     OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
-    OnMultiKeyEvent(handleOnClickDelete, 'd');
+    OnMultiKeyEvent(handleClickDelete, 'd');
 
     return (
         <Spin size="large" tip={'Loading'} spinning={isLoading}>
@@ -484,7 +484,7 @@ function LivePig({ title }) {
                                                     startIcon={<AddBoxIcon />}
                                                     variant="contained"
                                                     color="success"
-                                                    onClick={handleOnClickNew}
+                                                    onClick={handleClickNew}
                                                     loading={valueNewButton}
                                                     loadingPosition="start"
                                                     sx={{ whiteSpace: 'nowrap' }}
@@ -496,7 +496,7 @@ function LivePig({ title }) {
                                                     startIcon={<SystemUpdateAltIcon />}
                                                     variant="contained"
                                                     color="warning"
-                                                    onClick={handleOnClickUpdate}
+                                                    onClick={handleClickUpdate}
                                                     loading={valueUpdateButton}
                                                     loadingPosition="start"
                                                     sx={{ whiteSpace: 'nowrap' }}
@@ -516,7 +516,7 @@ function LivePig({ title }) {
                                                     startIcon={<DeleteOutlineIcon />}
                                                     variant="contained"
                                                     color="error"
-                                                    onClick={handleOnClickDelete}
+                                                    onClick={handleClickDelete}
                                                 >
                                                     {t('button-delete')}
                                                 </LoadingButton>

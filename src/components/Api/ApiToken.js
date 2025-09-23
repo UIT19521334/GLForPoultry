@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useMsal } from '@azure/msal-react';
 import { useDispatch } from 'react-redux';
 import { updateToken } from '~/Redux/Reducer/Thunk';
+import { fetchApiAuthInfo } from '~/Redux/FetchApi/fetchApiMaster';
 
 export default function ApiToken() {
     const { instance, accounts } = useMsal();
@@ -50,6 +51,7 @@ export default function ApiToken() {
 
             if (response && response.accessToken) {
                 dispatch(updateToken(response.accessToken));
+                dispatch(fetchApiAuthInfo(activeAccount ? activeAccount.username : ''));
                 setValueAccessToken({
                     token: response.accessToken,
                     status: true
@@ -70,6 +72,7 @@ export default function ApiToken() {
 
                 if (interactiveResponse && interactiveResponse.accessToken) {
                     dispatch(updateToken(interactiveResponse.accessToken));
+                    dispatch(fetchApiAuthInfo(activeAccount ? activeAccount.username : ''));
                     setValueAccessToken({
                         token: interactiveResponse.accessToken,
                         status: true

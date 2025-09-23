@@ -1,8 +1,5 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import Typography from '@mui/material/Typography';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Link from '@mui/material/Link';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -25,9 +22,10 @@ import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
-import { MenuItem, Select } from '@mui/material';
+import { IconButton, InputAdornment, MenuItem, Select } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchApiListExpenseGroup } from '~/Redux/FetchApi/fetchApiMaster';
+import { ClearIcon } from '@mui/x-date-pickers';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -111,7 +109,7 @@ function ExpenseDetails() {
     const [valueCode, setValueCode] = React.useState('');
     const [valueName, setValueName] = React.useState('');
     const [valueGroupID, setValueGroupID] = React.useState('');
-    const [valueTypeName, setValueTypeName] = React.useState('');
+    const [valueGroupName, setValueGroupName] = React.useState('');
     const [valueDescription, setValueDescription] = React.useState('');
 
     //! select row in datagrid
@@ -152,12 +150,13 @@ function ExpenseDetails() {
 
     const asyncApiCreateExpense = async () => {
         setIsLoading(true);
-        const statusCode = await ApiCreateExpense(valueCode, valueName, valueGroupID, valueTypeName, valueDescription);
+        const statusCode = await ApiCreateExpense(valueCode, valueName, valueGroupID, valueGroupName, valueDescription);
         if (statusCode) {
             setValueCode('');
             setValueName('');
             setValueDescription('');
             setValueGroupID('');
+            setValueGroupName('');
             setValueNewButton(false);
             setValueDisableSaveButton(true);
             setValueDisableDeleteButton(true);
@@ -185,7 +184,7 @@ function ExpenseDetails() {
     const handleOnChangeValueGroupID = (e) => {
         const data = e.target.value && listExpenseGroup.find(item => item.GroupId === e.target.value);
         setValueGroupID(data.GroupId);
-        setValueTypeName(data.GroupName_EN);
+        setValueGroupName(data.GroupName_EN);
     };
 
     // TODO call api update
@@ -201,7 +200,7 @@ function ExpenseDetails() {
 
     const asyncApiUpdateExpense = async () => {
         setIsLoading(true);
-        const statusCode = await ApiUpdateExpense(valueCode, valueName, valueGroupID, valueTypeName, valueDescription);
+        const statusCode = await ApiUpdateExpense(valueCode, valueName, valueGroupID, valueGroupName, valueDescription);
         if (statusCode) {
             setValueReadonly(true);
             setValueUpdateButton(false);
@@ -233,6 +232,7 @@ function ExpenseDetails() {
             setValueName('');
             setValueDescription('');
             setValueGroupID('');
+            setValueGroupName('');
             setValueReadonly(true);
             setValueDisableSaveButton(true);
             setValueDisableDeleteButton(true);
@@ -249,13 +249,14 @@ function ExpenseDetails() {
     /* #region  button new */
 
     const [valueNewButton, setValueNewButton] = React.useState(false);
-    const handleOnClickNew = () => {
+    const handleClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
         setValueCode('');
         setValueName('');
         setValueDescription('');
         setValueGroupID('');
+        setValueGroupName('');
         setValueReadonly(false);
         setValueReadonlyCode(false);
         setValueDisableSaveButton(false);
@@ -267,7 +268,7 @@ function ExpenseDetails() {
     /* #region  button update */
     const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
     const [valueDisableUpdateButton, setValueDisableUpdateButton] = React.useState(true);
-    const handleOnClickUpdate = () => {
+    const handleClickUpdate = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
         setValueReadonlyCode(true);
@@ -280,7 +281,7 @@ function ExpenseDetails() {
     /* #region  button save */
     const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
     const handleClickSave = () => {
-        if (valueCode && valueName) {
+        if (valueCode && valueName && valueCode.length == 5) {
             if (valueNewButton) {
                 setDialogIsOpenNew(true);
             }
@@ -302,8 +303,8 @@ function ExpenseDetails() {
 
     //! on key event
     OnKeyEvent(() => setReloadListExpense(!reloadListExpense), 'Enter');
-    OnMultiKeyEvent(handleOnClickNew, valueNewButton ? '' : 'n');
-    OnMultiKeyEvent(handleOnClickUpdate, valueDisableUpdateButton ? '' : 'u');
+    OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
+    OnMultiKeyEvent(handleClickUpdate, valueDisableUpdateButton ? '' : 'u');
     OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
     OnMultiKeyEvent(handleClickDelete, valueDisableDeleteButton ? '' : 'd');
 
@@ -322,7 +323,7 @@ function ExpenseDetails() {
                 startIcon={<AddBoxIcon />}
                 variant="contained"
                 color="success"
-                onClick={handleOnClickNew}
+                onClick={handleClickNew}
                 loading={valueNewButton}
                 loadingPosition="start"
                 sx={{ whiteSpace: 'nowrap' }}
@@ -335,7 +336,7 @@ function ExpenseDetails() {
                 startIcon={<SystemUpdateAltIcon />}
                 variant="contained"
                 color="warning"
-                onClick={handleOnClickUpdate}
+                onClick={handleClickUpdate}
                 loading={valueUpdateButton}
                 loadingPosition="start"
                 sx={{ whiteSpace: 'nowrap' }}
@@ -378,7 +379,7 @@ function ExpenseDetails() {
                             <>
                                 {t('code')}: {valueCode}
                                 <br /> {t('name')}: {valueName}
-                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueTypeName}`}
+                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueGroupName}`}
                                 <br /> {t('description')}:{valueDescription}
                             </>
                         }
@@ -394,7 +395,7 @@ function ExpenseDetails() {
                             <>
                                 {t('code')}: {valueCode}
                                 <br /> {t('name')}: {valueName}
-                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueTypeName}`}
+                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueGroupName}`}
                                 <br /> {t('description')}:{valueDescription}
                             </>
                         }
@@ -410,7 +411,7 @@ function ExpenseDetails() {
                             <>
                                 {t('code')}: {valueCode}
                                 <br /> {t('name')}: {valueName}
-                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueTypeName}`}
+                                <br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueGroupName}`}
                                 <br /> {t('description')}:{valueDescription}
                             </>
                         }
@@ -525,7 +526,7 @@ function ExpenseDetails() {
                                             startIcon={<AddBoxIcon />}
                                             variant="contained"
                                             color="success"
-                                            onClick={handleOnClickNew}
+                                            onClick={handleClickNew}
                                             loading={valueNewButton}
                                             loadingPosition="start"
                                             sx={{ whiteSpace: 'nowrap' }}
@@ -536,7 +537,7 @@ function ExpenseDetails() {
                                             startIcon={<SystemUpdateAltIcon />}
                                             variant="contained"
                                             color="warning"
-                                            onClick={handleOnClickUpdate}
+                                            onClick={handleClickUpdate}
                                             loading={valueUpdateButton}
                                             loadingPosition="start"
                                             sx={{ whiteSpace: 'nowrap' }}
@@ -618,6 +619,23 @@ function ExpenseDetails() {
                                                     value={valueGroupID}
                                                     onChange={handleOnChangeValueGroupID}
                                                     disabled={valueReadonly}
+                                                    endAdornment={
+                                                        valueGroupID ? (
+                                                            <InputAdornment position="start">
+                                                                <IconButton
+                                                                    tabIndex={-1}
+                                                                    size="small"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation(); // chặn mở dropdown
+                                                                        setValueGroupID("");
+                                                                        setValueGroupName("");
+                                                                    }}
+                                                                >
+                                                                    <ClearIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        ) : null
+                                                    }
                                                 >
                                                     {_.isArray(listExpenseGroup) &&
                                                         listExpenseGroup.map((data) => {

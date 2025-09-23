@@ -54,7 +54,7 @@ function Login({ mess, status }) {
         }
     };
 
-    const handleOnClickLogin = () => {
+    const handleClickLogin = () => {
         console.log({ userName, passWord });
     };
 
@@ -88,7 +88,7 @@ function Login({ mess, status }) {
                                 className={cx('login-button')}
                                 variant="contained"
                                 endIcon={<LoginIcon />}
-                                onClick={(event) => handleOnClickLogin(event)}
+                                onClick={(event) => handleClickLogin(event)}
                             ></Button>
                             <div style={{ marginTop: 15 }}>
                                 <MicrosoftLoginButton onClick={handleRedirect} />

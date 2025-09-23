@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -17,14 +17,14 @@ import { ApiCreateAccount, ApiDeleteAccount, ApiListAccount, ApiUpdateAccount } 
 import SaveIcon from '@mui/icons-material/Save';
 import '../../../Container.css';
 import TextField from '@mui/material/TextField';
-import { OnKeyEvent } from '~/components/Event/OnKeyEvent';
 import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import _, { set } from 'lodash';
-import { MenuItem, Select } from '@mui/material';
+import _ from 'lodash';
+import { Breadcrumbs, IconButton, InputAdornment, Link, MenuItem, Select, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchApiListExpense, fetchApiListExpenseGroup, fetchApiListMethod, fetchApiListSubAccountType } from '~/Redux/FetchApi/fetchApiMaster';
+import { ClearIcon } from '@mui/x-date-pickers';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -35,12 +35,13 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-function Account() {
+function Account({ title }) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = React.useState(false);
     const [reloadListAccount, setReloadListAccount] = React.useState(false);
     const [dataList, setDataList] = useState([]);
+    const [displayData, setDisplayData] = useState([]);
     const listExpenseGroup = useSelector((state) => state.FetchApi.listData_ExpenseGroup);
     const listSubAccountType = useSelector((state) => state.FetchApi.listData_SubAccountType);
     const listMethod = useSelector((state) => state.FetchApi.listData_Method);
@@ -63,27 +64,27 @@ function Account() {
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'UnitId',
+            field: 'UnitName',
             headerName: t('unit'),
-            minWidth: 100,
+            minWidth: 50,
             headerClassName: 'super-app-theme--header',
         },
         {
             field: 'ExpenseGroupName',
             headerName: t('expense-group'),
-            minWidth: 200,
+            minWidth: 150,
             headerClassName: 'super-app-theme--header',
         },
         {
             field: 'ExpenseName',
             headerName: t('expense'),
-            minWidth: 100,
+            minWidth: 200,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'MethodId',
+            field: 'MethodName',
             headerName: t('method'),
-            minWidth: 200,
+            minWidth: 100,
             headerClassName: 'super-app-theme--header',
         },
         {
@@ -95,6 +96,7 @@ function Account() {
         }
     ];
 
+    const [valueId, setValueId] = React.useState('');
     const [valueAccountId, setValueAccountId] = React.useState('');
     const [valueAccountName, setValueAccountName] = React.useState('');
     const [valueUnitId, setValueUnitId] = React.useState('');
@@ -108,39 +110,47 @@ function Account() {
     const [valueSubAccountTypeId, setValueSubAccountTypeId] = React.useState('');
     const [valueSubAccountTypeName, setValueSubAccountTypeName] = React.useState('');
     const [valueDescription, setValueDescription] = React.useState('');
+    const inputAccountIdRef = useRef(null);
 
     // TODO call api get data account group
     useEffect(() => {
         const fetchApiGetDataAccount = async () => {
             setIsLoading(true);
-            await ApiListAccount(valueSearch, setDataList);
-            dispatch(fetchApiListExpenseGroup());
-            dispatch(fetchApiListExpense());
-            dispatch(fetchApiListMethod());
-            dispatch(fetchApiListSubAccountType());
+            const result = await ApiListAccount();
+            setDataList(result);
+            setDisplayData(result);
             setIsLoading(false);
         };
         fetchApiGetDataAccount();
     }, [reloadListAccount]);
+
+    useEffect(() => {
+        const fetchApiSupport = async () => {
+            dispatch(fetchApiListExpenseGroup());
+            dispatch(fetchApiListExpense());
+            dispatch(fetchApiListMethod());
+            dispatch(fetchApiListSubAccountType());
+        };
+        fetchApiSupport();
+    }, []);
 
     // Handle search
     const [valueSearch, setValueSearch] = React.useState('');
     const handleSearch = () => {
         let filteredData = dataList;
         if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["AccountName", "AccountId", "Description"];
-
+            const fieldsToSearch = ["AccountName", "AccountId", "UnitName", "ExpenseGroupName", "ExpenseName", "MethodName", "AccountSubTypeName"];
             filteredData = _.filter(dataList, (item) => {
                 const search = _.toLower(valueSearch);
                 return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
             });
         }
-        setDataList(filteredData);
+        setDisplayData(filteredData);
     }
 
     //! select row in datagrid
     const onRowsSelectionHandler = (ids) => {
-        const selectedRowsData = ids.map((id) => dataList.find((row) => row.AccountId === id));
+        const selectedRowsData = ids.map((id) => displayData.find((row) => row.AccountId === id));
         if (selectedRowsData) {
             {
                 selectedRowsData.map((key) => {
@@ -151,6 +161,7 @@ function Account() {
                     setValueExpenseId(key.ExpenseId ?? '');
                     setValueMethodId(key.MethodId ?? '');
                     setValueSubAccountTypeId(key.AccountSubTypeId ?? '');
+                    setValueId(key.Id ?? '');
                 });
                 setValueReadonly(true);
                 setValueReadonlyCode(true);
@@ -203,10 +214,15 @@ function Account() {
             setValueAccountId('');
             setValueAccountName('');
             setValueUnitId('');
+            setValueUnitName('');
             setValueExpenseGroupId('');
+            setValueExpenseGroupName('');
             setValueExpenseId('');
+            setValueExpenseName('');
             setValueMethodId('');
+            setValueMethodName('');
             setValueSubAccountTypeId('');
+            setValueSubAccountTypeName('');
             setValueDescription('');
             setValueNewButton(false);
             setValueDisableSaveButton(true);
@@ -221,8 +237,8 @@ function Account() {
 
     const handleOnChangeValueCode = (event) => {
         const inputValue = event.target.value;
-        // Regex: không cho ký tự đăc biệt, chỉ cho phép chữ cái, số và khoảng trắng
-        if (/^[\p{L}0-9 ]*$/u.test(inputValue)) {
+        // Regex: không cho ký tự đăc biệt, chỉ cho phép số và khoảng trắng
+        if (/^[0-9 ]*$/u.test(inputValue)) {
             setValueAccountId(inputValue);
         }
     };
@@ -235,21 +251,18 @@ function Account() {
     };
 
     const handleOnChangeValueUnit = (e) => {
-        console.log(e.target.value);
         const data = e.target.value && listUnit.find(item => item.UnitId === e.target.value);
         setValueUnitId(data.UnitId);
         setValueUnitName(data.UnitName);
     };
 
     const handleOnChangeValueExpenseGroupID = (e) => {
-        console.log(e.target.value);
         const data = e.target.value && listExpenseGroup.find(item => item.GroupId === e.target.value);
         setValueExpenseGroupId(data.GroupId);
         setValueExpenseGroupName(data.GroupName_EN);
     };
 
     const handleOnChangeValueExpenseID = (e) => {
-        console.log(e.target.value);
         const data = e.target.value && listExpense.find(item => item.ExpenseId === e.target.value);
         setValueExpenseId(data.ExpenseId);
         setValueExpenseName(data.ExpenseName);
@@ -260,7 +273,6 @@ function Account() {
         setValueMethodName(data.MethodName);
     };
     const handleOnChangeValueSubAccountType = (e) => {
-        console.log(e.target.value);
         const data = e.target.value && listSubAccountType.find(item => item.SubTypeId === e.target.value);
         setValueSubAccountTypeId(data.SubTypeId);
         setValueSubAccountTypeName(data.SubTypeName);
@@ -285,7 +297,7 @@ function Account() {
             ExpenseGroupName: valueExpenseGroupName,
             MethodName: valueMethodName,
             AccountSubTypeName: valueSubAccountTypeName,
-            Id: "",
+            Id: valueId,
             AccountId: valueAccountId,
             AccountName: valueAccountName,
             Description: valueDescription,
@@ -324,15 +336,20 @@ function Account() {
 
     const asyncApiDeleteAccount = async () => {
         setIsLoading(true);
-        const statusCode = await ApiDeleteAccount(valueAccountId);
+        const statusCode = await ApiDeleteAccount(valueId);
         if (statusCode) {
             setValueAccountId('');
             setValueAccountName('');
             setValueUnitId('');
+            setValueUnitName('');
             setValueExpenseGroupId('');
+            setValueExpenseGroupName('');
             setValueExpenseId('');
+            setValueExpenseName('');
             setValueMethodId('');
+            setValueMethodName('');
             setValueSubAccountTypeId('');
+            setValueSubAccountTypeName('');
             setValueDescription('');
             setValueReadonly(true);
             setValueDisableSaveButton(true);
@@ -350,42 +367,57 @@ function Account() {
     /* #region  button new */
 
     const [valueNewButton, setValueNewButton] = React.useState(false);
-    const handleOnClickNew = () => {
+    const handleClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
         setValueAccountId('');
         setValueAccountName('');
         setValueUnitId('');
+        setValueUnitName('');
         setValueExpenseGroupId('');
+        setValueExpenseGroupName('');
         setValueExpenseId('');
+        setValueExpenseName('');
         setValueMethodId('');
+        setValueMethodName('');
         setValueSubAccountTypeId('');
+        setValueSubAccountTypeName('');
         setValueDescription('');
         setValueReadonly(false);
         setValueReadonlyCode(false);
         setValueDisableSaveButton(false);
         setValueDisableDeleteButton(true);
         setValueDisableUpdateButton(true);
+        if (inputAccountIdRef.current) {
+            setTimeout(() => {
+                inputAccountIdRef.current.focus();
+            }, 0);
+        }
     };
     /* #endregion */
 
     /* #region  button update */
     const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
     const [valueDisableUpdateButton, setValueDisableUpdateButton] = React.useState(true);
-    const handleOnClickUpdate = () => {
+    const handleClickUpdate = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
         setValueReadonlyCode(true);
         setValueReadonly(false);
         setValueDisableSaveButton(false);
         setValueDisableDeleteButton(true);
+        if (inputAccountIdRef.current) {
+            setTimeout(() => {
+                inputAccountIdRef.current.focus();
+            }, 0);
+        }
     };
     /* #endregion */
 
     /* #region  button save */
     const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
     const handleClickSave = () => {
-        if (valueAccountId && valueAccountName) {
+        if (valueAccountId.length == 9 && valueAccountName) {
             if (valueNewButton) {
                 setDialogIsOpenNew(true);
             }
@@ -406,9 +438,9 @@ function Account() {
     /* #endregion */
 
     //! on key event
-    OnKeyEvent(() => setReloadListAccount(!reloadListAccount), 'Enter');
-    OnMultiKeyEvent(handleOnClickNew, valueNewButton ? '' : 'n');
-    OnMultiKeyEvent(handleOnClickUpdate, valueDisableUpdateButton ? '' : 'u');
+    // OnKeyEvent(() => setReloadListAccount(!reloadListAccount), 'Enter');
+    OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
+    OnMultiKeyEvent(handleClickUpdate, valueDisableUpdateButton ? '' : 'u');
     OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
     OnMultiKeyEvent(handleClickDelete, valueDisableDeleteButton ? '' : 'd');
 
@@ -427,7 +459,7 @@ function Account() {
                 startIcon={<AddBoxIcon />}
                 variant="contained"
                 color="success"
-                onClick={handleOnClickNew}
+                onClick={handleClickNew}
                 loading={valueNewButton}
                 loadingPosition="start"
                 sx={{ whiteSpace: 'nowrap' }}
@@ -440,7 +472,7 @@ function Account() {
                 startIcon={<SystemUpdateAltIcon />}
                 variant="contained"
                 color="warning"
-                onClick={handleOnClickUpdate}
+                onClick={handleClickUpdate}
                 loading={valueUpdateButton}
                 loadingPosition="start"
                 sx={{ whiteSpace: 'nowrap' }}
@@ -473,7 +505,7 @@ function Account() {
         </Stack>
     );
     return (
-        <Spin size="large" tip={t('loading')} spinning={isLoading}>
+        <Spin size="large" tip={t('loading')} spinning={false}>
             <div className="main">
                 <ToastContainer position='bottom-right' stacked />
                 {dialogIsOpenNew && (
@@ -533,6 +565,18 @@ function Account() {
                         onAgree={agreeDialogDelete}
                     />
                 )}
+
+                <div role="presentation">
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Link
+                            underline="hover"
+                            color="inherit"
+                            href="/material-ui/getting-started/installation/"
+                        ></Link>
+                        <Typography color="text.primary">{t(title)}</Typography>
+                    </Breadcrumbs>
+                </div>
+
                 <Box
                     sx={{
                         flexGrow: 1,
@@ -554,6 +598,11 @@ function Account() {
                                         // type="number"
                                         value={valueSearch}
                                         onChange={(event) => setValueSearch(event.target.value)}
+                                        onKeyDown={(event) => {
+                                            if (event.key === 'Enter') {
+                                                handleSearch();
+                                            }
+                                        }}
                                     />
                                     <div>
                                         <LoadingButton
@@ -577,7 +626,7 @@ function Account() {
                                     </h5>
                                     <div style={{ width: '100%' }}>
                                         <DataGrid
-                                            rows={dataList}
+                                            rows={displayData}
                                             columns={columns}
                                             getRowId={(row) => row.AccountId}
                                             initialState={{
@@ -639,7 +688,7 @@ function Account() {
                                             startIcon={<AddBoxIcon />}
                                             variant="contained"
                                             color="success"
-                                            onClick={handleOnClickNew}
+                                            onClick={handleClickNew}
                                             loading={valueNewButton}
                                             loadingPosition="start"
                                             sx={{ whiteSpace: 'nowrap' }}
@@ -650,7 +699,7 @@ function Account() {
                                             startIcon={<SystemUpdateAltIcon />}
                                             variant="contained"
                                             color="warning"
-                                            onClick={handleOnClickUpdate}
+                                            onClick={handleClickUpdate}
                                             loading={valueUpdateButton}
                                             loadingPosition="start"
                                             sx={{ whiteSpace: 'nowrap' }}
@@ -689,19 +738,20 @@ function Account() {
                                                     variant="outlined"
                                                     type="text"
                                                     size="large"
-                                                    status={!valueAccountId ? 'error' : ''}
+                                                    status={!valueAccountId || valueAccountId.length !== 9 ? 'error' : ''}
                                                     count={{
-                                                        show: !valueReadonlyCode,
-                                                        max: 5,
+                                                        show: !valueReadonly,
+                                                        max: 9,
                                                         // strategy: (txt) => txt.length,
                                                         // exceedFormatter: (txt, { max }) => txt.slice(0, max),
                                                     }}
                                                     value={valueAccountId}
                                                     onChange={(event) =>
-                                                        event.target.value.length <= 5 && handleOnChangeValueCode(event)
+                                                        event.target.value.length <= 9 && handleOnChangeValueCode(event)
                                                     }
-                                                    placeholder="xxxxx"
-                                                    disabled={valueReadonlyCode}
+                                                    ref={inputAccountIdRef}
+                                                    placeholder="xxxxx xxx"
+                                                    disabled={valueReadonly}
                                                     style={{ color: '#000' }}
                                                 />
                                             </Stack>
@@ -732,6 +782,23 @@ function Account() {
                                                     value={valueUnitId}
                                                     onChange={handleOnChangeValueUnit}
                                                     disabled={valueReadonly}
+                                                    endAdornment={
+                                                        valueUnitId ? (
+                                                            <InputAdornment position="start">
+                                                                <IconButton
+                                                                    tabIndex={-1}
+                                                                    size="small"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation(); // chặn mở dropdown
+                                                                        setValueUnitId("");
+                                                                        setValueUnitName("");
+                                                                    }}
+                                                                >
+                                                                    <ClearIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        ) : null
+                                                    }
                                                 >
                                                     {_.isArray(listUnit) &&
                                                         listUnit.map((data) => {
@@ -755,6 +822,23 @@ function Account() {
                                                     value={valueExpenseGroupId}
                                                     onChange={handleOnChangeValueExpenseGroupID}
                                                     disabled={valueReadonly}
+                                                    endAdornment={
+                                                        valueExpenseGroupId ? (
+                                                            <InputAdornment position="start">
+                                                                <IconButton
+                                                                    tabIndex={-1}
+                                                                    size="small"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation(); // chặn mở dropdown
+                                                                        setValueExpenseGroupId("");
+                                                                        setValueExpenseGroupName("");
+                                                                    }}
+                                                                >
+                                                                    <ClearIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        ) : null
+                                                    }
                                                 >
                                                     {_.isArray(listExpenseGroup) &&
                                                         listExpenseGroup.map((data) => {
@@ -779,11 +863,28 @@ function Account() {
                                                     value={valueExpenseId}
                                                     onChange={handleOnChangeValueExpenseID}
                                                     disabled={valueReadonly}
+                                                    endAdornment={
+                                                        valueExpenseId ? (
+                                                            <InputAdornment position="start">
+                                                                <IconButton
+                                                                    tabIndex={-1}
+                                                                    size="small"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation(); // chặn mở dropdown
+                                                                        setValueExpenseId("");
+                                                                        setValueExpenseName("");
+                                                                    }}
+                                                                >
+                                                                    <ClearIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        ) : null
+                                                    }
                                                 >
                                                     {_.isArray(listExpense) &&
                                                         listExpense.map((data) => {
                                                             return (
-                                                                <MenuItem style={{ textAlign: 'left' }} key={data.ExpenseId} value={data.ExpenseName}>
+                                                                <MenuItem style={{ textAlign: 'left' }} key={data.ExpenseId} value={data.ExpenseId}>
                                                                     {`[${data.ExpenseId}] - ${data.ExpenseName}`}
                                                                 </MenuItem>
                                                             );
@@ -803,6 +904,23 @@ function Account() {
                                                     value={valueMethodId}
                                                     onChange={handleOnChangeValueMethod}
                                                     disabled={valueReadonly}
+                                                    endAdornment={
+                                                        valueMethodId ? (
+                                                            <InputAdornment position="start">
+                                                                <IconButton
+                                                                    tabIndex={-1}
+                                                                    size="small"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation(); // chặn mở dropdown
+                                                                        setValueMethodId("");
+                                                                        setValueMethodName("");
+                                                                    }}
+                                                                >
+                                                                    <ClearIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        ) : null
+                                                    }
                                                 >
                                                     {_.isArray(listMethod) &&
                                                         listMethod.map((data) => {
@@ -828,6 +946,23 @@ function Account() {
                                                     value={valueSubAccountTypeId}
                                                     onChange={handleOnChangeValueSubAccountType}
                                                     disabled={valueReadonly}
+                                                    endAdornment={
+                                                        valueSubAccountTypeId ? (
+                                                            <InputAdornment position="start">
+                                                                <IconButton
+                                                                    tabIndex={-1}
+                                                                    size="small"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation(); // chặn mở dropdown
+                                                                        setValueSubAccountTypeId("");
+                                                                        setValueSubAccountTypeName("");
+                                                                    }}
+                                                                >
+                                                                    <ClearIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        ) : null
+                                                    }
                                                 >
                                                     {_.isArray(listSubAccountType) &&
                                                         listSubAccountType.map((data) => {

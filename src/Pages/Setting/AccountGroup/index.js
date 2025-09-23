@@ -40,6 +40,7 @@ function AccountGroup({ title }) {
     const [isLoading, setIsLoading] = React.useState(false);
     const [reloadListAccGroup, setReloadListAccGroup] = React.useState(false);
     const [dataList, setDataList] = useState([]);
+    const inputCodeRef = React.useRef();
 
     //! columns header
     const columns = [
@@ -233,7 +234,7 @@ function AccountGroup({ title }) {
     /* #region  button new */
 
     const [valueNewButton, setValueNewButton] = React.useState(false);
-    const handleOnClickNew = () => {
+    const handleClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
         setValueCode('');
@@ -245,13 +246,18 @@ function AccountGroup({ title }) {
         setValueDisableSaveButton(false);
         setValueDisableDeleteButton(true);
         setValueDisableUpdateButton(true);
+        if (inputCodeRef.current) {
+            setTimeout(() => {
+                inputCodeRef.current.focus();
+            }, 0);
+        }
     };
     /* #endregion */
 
     /* #region  button update */
     const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
     const [valueDisableUpdateButton, setValueDisableUpdateButton] = React.useState(true);
-    const handleOnClickUpdate = () => {
+    const handleClickUpdate = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
         setValueReadonlyCode(true);
@@ -264,7 +270,7 @@ function AccountGroup({ title }) {
     /* #region  button save */
     const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
     const handleClickSave = () => {
-        if (valueCode && valueName) {
+        if (valueCode && valueName && valueCode.length == 4) {
             if (valueNewButton) {
                 setDialogIsOpenNew(true);
             }
@@ -286,8 +292,8 @@ function AccountGroup({ title }) {
 
     //! on key event
     OnKeyEvent(() => setReloadListAccGroup(!reloadListAccGroup), 'Enter');
-    OnMultiKeyEvent(handleOnClickNew, valueNewButton ? '' : 'n');
-    OnMultiKeyEvent(handleOnClickUpdate, valueDisableUpdateButton ? '' : 'u');
+    OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
+    OnMultiKeyEvent(handleClickUpdate, valueDisableUpdateButton ? '' : 'u');
     OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
     OnMultiKeyEvent(handleClickDelete, valueDisableDeleteButton ? '' : 'd');
 
@@ -306,7 +312,7 @@ function AccountGroup({ title }) {
                 startIcon={<AddBoxIcon />}
                 variant="contained"
                 color="success"
-                onClick={handleOnClickNew}
+                onClick={handleClickNew}
                 loading={valueNewButton}
                 loadingPosition="start"
                 sx={{ whiteSpace: 'nowrap' }}
@@ -319,7 +325,7 @@ function AccountGroup({ title }) {
                 startIcon={<SystemUpdateAltIcon />}
                 variant="contained"
                 color="warning"
-                onClick={handleOnClickUpdate}
+                onClick={handleClickUpdate}
                 loading={valueUpdateButton}
                 loadingPosition="start"
                 sx={{ whiteSpace: 'nowrap' }}
@@ -519,7 +525,7 @@ function AccountGroup({ title }) {
                                             startIcon={<AddBoxIcon />}
                                             variant="contained"
                                             color="success"
-                                            onClick={handleOnClickNew}
+                                            onClick={handleClickNew}
                                             loading={valueNewButton}
                                             loadingPosition="start"
                                             sx={{ whiteSpace: 'nowrap' }}
@@ -530,7 +536,7 @@ function AccountGroup({ title }) {
                                             startIcon={<SystemUpdateAltIcon />}
                                             variant="contained"
                                             color="warning"
-                                            onClick={handleOnClickUpdate}
+                                            onClick={handleClickUpdate}
                                             loading={valueUpdateButton}
                                             loadingPosition="start"
                                             sx={{ whiteSpace: 'nowrap' }}
@@ -580,6 +586,7 @@ function AccountGroup({ title }) {
                                                     onChange={(event) =>
                                                         event.target.value.length <= 4 && handleOnChangeValueCode(event)
                                                     }
+                                                    ref={inputCodeRef}
                                                     placeholder="xxxx"
                                                     disabled={valueReadonlyCode}
                                                     style={{ color: '#000' }}
