@@ -49,7 +49,7 @@ const WrapperView = () => {
                     <AuthenticatedTemplate>
                         {login.status ? (
                             <Routes>
-                                {publicRoutes.map((route, index) => {
+                                {publicRoutes.map((route) => {
                                     let Layout = DefaultLayout;
                                     if (route.layout) {
                                         Layout = route.layout;
@@ -60,7 +60,7 @@ const WrapperView = () => {
                                     const Page = route.component;
                                     return (
                                         <Route
-                                            key={index}
+                                            key={route.path}
                                             path={route.path}
                                             exact
                                             element={
@@ -72,7 +72,7 @@ const WrapperView = () => {
                                     );
                                 })}
                             </Routes>
-                        ) : login.status == false ? (
+                        ) : login.status == false && login.token ? (
                             <Routes>
                                 <Route exact path="/" element={<LoginError mess={login.token} />} />
                             </Routes>

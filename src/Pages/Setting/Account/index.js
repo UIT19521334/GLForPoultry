@@ -418,7 +418,7 @@ function Account() {
             direction={'row'}
             spacing={1}
             sx={{ display: { xs: 'flex', md: 'none' } }}
-            justifyGroupID={'space-between'}
+            justifygroupid={'space-between'}
             marginTop={1.5}
         >
             <LoadingButton
@@ -621,7 +621,7 @@ function Account() {
                                         direction={'row'}
                                         spacing={2}
                                         alignItems={'center'}
-                                        justifyGroupID={'flex-end'}
+                                        justifygroupid={'flex-end'}
                                         height={50}
                                     >
                                         <h5
@@ -832,7 +832,7 @@ function Account() {
                                                     {_.isArray(listSubAccountType) &&
                                                         listSubAccountType.map((data) => {
                                                             return (
-                                                                <MenuItem style={{ textAlign: 'left' }} key={data.TypeId} value={data.SubTypeId}>
+                                                                <MenuItem style={{ textAlign: 'left' }} key={data.SubTypeId} value={data.SubTypeId}>
                                                                     {`[${data.SubTypeId}] - ${data.SubTypeName}`}
                                                                 </MenuItem>
                                                             );

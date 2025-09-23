@@ -313,7 +313,7 @@ function ExpenseDetails() {
             direction={'row'}
             spacing={1}
             sx={{ display: { xs: 'flex', md: 'none' } }}
-            justifyGroupID={'space-between'}
+            justifygroupid={'space-between'}
             marginTop={1.5}
         >
             <LoadingButton
@@ -507,7 +507,7 @@ function ExpenseDetails() {
                                         direction={'row'}
                                         spacing={2}
                                         alignItems={'center'}
-                                        justifyGroupID={'flex-end'}
+                                        justifygroupid={'flex-end'}
                                         height={50}
                                     >
                                         <h5
