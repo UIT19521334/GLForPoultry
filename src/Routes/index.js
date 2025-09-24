@@ -23,7 +23,7 @@ export const settingRoutes = [
     { path: '/accountgroup', component: AccountGroup, title: 'menu-acc-group' },
     { path: '/subaccount/*', component: SubAccount, title: 'menu-sub-acc' },
     { path: '/expense/*', component: Expense, title: 'menu-expense' },
-    { path: '/account', component: Account, title: 'menu-acc' },
+    { path: '/account/*', component: Account, title: 'menu-acc' },
     // { path: '/indexrate', component: IndexRate, title: 'Index Rate' },
 ];
 export const accountantRoutes = [

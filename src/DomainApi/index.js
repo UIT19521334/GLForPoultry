@@ -12,3 +12,9 @@ export const DomainPoultry = axios.create({
         'Content-Type': 'application/json',
     },
 });
+export const DomainMasterApp = axios.create({
+    baseURL: `${process.env.REACT_APP_API_URL_MASTER_APP}`,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});

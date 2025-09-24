@@ -129,6 +129,8 @@
     "account-toast-new": "Create new account?",
     "account-toast-update": "Update account?",
     "account-toast-upload": "Upload file account?",
+    "account-valid-empty": "Please input red field!",
+    "account-valid-length": "Account ID must be 9 characters!",
     "entry": "Manage Accounting Entry",
     "memo": "Transfer Memo",
     "entry-period": "Accounting period",
