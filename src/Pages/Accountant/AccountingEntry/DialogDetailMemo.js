@@ -140,12 +140,6 @@ export default function DialogDetailMemo({
         }
     };
 
-    // console.log('>>>>cost', valueCostCenter);
-    // console.log('acct', valueAccountCode);
-    // console.log('credit', valueCredit);
-    // console.log('debit', valueDebit);
-    // console.log('descrip', valueDescription);
-
     OnMultiKeyEvent(handleClickSave, 's');
 
     return (

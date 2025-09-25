@@ -4,7 +4,11 @@ import _ from 'lodash';
 
 export async function ApiListExpense(valueSearch, setDataList) {
     try {
-        const response = await DomainPoultry.get(`master/expense`);
+        const currentRegionId = localStorage.getItem('Unit')?.RegionId ?? "";
+
+        console.log(currentRegionId)
+        console.log(currentRegionId)
+        const response = await DomainPoultry.get(`master/expense?regionId=${currentRegionId}`);
         const data = await response.data?.Response ?? [];
         let filteredData = data;
         if (valueSearch && valueSearch.trim() !== "") {
@@ -44,8 +48,6 @@ export async function ApiCreateExpense(valueCode, valueName, valueTypeID, valueT
                 IsShow: false,
                 GroupId: valueTypeID,
             };
-
-            console.log("body", body)
 
             await DomainPoultry.post(
                 `master/expense`,

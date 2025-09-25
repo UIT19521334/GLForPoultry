@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import DomainApi, { DomainPoultry } from '~/DomainApi';
+import { DomainPoultry } from '~/DomainApi';
 import _ from 'lodash';
 
 export async function ApiListAccountGroup(valueSearch, setDataList) {

@@ -1,4 +1,4 @@
-import DomainApi, { DomainPoultry } from '~/DomainApi';
+import DomainApi, { DomainMasterApp, DomainPoultry } from '~/DomainApi';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import _ from 'lodash';
 
@@ -50,7 +50,7 @@ export const fetchApiCostCenter = createAsyncThunk('master/fetchApiCostCenter', 
     return data;
 });
 
-export const fetchApiListAccountGroup = createAsyncThunk('master/fetchApiListAccountGroup', async (valueSearch) => {
+export const fetchApiListAccountGroup = createAsyncThunk('master/fetchApiListAccountGroup', async () => {
     const response = await DomainPoultry.get(`master/account-group`);
     const data = await response.data;
     return data.Response;
@@ -63,6 +63,7 @@ export const fetchApiListExpenseGroup = createAsyncThunk('master/fetchApiListExp
 });
 
 export const fetchApiListExpense = createAsyncThunk('master/fetchApiListExpense', async () => {
+
     const response = await DomainPoultry.get(`master/expense`);
     const data = await response.data;
     return data.Response;

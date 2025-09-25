@@ -1,124 +1,80 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { useMsal } from '@azure/msal-react';
 import { useDispatch } from 'react-redux';
-import { updateToken } from '~/Redux/Reducer/Thunk';
+import { updateToken, updateUserInfo, updateUserMenuFromMasterApp } from '~/Redux/Reducer/Thunk';
+import DomainApi, { DomainMasterApp } from '~/DomainApi';
 import { fetchApiAuthInfo } from '~/Redux/FetchApi/fetchApiMaster';
+import { toast } from 'react-toastify';
 
 export default function ApiToken() {
-    const { instance, accounts } = useMsal();
+    const { instance } = useMsal();
     const dispatch = useDispatch();
-    const [valueAccessToken, setValueAccessToken] = useState({
-        token: '',
-        status: null
-    });
-    const [isLoading, setIsLoading] = useState(false);
-
-    // Memoize fetchData để tránh re-render không cần thiết
-    const fetchData = useCallback(async () => {
-        // Kiểm tra instance có sẵn và có accounts
-        if (!instance || !accounts || accounts.length === 0) {
-            console.log('MSAL instance or accounts not ready');
-            return;
+    const activeAccount = instance.getActiveAccount();
+    const [valueAccessToken, setValueAccessToken] = React.useState({ token: '', status: null });
+    const [callApiToken, setCallApiToken] = React.useState(false);
+    const fetchCallApiToken = () => {
+        if (activeAccount && !callApiToken) {
+            setCallApiToken(true);
         }
+    };
+    fetchCallApiToken();
 
-        const activeAccount = instance.getActiveAccount() || accounts[0];
+    function getAllIdNums(data) {
+        const ids = [];
+        function traverse(items) {
+            items.forEach(item => {
+                const common = item.common;
+                if (common?.status === "Y" && common?.idNum !== undefined && common?.idNum !== null) {
+                    ids.push(common.idNum);
+                }
 
-        if (!activeAccount) {
-            console.log('No active account found');
-            setValueAccessToken({
-                token: '',
-                status: false
+                // Nếu có menulv2, menulv3... thì duyệt tiếp
+                if (item.menulv2) traverse(item.menulv2);
+                if (item.menulv3) traverse(item.menulv3);
+                if (item.menulv4) traverse(item.menulv4);
             });
-            return;
         }
 
-        if (isLoading) {
-            console.log('Already loading token...');
-            return;
-        }
+        traverse(data);
+        return ids;
+    }
 
-        setIsLoading(true);
-
-        try {
-            // Kiểm tra xem đã có token hợp lệ chưa
-            const tokenRequest = {
-                scopes: ['User.Read'],
-                account: activeAccount,
-                forceRefresh: false // Chỉ refresh khi cần thiết
-            };
-
-            const response = await instance.acquireTokenSilent(tokenRequest);
-
-            if (response && response.accessToken) {
-                dispatch(updateToken(response.accessToken));
-                dispatch(fetchApiAuthInfo(activeAccount ? activeAccount.username : ''));
-                setValueAccessToken({
-                    token: response.accessToken,
-                    status: true
-                });
-                console.log('Token acquired successfully');
-            }
-        } catch (error) {
-            console.error('Token acquisition failed:', error);
-
-            // Nếu silent token acquisition thất bại, thử interactive
-            try {
-                const interactiveRequest = {
-                    scopes: ['User.Read'],
-                    account: activeAccount
-                };
-
-                const interactiveResponse = await instance.acquireTokenPopup(interactiveRequest);
-
-                if (interactiveResponse && interactiveResponse.accessToken) {
-                    dispatch(updateToken(interactiveResponse.accessToken));
+    React.useEffect(() => {
+        async function fetchData() {
+            if (activeAccount) {
+                try {
+                    const model = {
+                        email: activeAccount.username,
+                        username: activeAccount.username.split('@')[0],
+                        appID: 30,
+                        clientID: 'l1sdjwq234er573023rwe1475177',
+                        loginLog: true,
+                    };
+                    // Login master app
+                    const response = await DomainMasterApp.post(`Apps/login?userID=${model.username}&appID=${model.appID}&email=${model.email}&clientID=${model.clientID}&loginLog=${model.loginLog}`);
+                    const userInfo = response.data;
+                    dispatch(updateToken(userInfo.accessToken));
+                    dispatch(updateUserInfo(userInfo));
+                    // Menu from master app 
+                    const header = {
+                        Authorization: `Bearer ${userInfo?.accessToken}`,
+                        "Content-Type": "application/json",
+                    };
+                    const response_menu = await DomainMasterApp.get(`Apps/menus?userID=${userInfo?.userID}&appID=${model.appID}`, { headers: header });
+                    const menu = response_menu.data;
+                    const ids = getAllIdNums(menu);
+                    dispatch(updateUserMenuFromMasterApp(ids));
+                    // Auth info from poultry
                     dispatch(fetchApiAuthInfo(activeAccount ? activeAccount.username : ''));
-                    setValueAccessToken({
-                        token: interactiveResponse.accessToken,
-                        status: true
-                    });
-                    console.log('Token acquired via popup successfully');
+                    setValueAccessToken({ token: userInfo.accessToken, status: true });
+                } catch (error) {
+                    toast.error(error.response ? error.response.data : error);
+                    setValueAccessToken({ token: error.response ? error.response.data : error, status: false });
                 }
-            } catch (interactiveError) {
-                console.error('Interactive token acquisition failed:', interactiveError);
-                setValueAccessToken({
-                    token: interactiveError.message || 'Authentication failed',
-                    status: false
-                });
             }
-        } finally {
-            setIsLoading(false);
         }
-    }, [instance, accounts, dispatch, isLoading]);
-
-    useEffect(() => {
-        // Đợi một chút để đảm bảo MSAL đã khởi tạo hoàn toàn
-        const timer = setTimeout(() => {
-            fetchData();
-        }, 100);
-
-        return () => clearTimeout(timer);
-    }, [fetchData]);
-
-    // Thêm listener để theo dõi account changes
-    useEffect(() => {
-        if (instance) {
-            const callbackId = instance.addEventCallback((event) => {
-                if (event.eventType === 'msal:accountAdded' ||
-                    event.eventType === 'msal:accountRemoved' ||
-                    event.eventType === 'msal:activeAccountChanged') {
-                    console.log('Account state changed, refetching token...');
-                    fetchData();
-                }
-            });
-
-            return () => {
-                if (callbackId) {
-                    instance.removeEventCallback(callbackId);
-                }
-            };
-        }
-    }, [instance, fetchData]);
+        fetchData();
+    }, [callApiToken]);
 
     return valueAccessToken;
 }

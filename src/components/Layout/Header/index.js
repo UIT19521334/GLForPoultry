@@ -66,7 +66,8 @@ import { Button, Stack } from '@mui/material';
 import ReactNiceAvatar, { genConfig } from 'react-nice-avatar';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import PercentIcon from '@mui/icons-material/Percent';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateCurrentUnit } from '~/Redux/Reducer/Thunk';
 
 const cx = classNames.bind(styles);
 
@@ -184,22 +185,23 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 function Header() {
     const { t } = useTranslation();
     const { instance } = useMsal();
+    const dispatch = useDispatch();
     const activeAccount = instance.getActiveAccount();
     const [openReport, setOpenReport] = React.useState(false);
     const [avaConfig, setAvaConfig] = React.useState(genConfig());
     const dataUnit = useSelector((state) => state.FetchApi.userAccess.units);
+    const currentUnit = useSelector((state) => state.FetchApi.currentUnit);
+    const menu = useSelector((state) => state.FetchApi.menu);
 
     const handleClickReport = () => {
         setOpenReport(!openReport);
     };
 
     const userName = activeAccount.name.split('(');
-    const [valueUnit, setValueUnit] = React.useState(
-        localStorage.getItem('Unit') ? localStorage.getItem('Unit') : 'UN001',
-    );
     const handleChangeUnit = (event) => {
-        setValueUnit(event.target.value);
-        localStorage.setItem('Unit', valueUnit);
+        const data = event.target.value && dataUnit.find(item => item.UnitId === event.target.value);
+        dispatch(updateCurrentUnit(data))
+        localStorage.setItem('Unit', JSON.stringify(data));
     };
     const location = useLocation();
     /**side pc */
@@ -295,7 +297,7 @@ function Header() {
                     <ListItem
                         key={route.title}
                         disablePadding
-                        sx={{ display: 'block' }}
+                        sx={{ display: menu.includes(route.menuid) ? 'block' : 'none' }}
                         onClick={toggleDrawer('left', false)}
                     >
                         <NavLink to={route.path} style={{ textDecoration: 'none', color: 'black' }}>
@@ -459,10 +461,6 @@ function Header() {
     const handleMenuClose = () => {
         setAnchorEl(null);
         handleMobileMenuClose();
-    };
-
-    const handleMobileMenuOpen = (event) => {
-        setMobileMoreAnchorEl(event.currentTarget);
     };
 
     const menuId = 'primary-search-account-menu';
@@ -648,11 +646,11 @@ function Header() {
                                 marginRight: 2,
                             }}
                             size="small"
-                        >
+                        >{dataUnit.length > 0 && currentUnit && (
                             <Select
                                 labelId="demo-simple-select-helper-label"
                                 id="demo-simple-select-helper"
-                                value={valueUnit}
+                                value={currentUnit.UnitId}
                                 // label="Age"
                                 displayEmpty
                                 onChange={handleChangeUnit}
@@ -667,7 +665,7 @@ function Header() {
                                         </MenuItem>
                                     );
                                 })}
-                            </Select>
+                            </Select>)}
                         </FormControl>
 
                         <Typography
@@ -778,7 +776,7 @@ function Header() {
                             <ListItem
                                 key={route.title}
                                 disablePadding
-                                sx={{ display: 'block' }}
+                                sx={{ display: menu.includes(route.menuid) ? 'block' : 'none' }}
                                 onClick={toggleDrawer('left', false)}
                             >
                                 <Link to={route.path} style={{ textDecoration: 'none', color: 'black' }}>

@@ -41,7 +41,7 @@ const initialState = {
     listData_SubAccountType: [],
     listData_Account: [],
     listData_User: [],
-    userAccess: {
+    userAccess: { //Poultry Account
         menus: [],
         units: []
     },
@@ -52,6 +52,9 @@ const initialState = {
     listData_ExpenseGroup: [],
     listData_Expense: [],
     listData_Method: [],
+    userInfo: {}, // Master App
+    menu: [], // Master App
+    currentUnit: [],
 };
 
 export const period = createSlice({
@@ -60,6 +63,15 @@ export const period = createSlice({
     reducers: {
         updateToken: (state, action) => {
             state.token = action.payload;
+        },
+        updateUserInfo: (state, action) => {
+            state.userInfo = action.payload;
+        },
+        updateUserMenuFromMasterApp: (state, action) => {
+            state.menu = action.payload;
+        },
+        updateCurrentUnit: (state, action) => {
+            state.currentUnit = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -151,6 +163,17 @@ export const period = createSlice({
                 state.isError = false;
             })
             .addCase(fetchApiAuthInfo.fulfilled, (state, action) => {
+                // Add current unit
+                const listUnit = action.payload.units;
+                const data = localStorage.getItem('Unit')
+                const prevUnit = JSON.parse(data);
+                const exists = listUnit.some(unit => unit.UnitId === prevUnit?.UnitId);
+                if (exists) {
+                    state.currentUnit = prevUnit
+                } else {
+                    state.currentUnit = listUnit[0]
+                    localStorage.setItem('Unit', JSON.stringify(listUnit[0]));
+                }
                 // Add user to the state array
                 state.userAccess = action.payload;
                 state.isLoading = false;
@@ -346,6 +369,6 @@ export const period = createSlice({
     },
 });
 
-export const { updateToken } = period.actions;
+export const { updateToken, updateUserInfo, updateUserMenuFromMasterApp, updateCurrentUnit } = period.actions;
 
 export default period.reducer;

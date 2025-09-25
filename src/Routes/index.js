@@ -20,10 +20,10 @@ const otherRoutes = [
 ];
 
 export const settingRoutes = [
-    { path: '/accountgroup', component: AccountGroup, title: 'menu-acc-group' },
-    { path: '/subaccount/*', component: SubAccount, title: 'menu-sub-acc' },
-    { path: '/expense/*', component: Expense, title: 'menu-expense' },
-    { path: '/account/*', component: Account, title: 'menu-acc' },
+    { path: '/accountgroup', component: AccountGroup, title: 'menu-acc-group', menuid: 618 },
+    { path: '/subaccount/*', component: SubAccount, title: 'menu-sub-acc', menuid: 622 },
+    { path: '/expense/*', component: Expense, title: 'menu-expense', menuid: 620 },
+    { path: '/account/*', component: Account, title: 'menu-acc', menuid: 621 },
     // { path: '/indexrate', component: IndexRate, title: 'Index Rate' },
 ];
 export const accountantRoutes = [
