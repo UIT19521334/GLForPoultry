@@ -1,4 +1,4 @@
-import DomainApi, { DomainMasterApp, DomainPoultry } from '~/DomainApi';
+import DomainApi, { DomainPoultry } from '~/DomainApi';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import _ from 'lodash';
 
@@ -9,8 +9,11 @@ export const fetchApiChannel = createAsyncThunk('master/fetchApiChannel', async 
     }
 });
 
-export const fetchApiCurrency = createAsyncThunk('master/fetchApiCurrency', async () => {
-    const response = await DomainPoultry.get('master/currency');
+export const fetchApiCurrency = createAsyncThunk('master/fetchApiCurrency', async (token) => {
+    const header = {
+        Authorization: token,
+    };
+    const response = await DomainPoultry.get('master/currency', { headers: header });
     const data = await response.data;
     return data.Response;
 });
@@ -22,12 +25,15 @@ export const fetchPeriod = createAsyncThunk('master/fetchPeriod', async (unitcod
     }
 });
 
-export const fetchApiAuthInfo = createAsyncThunk('master/fetchApiAuthInfo', async (email) => {
+export const fetchApiAuthInfo = createAsyncThunk('master/fetchApiAuthInfo', async (email, token) => {
     if (email) {
         const body = {
             email: email,
         };
-        const response = await DomainPoultry.post(`auth/info`, body);
+        const header = {
+            Authorization: token,
+        };
+        const response = await DomainPoultry.post(`auth/info`, body, { headers: header });
         return response.data?.Response;
     }
 });
@@ -50,43 +56,49 @@ export const fetchApiCostCenter = createAsyncThunk('master/fetchApiCostCenter', 
     return data;
 });
 
-export const fetchApiListAccountGroup = createAsyncThunk('master/fetchApiListAccountGroup', async () => {
-    const response = await DomainPoultry.get(`master/account-group`);
+export const fetchApiListAccountGroup = createAsyncThunk('master/fetchApiListAccountGroup', async (token) => {
+    const header = {
+        Authorization: token,
+    };
+    const response = await DomainPoultry.get(`master/account-group`, { headers: header });
     const data = await response.data;
     return data.Response;
 });
 
-export const fetchApiListExpenseGroup = createAsyncThunk('master/fetchApiListExpenseGroup', async () => {
-    const response = await DomainPoultry.get(`master/expense-group`);
+export const fetchApiListExpenseGroup = createAsyncThunk('master/fetchApiListExpenseGroup', async (token) => {
+    const header = {
+        Authorization: token,
+    };
+    const response = await DomainPoultry.get(`master/expense-group`, { headers: header });
     const data = await response.data;
     return data.Response;
 });
 
-export const fetchApiListExpense = createAsyncThunk('master/fetchApiListExpense', async () => {
-
-    const response = await DomainPoultry.get(`master/expense`);
+export const fetchApiListExpense = createAsyncThunk('master/fetchApiListExpense', async (token) => {
+    const header = {
+        Authorization: token,
+    };
+    const response = await DomainPoultry.get(`master/expense`, { headers: header });
     const data = await response.data;
     return data.Response;
 });
 
-export const fetchApiListMethod = createAsyncThunk('master/fetchApiListMethod', async () => {
-    const response = await DomainPoultry.get(`master/method`);
+export const fetchApiListMethod = createAsyncThunk('master/fetchApiListMethod', async (token) => {
+    const header = {
+        Authorization: token,
+    };
+    const response = await DomainPoultry.get(`master/method`, { headers: header });
     const data = await response.data;
     return data.Response;
 });
 
-export const fetchApiListSubAccountType = createAsyncThunk('master/fetchApiListSubAccountType', async (valueSearch) => {
-    const response = await DomainPoultry.get(`master/sub-account-type`);
+export const fetchApiListSubAccountType = createAsyncThunk('master/fetchApiListSubAccountType', async (token) => {
+    const header = {
+        Authorization: token,
+    };
+    const response = await DomainPoultry.get(`master/sub-account-type`, { headers: header });
     const data = await response.data?.Response ?? [];
-    let filteredData = data;
-    if (valueSearch && valueSearch.trim() !== "") {
-        const fieldsToSearch = ["SubTypeId", "SubTypeName", "Description"];
-        filteredData = _.filter(data, (item) => {
-            const search = _.toLower(valueSearch);
-            return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
-        });
-    }
-    return filteredData;
+    return data;
 });
 
 export const fetchApiListAccount = createAsyncThunk('master/fetchApiListAccount', async (valueSearch) => {

@@ -1,10 +1,14 @@
 import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
 import _ from 'lodash';
+import { store } from "~/Redux/store";
 
 export async function ApiListExpenseGroup(valueSearch, setDataList) {
     try {
-        const response = await DomainPoultry.get(`master/expense-group`);
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const response = await DomainPoultry.get(`master/expense-group`, { headers: header });
         const data = await response.data?.Response ?? [];
         let filteredData = data;
         if (valueSearch && valueSearch.trim() !== "") {
@@ -27,14 +31,14 @@ export async function ApiCreateExpenseGroup(valueCode, valueName, valueDescripti
         try {
             var statusCode = false;
             const header = {
-                // Authorization: access_token,
+                Authorization: store.getState().FetchApi.token,
             };
             const body = {
                 GroupId: valueCode,
                 GroupName_EN: valueName,
                 GroupName_VN: valueName,
                 Active: true,
-                Username: localStorage.getItem('UserName'),
+                Username: store.getState().FetchApi.userInfo?.userID_old ?? "",
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 Description: valueDescription,
@@ -42,7 +46,8 @@ export async function ApiCreateExpenseGroup(valueCode, valueName, valueDescripti
 
             await DomainPoultry.post(
                 `master/expense-group`,
-                body
+                body,
+                { headers: header }
             );
 
             toast.success(' Success create new expense!');
@@ -64,19 +69,23 @@ export async function ApiUpdateExpenseGroup(valueCode, valueName, valueDescripti
     if (valueCode && valueName) {
         try {
             var statusCode = false;
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
             const body = {
                 GroupId: valueCode,
                 GroupName_EN: valueName,
                 GroupName_VN: valueName,
                 Active: true,
-                Username: localStorage.getItem('UserName'),
+                Username: store.getState().FetchApi.userInfo?.userID_old ?? "",
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 Description: valueDescription,
             };
             await DomainPoultry.put(
                 `master/expense-group/${valueCode}`,
-                body
+                body,
+                { headers: header }
             );
             toast.success(' Success update expense!');
             statusCode = true;
@@ -97,7 +106,10 @@ export async function ApiDeleteExpenseGroup(valueCode) {
     if (valueCode) {
         try {
             var statusCode = false;
-            await DomainPoultry.delete(`master/expense-group/${valueCode}`);
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
+            await DomainPoultry.delete(`master/expense-group/${valueCode}`, { headers: header });
             toast.success(' Success delete expense !');
             statusCode = true;
         } catch (error) {

@@ -62,7 +62,7 @@ export const period = createSlice({
     initialState: initialState,
     reducers: {
         updateToken: (state, action) => {
-            state.token = action.payload;
+            state.token = `Bearer ${action.payload}`;
         },
         updateUserInfo: (state, action) => {
             state.userInfo = action.payload;

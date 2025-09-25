@@ -13,7 +13,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SearchIcon from '@mui/icons-material/Search';
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
-import { ApiCreateAccount, ApiDeleteAccount, ApiListAccount, ApiUpdateAccount } from '~/components/Api/Account';
+import { ApiCreateAccount, ApiDeleteAccount, ApiListAccountByUnit, ApiUpdateAccount } from '~/components/Api/Account';
 import SaveIcon from '@mui/icons-material/Save';
 import '../../../Container.css';
 import TextField from '@mui/material/TextField';
@@ -21,10 +21,7 @@ import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
-import { Breadcrumbs, IconButton, InputAdornment, Link, MenuItem, Select, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchApiListExpense, fetchApiListExpenseGroup, fetchApiListMethod, fetchApiListSubAccountType } from '~/Redux/FetchApi/fetchApiMaster';
-import { ClearIcon } from '@mui/x-date-pickers';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -35,7 +32,7 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-function AccountSupport() {
+function AccountRoot() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = React.useState(false);
@@ -59,38 +56,13 @@ function AccountSupport() {
         {
             field: 'AccountName',
             headerName: t('name'),
-            minWidth: 200,
-            flex: 1,
+            minWidth: 300,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'UnitName',
-            headerName: t('unit'),
-            minWidth: 50,
-            headerClassName: 'super-app-theme--header',
-        },
-        {
-            field: 'ExpenseGroupName',
-            headerName: t('expense-group'),
-            minWidth: 150,
-            headerClassName: 'super-app-theme--header',
-        },
-        {
-            field: 'ExpenseName',
-            headerName: t('expense'),
-            minWidth: 200,
-            headerClassName: 'super-app-theme--header',
-        },
-        {
-            field: 'MethodName',
-            headerName: t('method'),
-            minWidth: 100,
-            headerClassName: 'super-app-theme--header',
-        },
-        {
-            field: 'AccountSubTypeName',
-            headerName: t('menu-sub-acc-type'),
-            minWidth: 200,
+            field: 'Description',
+            headerName: t('description'),
+            minWidth: 300,
             flex: 1,
             headerClassName: 'super-app-theme--header',
         }
@@ -116,7 +88,11 @@ function AccountSupport() {
     useEffect(() => {
         const fetchApiGetDataAccount = async () => {
             setIsLoading(true);
-            const result = await ApiListAccount();
+            const body = {
+                IncludeUnit: false,
+                Units: []
+            }
+            const result = await ApiListAccountByUnit(body);
             setDataList(result);
             setDisplayData(result);
             setIsLoading(false);
@@ -124,22 +100,12 @@ function AccountSupport() {
         fetchApiGetDataAccount();
     }, [reloadListAccount]);
 
-    useEffect(() => {
-        const fetchApiSupport = async () => {
-            dispatch(fetchApiListExpenseGroup());
-            dispatch(fetchApiListExpense());
-            dispatch(fetchApiListMethod());
-            dispatch(fetchApiListSubAccountType());
-        };
-        fetchApiSupport();
-    }, []);
-
     // Handle search
     const [valueSearch, setValueSearch] = React.useState('');
     const handleSearch = () => {
         let filteredData = dataList;
         if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["AccountName", "AccountId", "UnitName", "ExpenseGroupName", "ExpenseName", "MethodName", "AccountSubTypeName"];
+            const fieldsToSearch = ["AccountName", "AccountId", "Description"];
             filteredData = _.filter(dataList, (item) => {
                 const search = _.toLower(valueSearch);
                 return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
@@ -166,7 +132,6 @@ function AccountSupport() {
                 });
                 setValueReadonly(true);
                 setValueReadonlyCode(true);
-                setValueReadonlyUnit(true);
                 setValueDisableSaveButton(true);
                 setValueDisableDeleteButton(false)
                 setValueNewButton(false);
@@ -231,7 +196,6 @@ function AccountSupport() {
             setValueDisableDeleteButton(true);
             setValueReadonly(true);
             setValueReadonlyCode(true);
-            setValueReadonlyUnit(true);
         }
         setIsLoading(false);
         setReloadListAccount(!reloadListAccount);
@@ -251,34 +215,6 @@ function AccountSupport() {
 
     const handleOnChangeValueDescription = (event) => {
         setValueDescription(event.target.value);
-    };
-
-    const handleOnChangeValueUnit = (e) => {
-        const data = e.target.value && listUnit.find(item => item.UnitId === e.target.value);
-        setValueUnitId(data.UnitId);
-        setValueUnitName(data.UnitName);
-    };
-
-    const handleOnChangeValueExpenseGroupID = (e) => {
-        const data = e.target.value && listExpenseGroup.find(item => item.GroupId === e.target.value);
-        setValueExpenseGroupId(data.GroupId);
-        setValueExpenseGroupName(data.GroupName_EN);
-    };
-
-    const handleOnChangeValueExpenseID = (e) => {
-        const data = e.target.value && listExpense.find(item => item.ExpenseId === e.target.value);
-        setValueExpenseId(data.ExpenseId);
-        setValueExpenseName(data.ExpenseName);
-    };
-    const handleOnChangeValueMethod = (e) => {
-        const data = e.target.value && listMethod.find(item => item.MethodId === e.target.value);
-        setValueMethodId(data.MethodId);
-        setValueMethodName(data.MethodName);
-    };
-    const handleOnChangeValueSubAccountType = (e) => {
-        const data = e.target.value && listSubAccountType.find(item => item.SubTypeId === e.target.value);
-        setValueSubAccountTypeId(data.SubTypeId);
-        setValueSubAccountTypeName(data.SubTypeName);
     };
 
     // TODO call api update
@@ -366,7 +302,6 @@ function AccountSupport() {
 
     const [valueReadonly, setValueReadonly] = React.useState(true);
     const [valueReadonlyCode, setValueReadonlyCode] = React.useState(true);
-    const [valueReadonlyUnit, setValueReadonlyUnit] = React.useState(true);
 
     /* #region  button new */
 
@@ -374,12 +309,8 @@ function AccountSupport() {
     const handleClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
-        setValueReadonlyCode(true);
-        setValueReadonlyUnit(false);
-        setValueReadonly(false);
-        setValueDisableSaveButton(false);
-        setValueDisableDeleteButton(true);
-        setValueDisableUpdateButton(true);
+        setValueAccountId('');
+        setValueAccountName('');
         setValueUnitId('');
         setValueUnitName('');
         setValueExpenseGroupId('');
@@ -391,6 +322,11 @@ function AccountSupport() {
         setValueSubAccountTypeId('');
         setValueSubAccountTypeName('');
         setValueDescription('');
+        setValueReadonly(false);
+        setValueReadonlyCode(false);
+        setValueDisableSaveButton(false);
+        setValueDisableDeleteButton(true);
+        setValueDisableUpdateButton(true);
         if (inputAccountIdRef.current) {
             setTimeout(() => {
                 inputAccountIdRef.current.focus();
@@ -405,7 +341,6 @@ function AccountSupport() {
     const handleClickUpdate = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
-        setValueReadonlyUnit(true);
         setValueReadonlyCode(true);
         setValueReadonly(false);
         setValueDisableSaveButton(false);
@@ -421,15 +356,19 @@ function AccountSupport() {
     /* #region  button save */
     const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
     const handleClickSave = () => {
-        if (valueAccountId.length == 9 && valueAccountName) {
-            if (valueNewButton) {
-                setDialogIsOpenNew(true);
-            }
-            if (valueUpdateButton) {
-                setDialogIsOpenUpdate(true);
-            }
-        } else {
-            toast.error(t('account-toast-error'));
+        if (!valueAccountName) {
+            toast.error(t('account-valid-empty'));
+            return;
+        }
+        if (valueAccountId.length != 9) {
+            toast.error(t('account-valid-length'));
+            return;
+        }
+        if (valueNewButton) {
+            setDialogIsOpenNew(true);
+        }
+        if (valueUpdateButton) {
+            setDialogIsOpenUpdate(true);
         }
     };
     /* #endregion */
@@ -744,7 +683,7 @@ function AccountSupport() {
                                                     }
                                                     ref={inputAccountIdRef}
                                                     placeholder="xxxxx xxx"
-                                                    disabled={valueReadonlyCode}
+                                                    disabled={valueReadonly}
                                                     style={{ color: '#000' }}
                                                 />
                                             </Stack>
@@ -759,11 +698,11 @@ function AccountSupport() {
                                                     value={valueAccountName}
                                                     onChange={(event) => handleOnChangeValueName(event)}
                                                     placeholder="name..."
-                                                    disabled={valueReadonlyCode}
+                                                    disabled={valueReadonly}
                                                     style={{ color: '#000' }}
                                                 />
                                             </Stack>
-                                            <Stack direction={'row'} spacing={2}>
+                                            {/* <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
                                                     <div>{t('unit')}</div>
                                                 </div>
@@ -774,9 +713,9 @@ function AccountSupport() {
                                                     style={{ textAlign: 'left' }}
                                                     value={valueUnitId}
                                                     onChange={handleOnChangeValueUnit}
-                                                    disabled={valueReadonlyUnit}
+                                                    disabled={valueReadonly}
                                                     endAdornment={
-                                                        (valueUnitId && !valueReadonlyUnit) ? (
+                                                        valueUnitId ? (
                                                             <InputAdornment position="start">
                                                                 <IconButton
                                                                     tabIndex={-1}
@@ -816,7 +755,7 @@ function AccountSupport() {
                                                     onChange={handleOnChangeValueExpenseGroupID}
                                                     disabled={valueReadonly}
                                                     endAdornment={
-                                                        (valueExpenseGroupId && !valueReadonly) ? (
+                                                        valueExpenseGroupId ? (
                                                             <InputAdornment position="start">
                                                                 <IconButton
                                                                     tabIndex={-1}
@@ -843,7 +782,6 @@ function AccountSupport() {
                                                         })}
                                                 </Select>
                                             </Stack>
-
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
                                                     <div>{t('expense')}</div>
@@ -857,7 +795,7 @@ function AccountSupport() {
                                                     onChange={handleOnChangeValueExpenseID}
                                                     disabled={valueReadonly}
                                                     endAdornment={
-                                                        (valueExpenseId && !valueReadonly) ? (
+                                                        valueExpenseId ? (
                                                             <InputAdornment position="start">
                                                                 <IconButton
                                                                     tabIndex={-1}
@@ -884,7 +822,6 @@ function AccountSupport() {
                                                         })}
                                                 </Select>
                                             </Stack>
-
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
                                                     <div>{t('method')}</div>
@@ -898,7 +835,7 @@ function AccountSupport() {
                                                     onChange={handleOnChangeValueMethod}
                                                     disabled={valueReadonly}
                                                     endAdornment={
-                                                        (valueMethodId && !valueReadonly) ? (
+                                                        valueMethodId ? (
                                                             <InputAdornment position="start">
                                                                 <IconButton
                                                                     tabIndex={-1}
@@ -925,8 +862,6 @@ function AccountSupport() {
                                                         })}
                                                 </Select>
                                             </Stack>
-
-
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
                                                     <div>{t('menu-sub-acc-type')}</div>
@@ -940,7 +875,7 @@ function AccountSupport() {
                                                     onChange={handleOnChangeValueSubAccountType}
                                                     disabled={valueReadonly}
                                                     endAdornment={
-                                                        (valueSubAccountTypeId && !valueReadonly) ? (
+                                                        valueSubAccountTypeId ? (
                                                             <InputAdornment position="start">
                                                                 <IconButton
                                                                     tabIndex={-1}
@@ -966,7 +901,7 @@ function AccountSupport() {
                                                             );
                                                         })}
                                                 </Select>
-                                            </Stack>
+                                            </Stack> */}
 
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
@@ -996,4 +931,4 @@ function AccountSupport() {
     );
 }
 
-export default AccountSupport;
+export default AccountRoot;

@@ -65,7 +65,7 @@ export default function ApiToken() {
                     const ids = getAllIdNums(menu);
                     dispatch(updateUserMenuFromMasterApp(ids));
                     // Auth info from poultry
-                    dispatch(fetchApiAuthInfo(activeAccount ? activeAccount.username : ''));
+                    dispatch(fetchApiAuthInfo(activeAccount ? activeAccount.username : '', userInfo?.accessToken));
                     setValueAccessToken({ token: userInfo.accessToken, status: true });
                 } catch (error) {
                     toast.error(error.response ? error.response.data : error);

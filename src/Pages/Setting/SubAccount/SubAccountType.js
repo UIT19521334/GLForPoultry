@@ -44,6 +44,7 @@ function SubAccountType({ title }) {
     const [dataList, setDataList] = useState([]);
     const listSubAccountType = useSelector((state) => state.FetchApi.listData_SubAccountType);
     const isGlobalLoading = useSelector((state) => state.FetchApi.isLoading);
+    const token = useSelector((state) => state.FetchApi.token);
     const dispatch = useDispatch();
     //! columns header
     const columns = [
@@ -74,7 +75,7 @@ function SubAccountType({ title }) {
             // setIsLoading(true);
             // await ApiListSubAccountType(valueSearch, setDataList);
             // setIsLoading(false);
-            dispatch(fetchApiListSubAccountType());
+            dispatch(fetchApiListSubAccountType(token));
         };
         fetchApiGetDataAccGroup();
     }, [reloadListAccGroup]);

@@ -1,12 +1,13 @@
 import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
+import { store } from "~/Redux/store";
 
 export async function ApiCreateSubAccountType(valueCode, valueName, valueDescription) {
     if (valueCode && valueName) {
         try {
             var statusCode = false;
             const header = {
-                // Authorization: access_token,
+                Authorization: store.getState().FetchApi.token,
             };
             const body = {
                 SubTypeId: valueCode,
@@ -20,7 +21,8 @@ export async function ApiCreateSubAccountType(valueCode, valueName, valueDescrip
 
             await DomainPoultry.post(
                 `master/sub-account-type`,
-                body
+                body,
+                { headers: header }
             );
 
             toast.success(' Success create new sub account!');
@@ -42,6 +44,9 @@ export async function ApiUpdateSubAccountType(valueCode, valueName, valueDescrip
     if (valueCode && valueName) {
         try {
             var statusCode = false;
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
             const body = {
                 SubTypeId: valueCode,
                 SubTypeName: valueName,
@@ -53,7 +58,8 @@ export async function ApiUpdateSubAccountType(valueCode, valueName, valueDescrip
             };
             await DomainPoultry.put(
                 `master/sub-account-type/${valueCode}`,
-                body
+                body,
+                { headers: header }
             );
             toast.success(' Success update sub account!');
             statusCode = true;
@@ -74,7 +80,10 @@ export async function ApiDeleteSubAccountType(valueCode) {
     if (valueCode) {
         try {
             var statusCode = false;
-            await DomainPoultry.delete(`master/sub-account-type/${valueCode}`);
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
+            await DomainPoultry.delete(`master/sub-account-type/${valueCode}`, { headers: header });
             toast.success(' Success delete sub account !');
             statusCode = true;
         } catch (error) {

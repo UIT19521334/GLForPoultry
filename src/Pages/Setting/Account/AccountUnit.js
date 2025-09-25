@@ -13,7 +13,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SearchIcon from '@mui/icons-material/Search';
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
-import { ApiCreateAccount, ApiDeleteAccount, ApiListAccount, ApiUpdateAccount } from '~/components/Api/Account';
+import { ApiCreateAccount, ApiDeleteAccount, ApiListAccount, ApiListAccountByUnit, ApiUpdateAccount } from '~/components/Api/Account';
 import SaveIcon from '@mui/icons-material/Save';
 import '../../../Container.css';
 import TextField from '@mui/material/TextField';
@@ -35,7 +35,7 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-function AccountDetails() {
+function AccountUnit() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = React.useState(false);
@@ -47,6 +47,8 @@ function AccountDetails() {
     const listMethod = useSelector((state) => state.FetchApi.listData_Method);
     const listExpense = useSelector((state) => state.FetchApi.listData_Expense);
     const listUnit = useSelector((state) => state.FetchApi.userAccess.units);
+    const token = useSelector((state) => state.FetchApi.token);
+
 
     //! columns header
     const columns = [
@@ -59,7 +61,8 @@ function AccountDetails() {
         {
             field: 'AccountName',
             headerName: t('name'),
-            minWidth: 300,
+            minWidth: 200,
+            flex: 1,
             headerClassName: 'super-app-theme--header',
         },
         {
@@ -115,20 +118,25 @@ function AccountDetails() {
     useEffect(() => {
         const fetchApiGetDataAccount = async () => {
             setIsLoading(true);
-            const result = await ApiListAccount();
+            const unitIds = listUnit.map(u => u.UnitId);
+            const body = {
+                IncludeUnit: true,
+                Units: unitIds
+            }
+            const result = await ApiListAccountByUnit(body);
             setDataList(result);
             setDisplayData(result);
             setIsLoading(false);
         };
         fetchApiGetDataAccount();
-    }, [reloadListAccount]);
+    }, [reloadListAccount, listUnit]);
 
     useEffect(() => {
         const fetchApiSupport = async () => {
-            dispatch(fetchApiListExpenseGroup());
-            dispatch(fetchApiListExpense());
-            dispatch(fetchApiListMethod());
-            dispatch(fetchApiListSubAccountType());
+            dispatch(fetchApiListExpenseGroup(token));
+            dispatch(fetchApiListExpense(token));
+            dispatch(fetchApiListMethod(token));
+            dispatch(fetchApiListSubAccountType(token));
         };
         fetchApiSupport();
     }, []);
@@ -165,6 +173,7 @@ function AccountDetails() {
                 });
                 setValueReadonly(true);
                 setValueReadonlyCode(true);
+                setValueReadonlyUnit(true);
                 setValueDisableSaveButton(true);
                 setValueDisableDeleteButton(false)
                 setValueNewButton(false);
@@ -229,6 +238,7 @@ function AccountDetails() {
             setValueDisableDeleteButton(true);
             setValueReadonly(true);
             setValueReadonlyCode(true);
+            setValueReadonlyUnit(true);
         }
         setIsLoading(false);
         setReloadListAccount(!reloadListAccount);
@@ -363,6 +373,7 @@ function AccountDetails() {
 
     const [valueReadonly, setValueReadonly] = React.useState(true);
     const [valueReadonlyCode, setValueReadonlyCode] = React.useState(true);
+    const [valueReadonlyUnit, setValueReadonlyUnit] = React.useState(true);
 
     /* #region  button new */
 
@@ -370,8 +381,12 @@ function AccountDetails() {
     const handleClickNew = () => {
         setValueNewButton(true);
         setValueUpdateButton(false);
-        setValueAccountId('');
-        setValueAccountName('');
+        setValueReadonlyCode(true);
+        setValueReadonlyUnit(false);
+        setValueReadonly(false);
+        setValueDisableSaveButton(false);
+        setValueDisableDeleteButton(true);
+        setValueDisableUpdateButton(true);
         setValueUnitId('');
         setValueUnitName('');
         setValueExpenseGroupId('');
@@ -383,11 +398,6 @@ function AccountDetails() {
         setValueSubAccountTypeId('');
         setValueSubAccountTypeName('');
         setValueDescription('');
-        setValueReadonly(false);
-        setValueReadonlyCode(false);
-        setValueDisableSaveButton(false);
-        setValueDisableDeleteButton(true);
-        setValueDisableUpdateButton(true);
         if (inputAccountIdRef.current) {
             setTimeout(() => {
                 inputAccountIdRef.current.focus();
@@ -402,6 +412,7 @@ function AccountDetails() {
     const handleClickUpdate = () => {
         setValueNewButton(false);
         setValueUpdateButton(true);
+        setValueReadonlyUnit(true);
         setValueReadonlyCode(true);
         setValueReadonly(false);
         setValueDisableSaveButton(false);
@@ -417,19 +428,15 @@ function AccountDetails() {
     /* #region  button save */
     const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
     const handleClickSave = () => {
-        if (!valueAccountName) {
-            toast.error(t('account-valid-empty'));
-            return;
-        }
-        if (valueAccountId.length != 9) {
-            toast.error(t('account-valid-length'));
-            return;
-        }
-        if (valueNewButton) {
-            setDialogIsOpenNew(true);
-        }
-        if (valueUpdateButton) {
-            setDialogIsOpenUpdate(true);
+        if (valueAccountId.length == 9 && valueAccountName) {
+            if (valueNewButton) {
+                setDialogIsOpenNew(true);
+            }
+            if (valueUpdateButton) {
+                setDialogIsOpenUpdate(true);
+            }
+        } else {
+            toast.error(t('account-toast-error'));
         }
     };
     /* #endregion */
@@ -744,7 +751,7 @@ function AccountDetails() {
                                                     }
                                                     ref={inputAccountIdRef}
                                                     placeholder="xxxxx xxx"
-                                                    disabled={valueReadonly}
+                                                    disabled={valueReadonlyCode}
                                                     style={{ color: '#000' }}
                                                 />
                                             </Stack>
@@ -759,11 +766,11 @@ function AccountDetails() {
                                                     value={valueAccountName}
                                                     onChange={(event) => handleOnChangeValueName(event)}
                                                     placeholder="name..."
-                                                    disabled={valueReadonly}
+                                                    disabled={valueReadonlyCode}
                                                     style={{ color: '#000' }}
                                                 />
                                             </Stack>
-                                            {/* <Stack direction={'row'} spacing={2}>
+                                            <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
                                                     <div>{t('unit')}</div>
                                                 </div>
@@ -774,9 +781,9 @@ function AccountDetails() {
                                                     style={{ textAlign: 'left' }}
                                                     value={valueUnitId}
                                                     onChange={handleOnChangeValueUnit}
-                                                    disabled={valueReadonly}
+                                                    disabled={valueReadonlyUnit}
                                                     endAdornment={
-                                                        valueUnitId ? (
+                                                        (valueUnitId && !valueReadonlyUnit) ? (
                                                             <InputAdornment position="start">
                                                                 <IconButton
                                                                     tabIndex={-1}
@@ -816,7 +823,7 @@ function AccountDetails() {
                                                     onChange={handleOnChangeValueExpenseGroupID}
                                                     disabled={valueReadonly}
                                                     endAdornment={
-                                                        valueExpenseGroupId ? (
+                                                        (valueExpenseGroupId && !valueReadonly) ? (
                                                             <InputAdornment position="start">
                                                                 <IconButton
                                                                     tabIndex={-1}
@@ -843,6 +850,7 @@ function AccountDetails() {
                                                         })}
                                                 </Select>
                                             </Stack>
+
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
                                                     <div>{t('expense')}</div>
@@ -856,7 +864,7 @@ function AccountDetails() {
                                                     onChange={handleOnChangeValueExpenseID}
                                                     disabled={valueReadonly}
                                                     endAdornment={
-                                                        valueExpenseId ? (
+                                                        (valueExpenseId && !valueReadonly) ? (
                                                             <InputAdornment position="start">
                                                                 <IconButton
                                                                     tabIndex={-1}
@@ -883,6 +891,7 @@ function AccountDetails() {
                                                         })}
                                                 </Select>
                                             </Stack>
+
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
                                                     <div>{t('method')}</div>
@@ -896,7 +905,7 @@ function AccountDetails() {
                                                     onChange={handleOnChangeValueMethod}
                                                     disabled={valueReadonly}
                                                     endAdornment={
-                                                        valueMethodId ? (
+                                                        (valueMethodId && !valueReadonly) ? (
                                                             <InputAdornment position="start">
                                                                 <IconButton
                                                                     tabIndex={-1}
@@ -923,6 +932,8 @@ function AccountDetails() {
                                                         })}
                                                 </Select>
                                             </Stack>
+
+
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
                                                     <div>{t('menu-sub-acc-type')}</div>
@@ -936,7 +947,7 @@ function AccountDetails() {
                                                     onChange={handleOnChangeValueSubAccountType}
                                                     disabled={valueReadonly}
                                                     endAdornment={
-                                                        valueSubAccountTypeId ? (
+                                                        (valueSubAccountTypeId && !valueReadonly) ? (
                                                             <InputAdornment position="start">
                                                                 <IconButton
                                                                     tabIndex={-1}
@@ -962,7 +973,7 @@ function AccountDetails() {
                                                             );
                                                         })}
                                                 </Select>
-                                            </Stack> */}
+                                            </Stack>
 
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
@@ -992,4 +1003,4 @@ function AccountDetails() {
     );
 }
 
-export default AccountDetails;
+export default AccountUnit;

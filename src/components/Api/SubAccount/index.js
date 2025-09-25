@@ -1,10 +1,14 @@
 import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
 import _ from 'lodash';
+import { store } from "~/Redux/store";
 
 export async function ApiListSupAccount(valueSearch, setDataList) {
     try {
-        const response = await DomainPoultry.get(`master/sub-account`);
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const response = await DomainPoultry.get(`master/sub-account`, { headers: header });
         const data = await response.data?.Response ?? [];
         let filteredData = data;
         if (valueSearch && valueSearch.trim() !== "") {
@@ -27,14 +31,14 @@ export async function ApiCreateSupAccount(valueCode, valueName, valueTypeID, val
         try {
             var statusCode = false;
             const header = {
-                // Authorization: access_token,
+                Authorization: store.getState().FetchApi.token,
             };
             const body = {
                 SubTypeName: valueTypeName,
                 AccountSubId: valueCode,
                 AccountSubName: valueName,
                 Active: true,
-                Username: localStorage.getItem('UserName'),
+                Username: store.getState().FetchApi.userInfo?.userID_old ?? "",
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 Description: valueDescription,
@@ -43,7 +47,8 @@ export async function ApiCreateSupAccount(valueCode, valueName, valueTypeID, val
 
             await DomainPoultry.post(
                 `master/sub-account`,
-                body
+                body,
+                { headers: header }
             );
 
             toast.success(' Success create new sub account!');
@@ -65,12 +70,15 @@ export async function ApiUpdateSupAccount(valueCode, valueName, valueTypeID, val
     if (valueCode && valueName) {
         try {
             var statusCode = false;
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
             const body = {
                 SubTypeName: valueTypeName,
                 AccountSubId: valueCode,
                 AccountSubName: valueName,
                 Active: true,
-                Username: localStorage.getItem('UserName'),
+                Username: store.getState().FetchApi.userInfo?.userID_old ?? "",
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 Description: valueDescription,
@@ -78,7 +86,8 @@ export async function ApiUpdateSupAccount(valueCode, valueName, valueTypeID, val
             };
             await DomainPoultry.put(
                 `master/sub-account/${valueCode}`,
-                body
+                body,
+                { headers: header }
             );
             toast.success(' Success update sub account!');
             statusCode = true;
@@ -99,7 +108,10 @@ export async function ApiDeleteSupAccount(valueCode) {
     if (valueCode) {
         try {
             var statusCode = false;
-            await DomainPoultry.delete(`master/sub-account/${valueCode}`);
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
+            await DomainPoultry.delete(`master/sub-account/${valueCode}`, { headers: header });
             toast.success(' Success delete sub account !');
             statusCode = true;
         } catch (error) {

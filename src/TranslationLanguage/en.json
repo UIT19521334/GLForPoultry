@@ -5,6 +5,8 @@
     "cost-center": "Cost center",
     "cost-channel": "Cost channel",
     "account-group": "Account group",
+    "account-root": "Account Root",
+    "account-unit": "Account Unit",
     "currency": "Currency",
     "debit": "Debit",
     "credit": "Credit",

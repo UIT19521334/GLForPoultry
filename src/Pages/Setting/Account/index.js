@@ -6,11 +6,10 @@ import Box from '@mui/material/Box';
 import 'react-toastify/dist/ReactToastify.css';
 import { Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import _ from 'lodash';
 import { Tab, Tabs } from '@mui/material';
 import { Outlet, Route, Routes, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import AccountDetails from './Account';
-import AccountSupport from './AccountSupport';
+import AccountRoot from './AccountRoot';
+import AccountUnit from './AccountUnit';
 
 function AccountLayout({ title }) {
     const { t } = useTranslation();
@@ -18,7 +17,7 @@ function AccountLayout({ title }) {
     const location = useLocation();
 
     // Get current tab from URL path
-    const currentTab = location.pathname.includes('account-support') ? 'account-support' : 'account-details';
+    const currentTab = location.pathname.includes('account-unit') ? 'account-unit' : 'account-root';
 
     const handleChangeTab = (event, newValue) => {
         navigate(newValue);
@@ -63,8 +62,8 @@ function AccountLayout({ title }) {
                             }}
                             variant="fullWidth"
                         >
-                            <Tab label={t('account-details')} value="account-details" />
-                            <Tab label={t('account-support')} value="account-support" />
+                            <Tab label={t('account-root')} value="account-root" />
+                            <Tab label={t('account-unit')} value="account-unit" />
                         </Tabs>
                         <Box
                             sx={{
@@ -84,9 +83,9 @@ function Account({ title }) {
     return (
         <Routes>
             <Route element={<AccountLayout title={title} />}>
-                <Route path="account-details" element={<AccountDetails />} />
-                <Route path="account-support" element={<AccountSupport />} />
-                <Route index element={<Navigate to="account-details" replace />} />
+                <Route path="account-root" element={<AccountRoot />} />
+                <Route path="account-unit" element={<AccountUnit />} />
+                <Route index element={<Navigate to="account-root" replace />} />
             </Route>
         </Routes>
     );

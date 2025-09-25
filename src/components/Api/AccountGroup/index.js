@@ -1,10 +1,14 @@
 import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
 import _ from 'lodash';
+import { store } from "~/Redux/store";
 
 export async function ApiListAccountGroup(valueSearch, setDataList) {
     try {
-        const response = await DomainPoultry.get(`master/account-group`);
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const response = await DomainPoultry.get(`master/account-group`, { headers: header });
         const data = await response.data?.Response ?? [];
         let filteredData = data;
         if (valueSearch && valueSearch.trim() !== "") {
@@ -30,13 +34,13 @@ export async function ApiCreateAccountGroup(valueCode, valueName, valueDescripti
         try {
             var statusCode = false;
             const header = {
-                // Authorization: access_token,
+                Authorization: store.getState().FetchApi.token,
             };
             const body = {
                 GroupId: valueCode,
                 GroupName: valueName,
                 Active: true,
-                Username: localStorage.getItem('UserName'),
+                Username: store.getState().FetchApi.userInfo?.userID_old ?? "",
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 Description: valueDescription,
@@ -45,7 +49,8 @@ export async function ApiCreateAccountGroup(valueCode, valueName, valueDescripti
 
             await DomainPoultry.post(
                 `master/account-group`,
-                body
+                body,
+                { headers: header }
             );
 
             toast.success(' Success create new account group!');
@@ -67,11 +72,14 @@ export async function ApiUpdateAccountGroup(valueCode, valueName, valueDescripti
     if (valueCode && valueName) {
         try {
             var statusCode = false;
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
             const body = {
                 GroupId: valueCode,
                 GroupName: valueName,
                 Active: true,
-                Username: localStorage.getItem('UserName'),
+                Username: store.getState().FetchApi.userInfo?.userID_old ?? "",
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 Description: valueDescription,
@@ -79,7 +87,8 @@ export async function ApiUpdateAccountGroup(valueCode, valueName, valueDescripti
             };
             await DomainPoultry.put(
                 `master/account-group/${valueCode}`,
-                body
+                body,
+                { headers: header }
             );
             toast.success(' Success update account group!');
             statusCode = true;
@@ -100,7 +109,10 @@ export async function ApiDeleteAccountGroup(valueCode) {
     if (valueCode) {
         try {
             var statusCode = false;
-            await DomainPoultry.delete(`master/account-group/${valueCode}`);
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
+            await DomainPoultry.delete(`master/account-group/${valueCode}`, { headers: header });
             toast.success(' Success delete account group!');
             statusCode = true;
         } catch (error) {

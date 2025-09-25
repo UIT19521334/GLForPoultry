@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect } from 'react';
 import '~/AppStyles.css';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     fetchApiCurrency,
     fetchApiListAccountGroup,
@@ -9,16 +9,17 @@ import {
 } from '~/Redux/FetchApi/fetchApiMaster';
 
 export default function CallApiMaster() {
+    const token = useSelector((state) => state.FetchApi.token)
     var dispatch = useDispatch();
     useEffect(() => {
-        dispatch(fetchApiCurrency());
+        dispatch(fetchApiCurrency(token));
     }, []);
 
     useEffect(() => {
-        dispatch(fetchApiListAccountGroup());
+        dispatch(fetchApiListAccountGroup(token));
     }, []);
 
     useEffect(() => {
-        dispatch(fetchApiListSubAccountType());
+        dispatch(fetchApiListSubAccountType(token));
     }, []);
 }

@@ -1,14 +1,15 @@
 import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
 import _ from 'lodash';
+import { store } from "~/Redux/store";
 
 export async function ApiListExpense(valueSearch, setDataList) {
     try {
-        const currentRegionId = localStorage.getItem('Unit')?.RegionId ?? "";
-
-        console.log(currentRegionId)
-        console.log(currentRegionId)
-        const response = await DomainPoultry.get(`master/expense?regionId=${currentRegionId}`);
+        const currentRegionId = store.getState().FetchApi.currentUnit.RegionId ?? "";
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const response = await DomainPoultry.get(`master/expense?regionId=${currentRegionId}`, { headers: header });
         const data = await response.data?.Response ?? [];
         let filteredData = data;
         if (valueSearch && valueSearch.trim() !== "") {
@@ -31,7 +32,7 @@ export async function ApiCreateExpense(valueCode, valueName, valueTypeID, valueT
         try {
             var statusCode = false;
             const header = {
-                // Authorization: access_token,
+                Authorization: store.getState().FetchApi.token,
             };
 
             const body = {
@@ -41,7 +42,7 @@ export async function ApiCreateExpense(valueCode, valueName, valueTypeID, valueT
                 ExpenseName: valueName,
                 Description: valueDescription,
                 Active: true,
-                Username: localStorage.getItem('UserName'),
+                Username: store.getState().FetchApi.userInfo?.userID_old ?? "",
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 RegionId: null,
@@ -51,7 +52,8 @@ export async function ApiCreateExpense(valueCode, valueName, valueTypeID, valueT
 
             await DomainPoultry.post(
                 `master/expense`,
-                body
+                body,
+                { headers: header }
             );
 
             toast.success(' Success create new expense!');
@@ -73,6 +75,9 @@ export async function ApiUpdateExpense(valueCode, valueName, valueTypeID, valueT
     if (valueCode && valueName) {
         try {
             var statusCode = false;
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
             const body = {
                 GroupName_EN: valueTypeName,
                 GroupName_VN: valueTypeName,
@@ -80,7 +85,7 @@ export async function ApiUpdateExpense(valueCode, valueName, valueTypeID, valueT
                 ExpenseName: valueName,
                 Description: valueDescription,
                 Active: true,
-                Username: localStorage.getItem('UserName'),
+                Username: store.getState().FetchApi.userInfo?.userID_old ?? "",
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 RegionId: null,
@@ -89,7 +94,8 @@ export async function ApiUpdateExpense(valueCode, valueName, valueTypeID, valueT
             };
             await DomainPoultry.put(
                 `master/expense/${valueCode}`,
-                body
+                body,
+                { headers: header }
             );
             toast.success(' Success update expense!');
             statusCode = true;
@@ -110,7 +116,10 @@ export async function ApiDeleteExpense(valueCode) {
     if (valueCode) {
         try {
             var statusCode = false;
-            await DomainPoultry.delete(`master/expense/${valueCode}`);
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
+            await DomainPoultry.delete(`master/expense/${valueCode}`, { headers: header });
             toast.success(' Success delete expense !');
             statusCode = true;
         } catch (error) {
