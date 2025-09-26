@@ -201,7 +201,7 @@ function Header() {
     const handleChangeUnit = (event) => {
         const data = event.target.value && dataUnit.find(item => item.UnitId === event.target.value);
         dispatch(updateCurrentUnit(data))
-        localStorage.setItem('Unit', JSON.stringify(data));
+        localStorage.setItem('Unit', data.UnitId);
     };
     const location = useLocation();
     /**side pc */
@@ -604,7 +604,7 @@ function Header() {
                             component="div"
                             sx={{ display: { xs: 'block', sm: 'block' }, marginLeft: 1 }}
                         >
-                            v1.0.1
+                            v1.0.0
                         </Typography>
                     </Stack>
                     <Search>

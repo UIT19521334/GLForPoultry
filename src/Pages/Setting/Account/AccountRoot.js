@@ -21,7 +21,7 @@ import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -34,16 +34,11 @@ const Item = styled(Paper)(({ theme }) => ({
 
 function AccountRoot() {
     const { t } = useTranslation();
-    const dispatch = useDispatch();
     const [isLoading, setIsLoading] = React.useState(false);
     const [reloadListAccount, setReloadListAccount] = React.useState(false);
     const [dataList, setDataList] = useState([]);
     const [displayData, setDisplayData] = useState([]);
-    const listExpenseGroup = useSelector((state) => state.FetchApi.listData_ExpenseGroup);
-    const listSubAccountType = useSelector((state) => state.FetchApi.listData_SubAccountType);
-    const listMethod = useSelector((state) => state.FetchApi.listData_Method);
-    const listExpense = useSelector((state) => state.FetchApi.listData_Expense);
-    const listUnit = useSelector((state) => state.FetchApi.userAccess.units);
+    const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
 
     //! columns header
     const columns = [
@@ -161,6 +156,7 @@ function AccountRoot() {
             UnitName: valueUnitName,
             ExpenseName: valueExpenseName,
             ExpenseGroupName: valueExpenseGroupName,
+            ExpenseGroupId: valueExpenseGroupId,
             MethodName: valueMethodName,
             AccountSubTypeName: valueSubAccountTypeName,
             Id: "",
@@ -168,7 +164,7 @@ function AccountRoot() {
             AccountName: valueAccountName,
             Description: valueDescription,
             Active: true,
-            Username: localStorage.getItem('UserName'),
+            Username: username,
             CreatedAt: new Date().toISOString(),
             UpdatedAt: new Date().toISOString(),
             UnitId: valueUnitId,
@@ -234,6 +230,7 @@ function AccountRoot() {
             UnitName: valueUnitName,
             ExpenseName: valueExpenseName,
             ExpenseGroupName: valueExpenseGroupName,
+            ExpenseGroupId: valueExpenseGroupId,
             MethodName: valueMethodName,
             AccountSubTypeName: valueSubAccountTypeName,
             Id: valueId,
@@ -241,7 +238,7 @@ function AccountRoot() {
             AccountName: valueAccountName,
             Description: valueDescription,
             Active: true,
-            Username: localStorage.getItem('UserName'),
+            Username: username,
             CreatedAt: new Date().toISOString(),
             UpdatedAt: new Date().toISOString(),
             UnitId: valueUnitId,

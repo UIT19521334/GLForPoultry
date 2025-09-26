@@ -165,14 +165,13 @@ export const period = createSlice({
             .addCase(fetchApiAuthInfo.fulfilled, (state, action) => {
                 // Add current unit
                 const listUnit = action.payload.units;
-                const data = localStorage.getItem('Unit')
-                const prevUnit = JSON.parse(data);
-                const exists = listUnit.some(unit => unit.UnitId === prevUnit?.UnitId);
+                const prevUnitId = localStorage.getItem('Unit')
+                const exists = listUnit.find(unit => unit.UnitId === prevUnitId);
                 if (exists) {
-                    state.currentUnit = prevUnit
+                    state.currentUnit = exists
                 } else {
                     state.currentUnit = listUnit[0]
-                    localStorage.setItem('Unit', JSON.stringify(listUnit[0]));
+                    localStorage.setItem('Unit', listUnit[0].UnitId);
                 }
                 // Add user to the state array
                 state.userAccess = action.payload;

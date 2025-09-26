@@ -48,6 +48,7 @@ function AccountUnit() {
     const listExpense = useSelector((state) => state.FetchApi.listData_Expense);
     const listUnit = useSelector((state) => state.FetchApi.userAccess.units);
     const token = useSelector((state) => state.FetchApi.token);
+    const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
 
 
     //! columns header
@@ -203,6 +204,7 @@ function AccountUnit() {
             UnitName: valueUnitName,
             ExpenseName: valueExpenseName,
             ExpenseGroupName: valueExpenseGroupName,
+            ExpenseGroupId: valueExpenseGroupId,
             MethodName: valueMethodName,
             AccountSubTypeName: valueSubAccountTypeName,
             Id: "",
@@ -210,7 +212,7 @@ function AccountUnit() {
             AccountName: valueAccountName,
             Description: valueDescription,
             Active: true,
-            Username: localStorage.getItem('UserName'),
+            Username: username,
             CreatedAt: new Date().toISOString(),
             UpdatedAt: new Date().toISOString(),
             UnitId: valueUnitId,
@@ -305,6 +307,7 @@ function AccountUnit() {
             UnitName: valueUnitName,
             ExpenseName: valueExpenseName,
             ExpenseGroupName: valueExpenseGroupName,
+            ExpenseGroupId: valueExpenseGroupId,
             MethodName: valueMethodName,
             AccountSubTypeName: valueSubAccountTypeName,
             Id: valueId,
@@ -312,7 +315,7 @@ function AccountUnit() {
             AccountName: valueAccountName,
             Description: valueDescription,
             Active: true,
-            Username: localStorage.getItem('UserName'),
+            Username: username,
             CreatedAt: new Date().toISOString(),
             UpdatedAt: new Date().toISOString(),
             UnitId: valueUnitId,
