@@ -24,682 +24,686 @@ import _ from 'lodash';
 import { useSelector } from 'react-redux';
 
 const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    direction: 'row',
-    color: theme.palette.text.secondary,
+	backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+	...theme.typography.body2,
+	padding: theme.spacing(1),
+	textAlign: 'center',
+	direction: 'row',
+	color: theme.palette.text.secondary,
 }));
 
 function AccountRoot() {
-    const { t } = useTranslation();
-    const [isLoading, setIsLoading] = React.useState(false);
-    const [reloadListAccount, setReloadListAccount] = React.useState(false);
-    const [dataList, setDataList] = useState([]);
-    const [displayData, setDisplayData] = useState([]);
-    const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
+	const { t } = useTranslation();
+	const [isLoading, setIsLoading] = React.useState(false);
+	const [reloadListAccount, setReloadListAccount] = React.useState(false);
+	const [dataList, setDataList] = useState([]);
+	const [displayData, setDisplayData] = useState([]);
+	const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
 
-    //! columns header
-    const columns = [
-        {
-            field: 'AccountId',
-            headerName: t('code'),
-            minWidth: 150,
-            headerClassName: 'super-app-theme--header',
-        },
-        {
-            field: 'AccountName',
-            headerName: t('name'),
-            minWidth: 300,
-            headerClassName: 'super-app-theme--header',
-        },
-        {
-            field: 'Description',
-            headerName: t('description'),
-            minWidth: 300,
-            flex: 1,
-            headerClassName: 'super-app-theme--header',
-        }
-    ];
+	//! columns header
+	const columns = [
+		{
+			field: 'AccountId',
+			headerName: t('code'),
+			minWidth: 150,
+			headerClassName: 'super-app-theme--header',
+		},
+		{
+			field: 'AccountName',
+			headerName: t('name'),
+			minWidth: 300,
+			headerClassName: 'super-app-theme--header',
+		},
+		{
+			field: 'Description',
+			headerName: t('description'),
+			minWidth: 300,
+			flex: 1,
+			headerClassName: 'super-app-theme--header',
+		}
+	];
 
-    const [valueId, setValueId] = React.useState('');
-    const [valueAccountId, setValueAccountId] = React.useState('');
-    const [valueAccountName, setValueAccountName] = React.useState('');
-    const [valueUnitId, setValueUnitId] = React.useState('');
-    const [valueUnitName, setValueUnitName] = React.useState('');
-    const [valueExpenseGroupName, setValueExpenseGroupName] = React.useState('');
-    const [valueExpenseGroupId, setValueExpenseGroupId] = React.useState('');
-    const [valueExpenseId, setValueExpenseId] = React.useState('');
-    const [valueExpenseName, setValueExpenseName] = React.useState('');
-    const [valueMethodId, setValueMethodId] = React.useState('');
-    const [valueMethodName, setValueMethodName] = React.useState('');
-    const [valueSubAccountTypeId, setValueSubAccountTypeId] = React.useState('');
-    const [valueSubAccountTypeName, setValueSubAccountTypeName] = React.useState('');
-    const [valueDescription, setValueDescription] = React.useState('');
-    const inputAccountIdRef = useRef(null);
+	const [valueId, setValueId] = React.useState('');
+	const [valueAccountId, setValueAccountId] = React.useState('');
+	const [valueAccountName, setValueAccountName] = React.useState('');
+	const [valueUnitId, setValueUnitId] = React.useState('');
+	const [valueUnitName, setValueUnitName] = React.useState('');
+	const [valueExpenseGroupName, setValueExpenseGroupName] = React.useState('');
+	const [valueExpenseGroupId, setValueExpenseGroupId] = React.useState('');
+	const [valueExpenseId, setValueExpenseId] = React.useState('');
+	const [valueExpenseName, setValueExpenseName] = React.useState('');
+	const [valueMethodId, setValueMethodId] = React.useState('');
+	const [valueMethodName, setValueMethodName] = React.useState('');
+	const [valueSubAccountTypeId, setValueSubAccountTypeId] = React.useState('');
+	const [valueSubAccountTypeName, setValueSubAccountTypeName] = React.useState('');
+	const [valueDescription, setValueDescription] = React.useState('');
+	const inputAccountIdRef = useRef(null);
 
-    // TODO call api get data account group
-    useEffect(() => {
-        const fetchApiGetDataAccount = async () => {
-            setIsLoading(true);
-            const body = {
-                IncludeUnit: false,
-                Units: []
-            }
-            const result = await ApiListAccountByUnit(body);
-            setDataList(result);
-            setDisplayData(result);
-            setIsLoading(false);
-        };
-        fetchApiGetDataAccount();
-    }, [reloadListAccount]);
+	// TODO call api get data account group
+	useEffect(() => {
+		const fetchApiGetDataAccount = async () => {
+			setIsLoading(true);
+			const body = {
+				IncludeUnit: false,
+				Units: []
+			}
+			const result = await ApiListAccountByUnit(body);
+			setDataList(result);
+			setDisplayData(result);
+			setIsLoading(false);
+		};
+		fetchApiGetDataAccount();
+	}, [reloadListAccount]);
 
-    // Handle search
-    const [valueSearch, setValueSearch] = React.useState('');
-    const handleSearch = () => {
-        let filteredData = dataList;
-        if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["AccountName", "AccountId", "Description"];
-            filteredData = _.filter(dataList, (item) => {
-                const search = _.toLower(valueSearch);
-                return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
-            });
-        }
-        setDisplayData(filteredData);
-    }
+	// Handle search
+	const [valueSearch, setValueSearch] = React.useState('');
+	const handleSearch = () => {
+		let filteredData = dataList;
+		if (valueSearch && valueSearch.trim() !== "") {
+			const fieldsToSearch = ["AccountName", "AccountId", "Description"];
+			filteredData = _.filter(dataList, (item) => {
+				const search = _.toLower(valueSearch);
+				return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
+			});
+		}
+		setDisplayData(filteredData);
+	}
 
-    //! select row in datagrid
-    const onRowsSelectionHandler = (ids) => {
-        const selectedRowsData = ids.map((id) => displayData.find((row) => row.AccountId === id));
-        if (selectedRowsData) {
-            {
-                selectedRowsData.map((key) => {
-                    setValueAccountId(key.AccountId ?? "XXXX");
-                    setValueAccountName(key.AccountName ?? '');
-                    setValueUnitId(key.UnitId ?? '');
-                    setValueExpenseGroupId(key.ExpenseGroupId ?? '');
-                    setValueExpenseId(key.ExpenseId ?? '');
-                    setValueMethodId(key.MethodId ?? '');
-                    setValueSubAccountTypeId(key.AccountSubTypeId ?? '');
-                    setValueId(key.Id ?? '');
-                    setValueDescription(key.Description ?? '');
-                });
-                setValueReadonly(true);
-                setValueReadonlyCode(true);
-                setValueDisableSaveButton(true);
-                setValueDisableDeleteButton(false)
-                setValueNewButton(false);
-                setValueUpdateButton(false);
-                setValueDisableUpdateButton(false);
-            }
-        }
-    };
+	//! select row in datagrid
+	const onRowsSelectionHandler = (ids) => {
+		const selectedRowsData = ids.map((id) => displayData.find((row) => row.AccountId === id));
+		if (selectedRowsData) {
+			{
+				selectedRowsData.map((key) => {
+					setValueAccountId(key.AccountId ?? "XXXX");
+					setValueAccountName(key.AccountName ?? '');
+					setValueUnitId(key.UnitId ?? '');
+					setValueExpenseGroupId(key.ExpenseGroupId ?? '');
+					setValueExpenseId(key.ExpenseId ?? '');
+					setValueMethodId(key.MethodId ?? '');
+					setValueSubAccountTypeId(key.AccountSubTypeId ?? '');
+					setValueId(key.Id ?? '');
+					setValueDescription(key.Description ?? '');
+				});
+				setValueReadonly(true);
+				setValueReadonlyCode(true);
+				setValueDisableSaveButton(true);
+				setValueDisableDeleteButton(false)
+				setValueNewButton(false);
+				setValueUpdateButton(false);
+				setValueDisableUpdateButton(false);
+			}
+		}
+	};
 
-    // TODO call api new
-    /* #region  call api new */
-    const [dialogIsOpenNew, setDialogIsOpenNew] = React.useState(false);
-    const [dialogIsOpenUpdate, setDialogIsOpenUpdate] = React.useState(false);
-    const [dialogIsOpenDelete, setDialogIsOpenDelete] = React.useState(false);
-    const agreeDialogNew = () => {
-        setDialogIsOpenNew(false);
-        asyncApiCreateAccount();
-    };
-    const closeDialogNew = () => {
-        setDialogIsOpenNew(false);
-        toast.warning(t('toast-cancel-new'));
-    };
+	// TODO call api new
+	/* #region  call api new */
+	const [dialogIsOpenNew, setDialogIsOpenNew] = React.useState(false);
+	const [dialogIsOpenUpdate, setDialogIsOpenUpdate] = React.useState(false);
+	const [dialogIsOpenDelete, setDialogIsOpenDelete] = React.useState(false);
+	const agreeDialogNew = () => {
+		setDialogIsOpenNew(false);
+		asyncApiCreateAccount();
+	};
+	const closeDialogNew = () => {
+		setDialogIsOpenNew(false);
+		toast.warning(t('toast-cancel-new'));
+	};
 
-    const asyncApiCreateAccount = async () => {
-        setIsLoading(true);
-        const body = {
-            UnitName: valueUnitName,
-            ExpenseName: valueExpenseName,
-            ExpenseGroupName: valueExpenseGroupName,
-            ExpenseGroupId: valueExpenseGroupId,
-            MethodName: valueMethodName,
-            AccountSubTypeName: valueSubAccountTypeName,
-            Id: "",
-            AccountId: valueAccountId,
-            AccountName: valueAccountName,
-            Description: valueDescription,
-            Active: true,
-            Username: username,
-            CreatedAt: new Date().toISOString(),
-            UpdatedAt: new Date().toISOString(),
-            UnitId: valueUnitId,
-            ExpenseId: valueExpenseId,
-            MethodId: valueMethodId,
-            AccountSubTypeId: valueSubAccountTypeId,
-        }
-        const statusCode = await ApiCreateAccount(body);
-        if (statusCode) {
-            setValueAccountId('');
-            setValueAccountName('');
-            setValueUnitId('');
-            setValueUnitName('');
-            setValueExpenseGroupId('');
-            setValueExpenseGroupName('');
-            setValueExpenseId('');
-            setValueExpenseName('');
-            setValueMethodId('');
-            setValueMethodName('');
-            setValueSubAccountTypeId('');
-            setValueSubAccountTypeName('');
-            setValueDescription('');
-            setValueNewButton(false);
-            setValueDisableSaveButton(true);
-            setValueDisableDeleteButton(true);
-            setValueReadonly(true);
-            setValueReadonlyCode(true);
-        }
-        setIsLoading(false);
-        setReloadListAccount(!reloadListAccount);
-    };
-    /* #endregion */
+	const asyncApiCreateAccount = async () => {
+		setIsLoading(true);
+		const body = {
+			UnitName: valueUnitName,
+			ExpenseName: valueExpenseName,
+			ExpenseGroupName: valueExpenseGroupName,
+			ExpenseGroupId: valueExpenseGroupId,
+			MethodName: valueMethodName,
+			AccountSubTypeName: valueSubAccountTypeName,
+			Id: "",
+			AccountId: valueAccountId,
+			AccountName: valueAccountName,
+			Description: valueDescription,
+			Active: true,
+			Username: username,
+			CreatedAt: new Date().toISOString(),
+			UpdatedAt: new Date().toISOString(),
+			UnitId: valueUnitId,
+			ExpenseId: valueExpenseId,
+			MethodId: valueMethodId,
+			AccountSubTypeId: valueSubAccountTypeId,
+		}
+		const statusCode = await ApiCreateAccount(body);
+		if (statusCode) {
+			setValueAccountId('');
+			setValueAccountName('');
+			setValueUnitId('');
+			setValueUnitName('');
+			setValueExpenseGroupId('');
+			setValueExpenseGroupName('');
+			setValueExpenseId('');
+			setValueExpenseName('');
+			setValueMethodId('');
+			setValueMethodName('');
+			setValueSubAccountTypeId('');
+			setValueSubAccountTypeName('');
+			setValueDescription('');
+			setValueNewButton(false);
+			setValueDisableSaveButton(true);
+			setValueDisableDeleteButton(true);
+			setValueReadonly(true);
+			setValueReadonlyCode(true);
+		}
+		setIsLoading(false);
+		setReloadListAccount(!reloadListAccount);
+	};
+	/* #endregion */
 
-    const handleOnChangeValueCode = (event) => {
-        const inputValue = event.target.value;
-        // Regex: không cho ký tự đăc biệt, chỉ cho phép số và khoảng trắng
-        if (/^[0-9 ]*$/u.test(inputValue)) {
-            setValueAccountId(inputValue);
-        }
-    };
-    const handleOnChangeValueName = (event) => {
-        setValueAccountName(event.target.value);
-    };
+	const handleOnChangeValueCode = (event) => {
+		const inputValue = event.target.value;
+		// Regex: không cho ký tự đăc biệt, chỉ cho phép số và khoảng trắng
+		if (/^[0-9 ]*$/u.test(inputValue)) {
+			setValueAccountId(inputValue);
+		}
+	};
+	const handleOnChangeValueName = (event) => {
+		setValueAccountName(event.target.value);
+	};
 
-    const handleOnChangeValueDescription = (event) => {
-        setValueDescription(event.target.value);
-    };
+	const handleOnChangeValueDescription = (event) => {
+		setValueDescription(event.target.value);
+	};
 
-    // TODO call api update
-    /* #region  call api update */
-    const agreeDialogUpdate = () => {
-        setDialogIsOpenUpdate(false);
-        asyncApiUpdateAccount();
-    };
-    const closeDialogUpdate = () => {
-        setDialogIsOpenUpdate(false);
-        toast.warning(t('toast-cancel-update'));
-    };
+	// TODO call api update
+	/* #region  call api update */
+	const agreeDialogUpdate = () => {
+		setDialogIsOpenUpdate(false);
+		asyncApiUpdateAccount();
+	};
+	const closeDialogUpdate = () => {
+		setDialogIsOpenUpdate(false);
+		toast.warning(t('toast-cancel-update'));
+	};
 
-    const asyncApiUpdateAccount = async () => {
-        setIsLoading(true);
-        const body = {
-            UnitName: valueUnitName,
-            ExpenseName: valueExpenseName,
-            ExpenseGroupName: valueExpenseGroupName,
-            ExpenseGroupId: valueExpenseGroupId,
-            MethodName: valueMethodName,
-            AccountSubTypeName: valueSubAccountTypeName,
-            Id: valueId,
-            AccountId: valueAccountId,
-            AccountName: valueAccountName,
-            Description: valueDescription,
-            Active: true,
-            Username: username,
-            CreatedAt: new Date().toISOString(),
-            UpdatedAt: new Date().toISOString(),
-            UnitId: valueUnitId,
-            ExpenseId: valueExpenseId,
-            MethodId: valueMethodId,
-            AccountSubTypeId: valueSubAccountTypeId,
-        }
-        const statusCode = await ApiUpdateAccount(body);
-        if (statusCode) {
-            setValueReadonly(true);
-            setValueUpdateButton(false);
-            setValueDisableSaveButton(true);
-            setValueDisableDeleteButton(true);
-        }
-        setIsLoading(false);
-        setReloadListAccount(!reloadListAccount);
-    };
+	const asyncApiUpdateAccount = async () => {
+		setIsLoading(true);
+		const body = {
+			UnitName: valueUnitName,
+			ExpenseName: valueExpenseName,
+			ExpenseGroupName: valueExpenseGroupName,
+			ExpenseGroupId: valueExpenseGroupId,
+			MethodName: valueMethodName,
+			AccountSubTypeName: valueSubAccountTypeName,
+			Id: valueId,
+			AccountId: valueAccountId,
+			AccountName: valueAccountName,
+			Description: valueDescription,
+			Active: true,
+			Username: username,
+			CreatedAt: new Date().toISOString(),
+			UpdatedAt: new Date().toISOString(),
+			UnitId: valueUnitId,
+			ExpenseId: valueExpenseId,
+			MethodId: valueMethodId,
+			AccountSubTypeId: valueSubAccountTypeId,
+		}
+		const statusCode = await ApiUpdateAccount(body);
+		if (statusCode) {
+			setValueReadonly(true);
+			setValueUpdateButton(false);
+			setValueDisableSaveButton(true);
+			setValueDisableDeleteButton(true);
+		}
+		setIsLoading(false);
+		setReloadListAccount(!reloadListAccount);
+	};
 
-    /* #endregion */
+	/* #endregion */
 
-    // TODO call api delete
-    /* #region  call api delete */
-    const agreeDialogDelete = () => {
-        setDialogIsOpenDelete(false);
-        asyncApiDeleteAccount();
-    };
-    const closeDialogDelete = () => {
-        setDialogIsOpenDelete(false);
-        toast.warning(t('toast-cancel-delete'));
-    };
+	// TODO call api delete
+	/* #region  call api delete */
+	const agreeDialogDelete = () => {
+		setDialogIsOpenDelete(false);
+		asyncApiDeleteAccount();
+	};
+	const closeDialogDelete = () => {
+		setDialogIsOpenDelete(false);
+		toast.warning(t('toast-cancel-delete'));
+	};
 
-    const asyncApiDeleteAccount = async () => {
-        setIsLoading(true);
-        const statusCode = await ApiDeleteAccount(valueId);
-        if (statusCode) {
-            setValueAccountId('');
-            setValueAccountName('');
-            setValueUnitId('');
-            setValueUnitName('');
-            setValueExpenseGroupId('');
-            setValueExpenseGroupName('');
-            setValueExpenseId('');
-            setValueExpenseName('');
-            setValueMethodId('');
-            setValueMethodName('');
-            setValueSubAccountTypeId('');
-            setValueSubAccountTypeName('');
-            setValueDescription('');
-            setValueReadonly(true);
-            setValueDisableSaveButton(true);
-            setValueDisableDeleteButton(true);
-        }
-        setIsLoading(false);
-        setReloadListAccount(!reloadListAccount);
-    };
+	const asyncApiDeleteAccount = async () => {
+		setIsLoading(true);
+		const statusCode = await ApiDeleteAccount(valueId);
+		if (statusCode) {
+			setValueAccountId('');
+			setValueAccountName('');
+			setValueUnitId('');
+			setValueUnitName('');
+			setValueExpenseGroupId('');
+			setValueExpenseGroupName('');
+			setValueExpenseId('');
+			setValueExpenseName('');
+			setValueMethodId('');
+			setValueMethodName('');
+			setValueSubAccountTypeId('');
+			setValueSubAccountTypeName('');
+			setValueDescription('');
+			setValueReadonly(true);
+			setValueDisableSaveButton(true);
+			setValueDisableDeleteButton(true);
+		}
+		setIsLoading(false);
+		setReloadListAccount(!reloadListAccount);
+	};
 
-    /* #endregion */
+	/* #endregion */
 
-    const [valueReadonly, setValueReadonly] = React.useState(true);
-    const [valueReadonlyCode, setValueReadonlyCode] = React.useState(true);
+	const [valueReadonly, setValueReadonly] = React.useState(true);
+	const [valueReadonlyCode, setValueReadonlyCode] = React.useState(true);
 
-    /* #region  button new */
+	/* #region  button new */
 
-    const [valueNewButton, setValueNewButton] = React.useState(false);
-    const handleClickNew = () => {
-        setValueNewButton(true);
-        setValueUpdateButton(false);
-        setValueAccountId('');
-        setValueAccountName('');
-        setValueUnitId('');
-        setValueUnitName('');
-        setValueExpenseGroupId('');
-        setValueExpenseGroupName('');
-        setValueExpenseId('');
-        setValueExpenseName('');
-        setValueMethodId('');
-        setValueMethodName('');
-        setValueSubAccountTypeId('');
-        setValueSubAccountTypeName('');
-        setValueDescription('');
-        setValueReadonly(false);
-        setValueReadonlyCode(false);
-        setValueDisableSaveButton(false);
-        setValueDisableDeleteButton(true);
-        setValueDisableUpdateButton(true);
-        if (inputAccountIdRef.current) {
-            setTimeout(() => {
-                inputAccountIdRef.current.focus();
-            }, 0);
-        }
-    };
-    /* #endregion */
+	const [valueNewButton, setValueNewButton] = React.useState(false);
+	const handleClickNew = () => {
+		setValueNewButton(true);
+		setValueUpdateButton(false);
+		setValueAccountId('');
+		setValueAccountName('');
+		setValueUnitId('');
+		setValueUnitName('');
+		setValueExpenseGroupId('');
+		setValueExpenseGroupName('');
+		setValueExpenseId('');
+		setValueExpenseName('');
+		setValueMethodId('');
+		setValueMethodName('');
+		setValueSubAccountTypeId('');
+		setValueSubAccountTypeName('');
+		setValueDescription('');
+		setValueReadonly(false);
+		setValueReadonlyCode(false);
+		setValueDisableSaveButton(false);
+		setValueDisableDeleteButton(true);
+		setValueDisableUpdateButton(true);
+		if (inputAccountIdRef.current) {
+			setTimeout(() => {
+				inputAccountIdRef.current.focus();
+			}, 0);
+		}
+	};
+	/* #endregion */
 
-    /* #region  button update */
-    const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
-    const [valueDisableUpdateButton, setValueDisableUpdateButton] = React.useState(true);
-    const handleClickUpdate = () => {
-        setValueNewButton(false);
-        setValueUpdateButton(true);
-        setValueReadonlyCode(true);
-        setValueReadonly(false);
-        setValueDisableSaveButton(false);
-        setValueDisableDeleteButton(true);
-        if (inputAccountIdRef.current) {
-            setTimeout(() => {
-                inputAccountIdRef.current.focus();
-            }, 0);
-        }
-    };
-    /* #endregion */
+	/* #region  button update */
+	const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
+	const [valueDisableUpdateButton, setValueDisableUpdateButton] = React.useState(true);
+	const handleClickUpdate = () => {
+		setValueNewButton(false);
+		setValueUpdateButton(true);
+		setValueReadonlyCode(true);
+		setValueReadonly(false);
+		setValueDisableSaveButton(false);
+		setValueDisableDeleteButton(true);
+		if (inputAccountIdRef.current) {
+			setTimeout(() => {
+				inputAccountIdRef.current.focus();
+			}, 0);
+		}
+	};
+	/* #endregion */
 
-    /* #region  button save */
-    const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
-    const handleClickSave = () => {
-        if (!valueAccountName) {
-            toast.error(t('account-valid-empty'));
-            return;
-        }
-        if (valueAccountId.length != 9) {
-            toast.error(t('account-valid-length'));
-            return;
-        }
-        if (valueNewButton) {
-            setDialogIsOpenNew(true);
-        }
-        if (valueUpdateButton) {
-            setDialogIsOpenUpdate(true);
-        }
-    };
-    /* #endregion */
+	/* #region  button save */
+	const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
+	const handleClickSave = () => {
+		if (!valueAccountName) {
+			toast.error(t('account-valid-empty'));
+			return;
+		}
+		if (valueAccountId.length != 9) {
+			toast.error(t('account-valid-length'));
+			return;
+		}
+		if (valueNewButton) {
+			setDialogIsOpenNew(true);
+		}
+		if (valueUpdateButton) {
+			setDialogIsOpenUpdate(true);
+		}
+	};
+	/* #endregion */
 
-    /* #region  button delete */
-    const [valueDisableDeleteButton, setValueDisableDeleteButton] = React.useState(true);
-    const handleClickDelete = async () => {
-        setDialogIsOpenDelete(true);
-    };
-    /* #endregion */
+	/* #region  button delete */
+	const [valueDisableDeleteButton, setValueDisableDeleteButton] = React.useState(true);
+	const handleClickDelete = async () => {
+		setDialogIsOpenDelete(true);
+	};
+	/* #endregion */
 
-    //! on key event
-    // OnKeyEvent(() => setReloadListAccount(!reloadListAccount), 'Enter');
-    OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
-    OnMultiKeyEvent(handleClickUpdate, valueDisableUpdateButton ? '' : 'u');
-    OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
-    OnMultiKeyEvent(handleClickDelete, valueDisableDeleteButton ? '' : 'd');
+	//! on key event
+	// OnKeyEvent(() => setReloadListAccount(!reloadListAccount), 'Enter');
+	OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
+	OnMultiKeyEvent(handleClickUpdate, valueDisableUpdateButton ? '' : 'u');
+	OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
+	OnMultiKeyEvent(handleClickDelete, valueDisableDeleteButton ? '' : 'd');
 
-    //! mobile responsive
-    const mobileResponsive = (
-        <Stack
-            direction={'row'}
-            spacing={1}
-            sx={{ display: { xs: 'flex', md: 'none' } }}
-            justifygroupid={'space-between'}
-            marginTop={1.5}
-        >
-            <LoadingButton
-                size="small"
-                fullWidth
-                startIcon={<AddBoxIcon />}
-                variant="contained"
-                color="success"
-                onClick={handleClickNew}
-                loading={valueNewButton}
-                loadingPosition="start"
-                sx={{ whiteSpace: 'nowrap' }}
-            >
-                {t('button-new')}
-            </LoadingButton>
-            <LoadingButton
-                size="small"
-                fullWidth
-                startIcon={<SystemUpdateAltIcon />}
-                variant="contained"
-                color="warning"
-                onClick={handleClickUpdate}
-                loading={valueUpdateButton}
-                loadingPosition="start"
-                sx={{ whiteSpace: 'nowrap' }}
-                disabled={valueDisableUpdateButton}
-            >
-                {t('button-update')}
-            </LoadingButton>
-            <LoadingButton
-                size="small"
-                fullWidth
-                startIcon={<SaveIcon />}
-                variant="contained"
-                color="primary"
-                onClick={handleClickSave}
-                disabled={valueDisableSaveButton}
-            >
-                {t('button-save')}
-            </LoadingButton>
-            <LoadingButton
-                size="small"
-                fullWidth
-                startIcon={<GridDeleteIcon />}
-                variant="contained"
-                color="error"
-                onClick={handleClickDelete}
-                disabled={valueDisableDeleteButton}
-            >
-                {t('button-delete')}
-            </LoadingButton>
-        </Stack>
-    );
-    return (
-        <Spin size="large" tip={t('loading')} spinning={false}>
-            <div className="main">
-                <ToastContainer position='bottom-right' stacked />
-                {dialogIsOpenNew && (
-                    <AlertDialog
-                        title={t('account-toast-new')}
-                        content={
-                            <>
-                                {t('code')}: {valueAccountId}
-                                <br /> {t('name')}: {valueAccountName}
-                                <br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
-                                <br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
-                                <br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
-                                <br /> {t('method')}:{`${valueMethodId}`}
-                                <br /> {t('menu-sub-acc-type')}:{`[${valueSubAccountTypeId}] - ${valueSubAccountTypeName}`}
-                            </>
-                        }
-                        onOpen={dialogIsOpenNew}
-                        onClose={closeDialogNew}
-                        onAgree={agreeDialogNew}
-                    />
-                )}
-                {dialogIsOpenUpdate && (
-                    <AlertDialog
-                        title={t('account-toast-update')}
-                        content={
-                            <>
-                                {t('code')}: {valueAccountId}
-                                <br /> {t('name')}: {valueAccountName}
-                                <br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
-                                <br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
-                                <br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
-                                <br /> {t('method')}:{`[${valueMethodId}] - ${valueMethodName}`}
-                                <br /> {t('menu-sub-acc-type')}:{`[${valueSubAccountTypeId}] - ${valueSubAccountTypeName}`}
-                            </>
-                        }
-                        onOpen={dialogIsOpenUpdate}
-                        onClose={closeDialogUpdate}
-                        onAgree={agreeDialogUpdate}
-                    />
-                )}
-                {dialogIsOpenDelete && (
-                    <AlertDialog
-                        title={t('account-toast-delete')}
-                        content={
-                            <>
-                                {t('code')}: {valueAccountId}
-                                <br /> {t('name')}: {valueAccountName}
-                                <br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
-                                <br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
-                                <br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
-                                <br /> {t('method')}:{`[${valueMethodId}] - ${valueMethodName}`}
-                                <br /> {t('menu-sub-acc-type')}:{`[${valueSubAccountTypeId}] - ${valueSubAccountTypeName}`}
-                            </>
-                        }
-                        onOpen={dialogIsOpenDelete}
-                        onClose={closeDialogDelete}
-                        onAgree={agreeDialogDelete}
-                    />
-                )}
+	//! mobile responsive
+	const mobileResponsive = (
+		<Stack
+			direction={'row'}
+			spacing={1}
+			sx={{ display: { xs: 'flex', md: 'none' } }}
+			justifygroupid={'space-between'}
+			marginTop={1.5}
+		>
+			<LoadingButton
+				size="small"
+				fullWidth
+				startIcon={<AddBoxIcon />}
+				variant="contained"
+				color="success"
+				onClick={handleClickNew}
+				loading={valueNewButton}
+				loadingPosition="start"
+				sx={{ whiteSpace: 'nowrap' }}
+			>
+				{t('button-new')}
+			</LoadingButton>
+			<LoadingButton
+				size="small"
+				fullWidth
+				startIcon={<SystemUpdateAltIcon />}
+				variant="contained"
+				color="warning"
+				onClick={handleClickUpdate}
+				loading={valueUpdateButton}
+				loadingPosition="start"
+				sx={{ whiteSpace: 'nowrap' }}
+				disabled={valueDisableUpdateButton}
+			>
+				{t('button-update')}
+			</LoadingButton>
+			<LoadingButton
+				size="small"
+				fullWidth
+				startIcon={<SaveIcon />}
+				variant="contained"
+				color="primary"
+				onClick={handleClickSave}
+				disabled={valueDisableSaveButton}
+			>
+				{t('button-save')}
+			</LoadingButton>
+			<LoadingButton
+				size="small"
+				fullWidth
+				startIcon={<GridDeleteIcon />}
+				variant="contained"
+				color="error"
+				onClick={handleClickDelete}
+				disabled={valueDisableDeleteButton}
+			>
+				{t('button-delete')}
+			</LoadingButton>
+		</Stack>
+	);
+	return (
+		<Spin size="large" tip={t('loading')} spinning={false}>
+			<div className="main">
+				<ToastContainer position='bottom-right' stacked />
+				{dialogIsOpenNew && (
+					<AlertDialog
+						title={t('account-toast-new')}
+						content={
+							<>
+								{t('code')}: {valueAccountId}
+								<br /> {t('name')}: {valueAccountName}
+								<br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
+								<br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
+								<br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
+								<br /> {t('method')}:{`${valueMethodId}`}
+								<br /> {t('menu-sub-acc-type')}:{`[${valueSubAccountTypeId}] - ${valueSubAccountTypeName}`}
+							</>
+						}
+						onOpen={dialogIsOpenNew}
+						onClose={closeDialogNew}
+						onAgree={agreeDialogNew}
+					/>
+				)}
+				{dialogIsOpenUpdate && (
+					<AlertDialog
+						title={t('account-toast-update')}
+						content={
+							<>
+								{t('code')}: {valueAccountId}
+								<br /> {t('name')}: {valueAccountName}
+								<br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
+								<br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
+								<br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
+								<br /> {t('method')}:{`[${valueMethodId}] - ${valueMethodName}`}
+								<br /> {t('menu-sub-acc-type')}:{`[${valueSubAccountTypeId}] - ${valueSubAccountTypeName}`}
+							</>
+						}
+						onOpen={dialogIsOpenUpdate}
+						onClose={closeDialogUpdate}
+						onAgree={agreeDialogUpdate}
+					/>
+				)}
+				{dialogIsOpenDelete && (
+					<AlertDialog
+						title={t('account-toast-delete')}
+						content={
+							<>
+								{t('code')}: {valueAccountId}
+								<br /> {t('name')}: {valueAccountName}
+								<br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
+								<br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
+								<br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
+								<br /> {t('method')}:{`[${valueMethodId}] - ${valueMethodName}`}
+								<br /> {t('menu-sub-acc-type')}:{`[${valueSubAccountTypeId}] - ${valueSubAccountTypeName}`}
+							</>
+						}
+						onOpen={dialogIsOpenDelete}
+						onClose={closeDialogDelete}
+						onAgree={agreeDialogDelete}
+					/>
+				)}
 
-                <Box
-                    sx={{
-                        flexGrow: 1,
-                        '& .super-app-theme--header': {
-                            backgroundColor: '#ffc696',
-                        },
-                    }}
-                >
-                    <Grid container direction={'row'} spacing={1}>
-                        <Grid xs={12} md={6}>
-                            <Item>
-                                <Stack direction="row" spacing={2}>
-                                    <TextField
-                                        id="outlined-basic"
-                                        variant="outlined"
-                                        fullWidth
-                                        label={t('button-search')}
-                                        size="small"
-                                        // type="number"
-                                        value={valueSearch}
-                                        onChange={(event) => setValueSearch(event.target.value)}
-                                        onKeyDown={(event) => {
-                                            if (event.key === 'Enter') {
-                                                handleSearch();
-                                            }
-                                        }}
-                                    />
-                                    <div>
-                                        <LoadingButton
-                                            startIcon={<SearchIcon />}
-                                            variant="contained"
-                                            color="warning"
-                                            sx={{ whiteSpace: 'nowrap' }}
-                                            onClick={() => handleSearch()}
-                                        >
-                                            {t('button-search')}
-                                        </LoadingButton>
-                                    </div>
-                                </Stack>
-                            </Item>
-                        </Grid>
-                        <Grid xs={12} md={12}>
-                            <Item>
-                                <Stack spacing={0}>
-                                    <h5 style={{ textAlign: 'left', fontWeight: 'bold' }}>
-                                        {t('account-title-list')}
-                                    </h5>
-                                    <div style={{ width: '100%' }}>
-                                        <DataGrid
-                                            rows={displayData}
-                                            columns={columns}
-                                            getRowId={(row) => row.AccountId}
-                                            initialState={{
-                                                pagination: {
-                                                    paginationModel: { page: 0, pageSize: 5 },
-                                                },
-                                            }}
-                                            pageSizeOptions={[5, 10, 15]}
-                                            autoHeight
-                                            showCellVerticalBorder
-                                            showColumnVerticalBorder
-                                            loading={isLoading}
-                                            onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
-                                            // checkboxSelection
-                                            slotProps={{
-                                                pagination: {
-                                                    sx: {
-                                                        "& .MuiTablePagination-selectLabel": {
-                                                            marginBottom: 0, // align label vertically
-                                                        },
-                                                        "& .MuiTablePagination-displayedRows": {
-                                                            marginBottom: 0, // align displayed rows text
-                                                        },
-                                                        "& .MuiTablePagination-select": {
-                                                            paddingTop: "8px",
-                                                            paddingBottom: "8px",
-                                                        },
-                                                    },
-                                                },
-                                            }}
-                                        />
-                                    </div>
-                                </Stack>
-                            </Item>
-                        </Grid>
-                        <Grid xs={12} md={12}>
-                            <Item>
-                                <Stack direction={'row'} spacing={2} alignItems={'center'}>
-                                    <Stack
-                                        width={'100%'}
-                                        direction={'row'}
-                                        spacing={2}
-                                        alignItems={'center'}
-                                        justifygroupid={'flex-end'}
-                                        height={50}
-                                    >
-                                        <h5
-                                            style={{
-                                                fontWeight: 'bold',
-                                                textAlign: 'left',
-                                                width: '100%',
-                                            }}
-                                        >
-                                            {t('account-title-infor')}
-                                        </h5>
-                                    </Stack>
-                                    <Stack direction={'row'} spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
-                                        <LoadingButton
-                                            startIcon={<AddBoxIcon />}
-                                            variant="contained"
-                                            color="success"
-                                            onClick={handleClickNew}
-                                            loading={valueNewButton}
-                                            loadingPosition="start"
-                                            sx={{ whiteSpace: 'nowrap' }}
-                                        >
-                                            {t('button-new')}
-                                        </LoadingButton>
-                                        <LoadingButton
-                                            startIcon={<SystemUpdateAltIcon />}
-                                            variant="contained"
-                                            color="warning"
-                                            onClick={handleClickUpdate}
-                                            loading={valueUpdateButton}
-                                            loadingPosition="start"
-                                            sx={{ whiteSpace: 'nowrap' }}
-                                            disabled={valueDisableUpdateButton}
-                                        >
-                                            {t('button-update')}
-                                        </LoadingButton>
-                                        <LoadingButton
-                                            startIcon={<SaveIcon />}
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={handleClickSave}
-                                            disabled={valueDisableSaveButton}
-                                        >
-                                            {t('button-save')}
-                                        </LoadingButton>
-                                        <LoadingButton
-                                            startIcon={<SaveIcon />}
-                                            variant="contained"
-                                            color="error"
-                                            onClick={handleClickDelete}
-                                            disabled={valueDisableDeleteButton}
-                                        >
-                                            {t('button-delete')}
-                                        </LoadingButton>
-                                    </Stack>
-                                </Stack>
-                                <Grid xs={12} md={12}>
-                                    <Item>
-                                        <Stack spacing={3}>
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('code')}</div>
-                                                </div>
-                                                <Input
-                                                    variant="outlined"
-                                                    type="text"
-                                                    size="large"
-                                                    status={!valueAccountId || valueAccountId.length !== 9 ? 'error' : ''}
-                                                    count={{
-                                                        show: !valueReadonly,
-                                                        max: 9,
-                                                        // strategy: (txt) => txt.length,
-                                                        // exceedFormatter: (txt, { max }) => txt.slice(0, max),
-                                                    }}
-                                                    value={valueAccountId}
-                                                    onChange={(event) =>
-                                                        event.target.value.length <= 9 && handleOnChangeValueCode(event)
-                                                    }
-                                                    ref={inputAccountIdRef}
-                                                    placeholder="xxxxx xxx"
-                                                    disabled={valueReadonly}
-                                                    style={{ color: '#000' }}
-                                                />
-                                            </Stack>
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('name')}</div>
-                                                </div>
-                                                <Input
-                                                    variant="outlined"
-                                                    size="large"
-                                                    status={!valueAccountName ? 'error' : ''}
-                                                    value={valueAccountName}
-                                                    onChange={(event) => handleOnChangeValueName(event)}
-                                                    placeholder="name..."
-                                                    disabled={valueReadonly}
-                                                    style={{ color: '#000' }}
-                                                />
-                                            </Stack>
-                                            {/* <Stack direction={'row'} spacing={2}>
+				<Box
+					sx={{
+						flexGrow: 1,
+						'& .super-app-theme--header': {
+							backgroundColor: '#ffc696',
+						},
+					}}
+				>
+					<Grid container direction={'row'} spacing={1}>
+						<Grid xs={12} md={6}>
+							<Item>
+								<Stack direction="row" spacing={2}>
+									<TextField
+										id="outlined-basic"
+										variant="outlined"
+										fullWidth
+										label={t('button-search')}
+										size="small"
+										// type="number"
+										value={valueSearch}
+										onChange={(event) => setValueSearch(event.target.value)}
+										onKeyDown={(event) => {
+											if (event.key === 'Enter') {
+												handleSearch();
+											}
+										}}
+									/>
+									<div>
+										<LoadingButton
+											startIcon={<SearchIcon />}
+											variant="contained"
+											color="warning"
+											sx={{ whiteSpace: 'nowrap' }}
+											onClick={() => handleSearch()}
+										>
+											{t('button-search')}
+										</LoadingButton>
+									</div>
+								</Stack>
+							</Item>
+						</Grid>
+						<Grid xs={12} md={12}>
+							<Item>
+								<Stack spacing={0}>
+									<h5 style={{ textAlign: 'left', fontWeight: 'bold' }}>
+										{t('account-title-list')}
+									</h5>
+									<div style={{ width: '100%' }}>
+										<DataGrid
+											rows={displayData}
+											columns={columns}
+											getRowId={(row) => row.AccountId}
+											initialState={{
+												pagination: {
+													paginationModel: { page: 0, pageSize: 5 },
+												},
+											}}
+											pageSizeOptions={[5, 10, 15]}
+											autoHeight
+											showCellVerticalBorder
+											showColumnVerticalBorder
+											loading={isLoading}
+											onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
+											sx={{
+												"& .MuiDataGrid-columnHeaderTitle": {
+													fontWeight: "bold",
+												}
+											}}
+											slotProps={{
+												pagination: {
+													sx: {
+														"& .MuiTablePagination-selectLabel": {
+															marginBottom: 0, // align label vertically
+														},
+														"& .MuiTablePagination-displayedRows": {
+															marginBottom: 0, // align displayed rows text
+														},
+														"& .MuiTablePagination-select": {
+															paddingTop: "8px",
+															paddingBottom: "8px",
+														},
+													},
+												},
+											}}
+										/>
+									</div>
+								</Stack>
+							</Item>
+						</Grid>
+						<Grid xs={12} md={12}>
+							<Item>
+								<Stack direction={'row'} spacing={2} alignItems={'center'}>
+									<Stack
+										width={'100%'}
+										direction={'row'}
+										spacing={2}
+										alignItems={'center'}
+										justifygroupid={'flex-end'}
+										height={50}
+									>
+										<h5
+											style={{
+												fontWeight: 'bold',
+												textAlign: 'left',
+												width: '100%',
+											}}
+										>
+											{t('account-title-infor')}
+										</h5>
+									</Stack>
+									<Stack direction={'row'} spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
+										<LoadingButton
+											startIcon={<AddBoxIcon />}
+											variant="contained"
+											color="success"
+											onClick={handleClickNew}
+											loading={valueNewButton}
+											loadingPosition="start"
+											sx={{ whiteSpace: 'nowrap' }}
+										>
+											{t('button-new')}
+										</LoadingButton>
+										<LoadingButton
+											startIcon={<SystemUpdateAltIcon />}
+											variant="contained"
+											color="warning"
+											onClick={handleClickUpdate}
+											loading={valueUpdateButton}
+											loadingPosition="start"
+											sx={{ whiteSpace: 'nowrap' }}
+											disabled={valueDisableUpdateButton}
+										>
+											{t('button-update')}
+										</LoadingButton>
+										<LoadingButton
+											startIcon={<SaveIcon />}
+											variant="contained"
+											color="primary"
+											onClick={handleClickSave}
+											disabled={valueDisableSaveButton}
+										>
+											{t('button-save')}
+										</LoadingButton>
+										<LoadingButton
+											startIcon={<SaveIcon />}
+											variant="contained"
+											color="error"
+											onClick={handleClickDelete}
+											disabled={valueDisableDeleteButton}
+										>
+											{t('button-delete')}
+										</LoadingButton>
+									</Stack>
+								</Stack>
+								<Grid xs={12} md={12}>
+									<Item>
+										<Stack spacing={3}>
+											<Stack direction={'row'} spacing={2}>
+												<div className="form-title">
+													<div>{t('code')}</div>
+												</div>
+												<Input
+													variant="outlined"
+													type="text"
+													size="large"
+													status={!valueAccountId || valueAccountId.length !== 9 ? 'error' : ''}
+													count={{
+														show: !valueReadonly,
+														max: 9,
+														// strategy: (txt) => txt.length,
+														// exceedFormatter: (txt, { max }) => txt.slice(0, max),
+													}}
+													value={valueAccountId}
+													onChange={(event) =>
+														event.target.value.length <= 9 && handleOnChangeValueCode(event)
+													}
+													ref={inputAccountIdRef}
+													placeholder="xxxxx xxx"
+													disabled={valueReadonly}
+													style={{ color: '#000' }}
+												/>
+											</Stack>
+											<Stack direction={'row'} spacing={2}>
+												<div className="form-title">
+													<div>{t('name')}</div>
+												</div>
+												<Input
+													variant="outlined"
+													size="large"
+													status={!valueAccountName ? 'error' : ''}
+													value={valueAccountName}
+													onChange={(event) => handleOnChangeValueName(event)}
+													placeholder="name..."
+													disabled={valueReadonly}
+													style={{ color: '#000' }}
+												/>
+											</Stack>
+											{/* <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
                                                     <div>{t('unit')}</div>
                                                 </div>
@@ -900,32 +904,32 @@ function AccountRoot() {
                                                 </Select>
                                             </Stack> */}
 
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('description')}</div>
-                                                </div>
-                                                <Input.TextArea
-                                                    size="large"
-                                                    maxLength={250}
-                                                    value={valueDescription}
-                                                    onChange={(event) => handleOnChangeValueDescription(event)}
-                                                    rows={2}
-                                                    placeholder="..."
-                                                    disabled={valueReadonly}
-                                                    style={{ color: '#000' }}
-                                                />
-                                            </Stack>
-                                        </Stack>
-                                    </Item>
-                                </Grid>
-                                {mobileResponsive}
-                            </Item>
-                        </Grid>
-                    </Grid>
-                </Box>
-            </div>
-        </Spin>
-    );
+											<Stack direction={'row'} spacing={2}>
+												<div className="form-title">
+													<div>{t('description')}</div>
+												</div>
+												<Input.TextArea
+													size="large"
+													maxLength={250}
+													value={valueDescription}
+													onChange={(event) => handleOnChangeValueDescription(event)}
+													rows={2}
+													placeholder="..."
+													disabled={valueReadonly}
+													style={{ color: '#000' }}
+												/>
+											</Stack>
+										</Stack>
+									</Item>
+								</Grid>
+								{mobileResponsive}
+							</Item>
+						</Grid>
+					</Grid>
+				</Box>
+			</div>
+		</Spin>
+	);
 }
 
 export default AccountRoot;

@@ -442,7 +442,11 @@ function ExpenseGroupGroup({ title }) {
                                             showColumnVerticalBorder
                                             loading={isLoading}
                                             onRowSelectionModelChange={(ids) => onRowsSelectionHandler(ids)}
-                                            // checkboxSelection
+                                            sx={{
+                                                "& .MuiDataGrid-columnHeaderTitle": {
+                                                    fontWeight: "bold",
+                                                }
+                                            }}
                                             slotProps={{
                                                 pagination: {
                                                     sx: {
