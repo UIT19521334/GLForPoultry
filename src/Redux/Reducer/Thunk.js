@@ -25,7 +25,15 @@ const initialState = {
         { code: "CHL0004", channel_name: "Meat Shop", isactive: true },
         { code: "CHL0005", channel_name: "General", isactive: true }
     ],
-    listData_Currency: [{ code: "VND", name: "VND", description: null }],
+    listData_Currency: [
+        {
+            CurrencyId: "CU001",
+            CurrencyName: "VND",
+            Rate: 0.0,
+            Active: true,
+            Description: null
+        }
+    ],
     listData_Period: [{
         acc_date: "2025-08-01T00:00:00",
         acc_period_month: "08",

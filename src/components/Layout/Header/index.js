@@ -1,10 +1,7 @@
 import * as React from 'react';
-import styles from './Header.module.scss';
-import classNames from 'classnames/bind';
-import { settingRoutes, accountantRoutes, reportRoutes, publicRoutes } from '~/Routes';
+import { settingRoutes, accountantRoutes, reportRoutes } from '~/Routes';
 import { Link, NavLink } from 'react-router-dom';
 import { styled, alpha, useTheme } from '@mui/material/styles';
-// import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
@@ -18,7 +15,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import MoreIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
@@ -32,10 +28,7 @@ import MuiAppBar from '@mui/material/AppBar';
 import MuiDrawer from '@mui/material/Drawer';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import PersonAdd from '@mui/icons-material/PersonAdd';
-import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
-import Avatar from '@mui/material/Avatar';
 import { useLocation } from 'react-router-dom';
 import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
@@ -46,31 +39,25 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import ChromeReaderModeIcon from '@mui/icons-material/ChromeReaderMode';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import { useMsal, AuthenticatedTemplate, UnauthenticatedTemplate } from '@azure/msal-react';
+import { useMsal } from '@azure/msal-react';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import Api from '~/DomainApi';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ConfigProvider, Switch } from 'antd';
+import { Switch } from 'antd';
 import { useTranslation } from 'react-i18next';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { AttachMoney, GroupAdd, LibraryAdd, ManageAccounts, SupervisedUserCircle } from '@mui/icons-material';
+import { AttachMoney, GroupAdd, ManageAccounts } from '@mui/icons-material';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ArticleIcon from '@mui/icons-material/Article';
-import AssignmentIcon from '@mui/icons-material/Assignment';
 import SavingsIcon from '@mui/icons-material/Savings';
-import { Button, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 import ReactNiceAvatar, { genConfig } from 'react-nice-avatar';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import PercentIcon from '@mui/icons-material/Percent';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateCurrentUnit } from '~/Redux/Reducer/Thunk';
-
-const cx = classNames.bind(styles);
-
 /**side PC */
 const drawerWidth = 240;
 
@@ -100,7 +87,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     alignItems: 'center',
     justifyContent: 'flex-end',
     padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
     ...theme.mixins.toolbar,
 }));
 const DrawerPc = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
@@ -169,7 +155,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     color: 'inherit',
     '& .MuiInputBase-input': {
         padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
         paddingLeft: `calc(1em + ${theme.spacing(4)})`,
         transition: theme.transitions.create('width'),
         width: '100%',
@@ -178,9 +163,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
         },
     },
 }));
-// const headers = {
-//     'Content-Type': 'application/json',
-// };
 
 function Header() {
     const { t } = useTranslation();
@@ -230,6 +212,7 @@ function Header() {
 
     const toggleDrawer = (anchor, open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+            console.log("anchor>>>>>", anchor)
             return;
         }
 
@@ -280,7 +263,6 @@ function Header() {
                                 color: '#ed6c02',
                             }}
                         >
-                            {/* <HomeIcon /> */}
                             <AssessmentIcon />
                         </ListItemIcon>
                         <ListItemText primary={'Dashboard'} sx={{ opacity: open ? 1 : 0 }} />
@@ -335,7 +317,7 @@ function Header() {
                     <ListItem
                         key={route.title}
                         disablePadding
-                        sx={{ display: 'block' }}
+                        sx={{ display: menu.includes(route.menuid) ? 'block' : 'none' }}
                         onClick={toggleDrawer('left', false)}
                     >
                         <NavLink to={route.path} style={{ textDecoration: 'none', color: 'black' }}>
@@ -388,7 +370,6 @@ function Header() {
                         color: '#ed6c02',
                     }}
                 >
-                    {/* <AccountBalanceWalletIcon /> */}
                     {openReport ? <ExpandLess /> : <ExpandMore />}
                 </ListItemIcon>
                 <ListItemText primary={t('report')} sx={{ opacity: open ? 1 : 0, color: '#ed6c02' }} />
@@ -638,10 +619,7 @@ function Header() {
                         <FormControl
                             sx={{
                                 m: 1,
-                                // minWidth: 100,
-                                // maxWidth: 200,
                                 width: '100%',
-                                // height: 48,
                                 paddingTop: 0.5,
                                 marginRight: 2,
                             }}
@@ -651,7 +629,6 @@ function Header() {
                                 labelId="demo-simple-select-helper-label"
                                 id="demo-simple-select-helper"
                                 value={currentUnit.UnitId}
-                                // label="Age"
                                 displayEmpty
                                 onChange={handleChangeUnit}
                                 sx={{
@@ -674,11 +651,8 @@ function Header() {
                             sx={{
                                 display: { xs: 'none', sm: 'flex' },
                                 width: '100%',
-                                // textAlign: 'center',
                                 alignItems: 'center',
                                 whiteSpace: 'nowrap',
-                                // overflow: 'hidden',
-                                // textOverflow: 'ellipsis',
                             }}
                         >
                             {userName[0]}
@@ -759,7 +733,6 @@ function Header() {
                                         color: '#ed6c02',
                                     }}
                                 >
-                                    {/* <HomeIcon /> */}
                                     <AssessmentIcon />
                                 </ListItemIcon>
                                 <ListItemText primary={'Dashboard'} sx={{ opacity: open ? 1 : 0 }} />
@@ -786,7 +759,7 @@ function Header() {
                                             justifyContent: open ? 'initial' : 'center',
                                             px: 2.5,
                                         }}
-                                        selected={location.pathname === route.path ? true : false}
+                                        selected={location.pathname.includes(route.path.replace('/*', '')) ? true : false}
                                     >
                                         <ListItemIcon
                                             sx={{
@@ -826,7 +799,7 @@ function Header() {
                             <ListItem
                                 key={route.title}
                                 disablePadding
-                                sx={{ display: 'block' }}
+                                sx={{ display: menu.includes(route.menuid) ? 'block' : 'none' }}
                                 onClick={toggleDrawer('left', false)}
                             >
                                 <NavLink to={route.path} style={{ textDecoration: 'none', color: 'black' }}>
@@ -836,7 +809,7 @@ function Header() {
                                             justifyContent: open ? 'initial' : 'center',
                                             px: 2.5,
                                         }}
-                                        selected={location.pathname === route.path ? true : false}
+                                        selected={location.pathname.includes(route.path.replace('/*', '')) ? true : false}
                                     >
                                         <ListItemIcon
                                             sx={{
@@ -879,7 +852,6 @@ function Header() {
                                 color: '#ed6c02',
                             }}
                         >
-                            {/* <AssignmentIcon /> */}
                             {openReport ? <ExpandLess /> : <ExpandMore />}
                         </ListItemIcon>
                         <ListItemText primary={t('report')} sx={{ opacity: open ? 1 : 0, color: '#ed6c02' }} />
@@ -900,7 +872,7 @@ function Header() {
                                                 justifyContent: open ? 'initial' : 'center',
                                                 px: 2.5,
                                             }}
-                                            selected={location.pathname === route.path ? true : false}
+                                            selected={location.pathname.includes(route.path.replace('/*', '')) ? true : false}
                                         >
                                             <ListItemIcon
                                                 sx={{

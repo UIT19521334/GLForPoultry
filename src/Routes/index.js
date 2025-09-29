@@ -28,7 +28,7 @@ export const settingRoutes = [
     // { path: '/indexrate', component: IndexRate, title: 'Index Rate' },
 ];
 export const accountantRoutes = [
-    // { path: '/accountingentry', component: AccountingEntry, title: 'menu-entry' },
+    { path: '/accountingentry/*', component: AccountingEntry, title: 'menu-entry', menuid: 623 },
     // { path: '/costallocation', component: CostAllocation, title: 'menu-allocation' },
     // { path: '/closeaccountingperiod', component: CloseAccountingPeriod, title: 'menu-close-period' },
     // { path: '/openaccountingperiod', component: OpenAccountingPeriod, title: 'menu-open-period' },
