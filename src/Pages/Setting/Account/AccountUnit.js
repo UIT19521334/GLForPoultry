@@ -55,13 +55,13 @@ function AccountUnit() {
 	const columns = [
 		{
 			field: 'AccountId',
-			headerName: t('code'),
+			headerName: t('account-code'),
 			minWidth: 150,
 			headerClassName: 'super-app-theme--header',
 		},
 		{
 			field: 'AccountName',
-			headerName: t('name'),
+			headerName: t('account-name'),
 			minWidth: 200,
 			flex: 1,
 			headerClassName: 'super-app-theme--header',
@@ -527,8 +527,8 @@ function AccountUnit() {
 						title={t('account-toast-new')}
 						content={
 							<>
-								{t('code')}: {valueAccountId}
-								<br /> {t('name')}: {valueAccountName}
+								{t('account-code')}: {valueAccountId}
+								<br /> {t('account-name')}: {valueAccountName}
 								<br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
 								<br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
 								<br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
@@ -546,8 +546,8 @@ function AccountUnit() {
 						title={t('account-toast-update')}
 						content={
 							<>
-								{t('code')}: {valueAccountId}
-								<br /> {t('name')}: {valueAccountName}
+								{t('account-code')}: {valueAccountId}
+								<br /> {t('account-name')}: {valueAccountName}
 								<br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
 								<br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
 								<br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
@@ -565,8 +565,8 @@ function AccountUnit() {
 						title={t('account-toast-delete')}
 						content={
 							<>
-								{t('code')}: {valueAccountId}
-								<br /> {t('name')}: {valueAccountName}
+								{t('account-code')}: {valueAccountId}
+								<br /> {t('account-name')}: {valueAccountName}
 								<br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
 								<br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
 								<br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
@@ -739,7 +739,7 @@ function AccountUnit() {
 										<Stack spacing={3}>
 											<Stack direction={'row'} spacing={2}>
 												<div className="form-title">
-													<div>{t('code')}</div>
+													<div>{t('account-code')}</div>
 												</div>
 												<Input
 													variant="outlined"
@@ -764,7 +764,7 @@ function AccountUnit() {
 											</Stack>
 											<Stack direction={'row'} spacing={2}>
 												<div className="form-title">
-													<div>{t('name')}</div>
+													<div>{t('account-name')}</div>
 												</div>
 												<Input
 													variant="outlined"

@@ -44,13 +44,13 @@ function AccountRoot() {
 	const columns = [
 		{
 			field: 'AccountId',
-			headerName: t('code'),
+			headerName: t('account-code'),
 			minWidth: 150,
 			headerClassName: 'super-app-theme--header',
 		},
 		{
 			field: 'AccountName',
-			headerName: t('name'),
+			headerName: t('account-name'),
 			minWidth: 300,
 			headerClassName: 'super-app-theme--header',
 		},
@@ -100,7 +100,7 @@ function AccountRoot() {
 	const handleSearch = () => {
 		let filteredData = dataList;
 		if (valueSearch && valueSearch.trim() !== "") {
-			const fieldsToSearch = ["AccountName", "AccountId"];
+			const fieldsToSearch = ["AccountName", "AccountId", "Description"];
 			filteredData = _.filter(dataList, (item) => {
 				const search = _.toLower(valueSearch);
 				return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
@@ -453,8 +453,8 @@ function AccountRoot() {
 						title={t('account-toast-new')}
 						content={
 							<>
-								{t('code')}: {valueAccountId}
-								<br /> {t('name')}: {valueAccountName}
+								{t('account-code')}: {valueAccountId}
+								<br /> {t('account-name')}: {valueAccountName}
 								<br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
 								<br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
 								<br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
@@ -472,8 +472,8 @@ function AccountRoot() {
 						title={t('account-toast-update')}
 						content={
 							<>
-								{t('code')}: {valueAccountId}
-								<br /> {t('name')}: {valueAccountName}
+								{t('account-code')}: {valueAccountId}
+								<br /> {t('account-name')}: {valueAccountName}
 								<br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
 								<br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
 								<br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
@@ -491,8 +491,8 @@ function AccountRoot() {
 						title={t('account-toast-delete')}
 						content={
 							<>
-								{t('code')}: {valueAccountId}
-								<br /> {t('name')}: {valueAccountName}
+								{t('account-code')}: {valueAccountId}
+								<br /> {t('account-name')}: {valueAccountName}
 								<br /> {t('unit')}:{`[${valueUnitId}] - ${valueUnitName}`}
 								<br /> {t('expense-group')}:{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
 								<br /> {t('expense')}:{`[${valueExpenseId}] - ${valueExpenseName}`}
@@ -665,7 +665,7 @@ function AccountRoot() {
 										<Stack spacing={3}>
 											<Stack direction={'row'} spacing={2}>
 												<div className="form-title">
-													<div>{t('code')}</div>
+													<div>{t('account-code')}</div>
 												</div>
 												<Input
 													variant="outlined"
@@ -690,7 +690,7 @@ function AccountRoot() {
 											</Stack>
 											<Stack direction={'row'} spacing={2}>
 												<div className="form-title">
-													<div>{t('name')}</div>
+													<div>{t('account-name')}</div>
 												</div>
 												<Input
 													variant="outlined"
