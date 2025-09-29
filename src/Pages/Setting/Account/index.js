@@ -17,7 +17,7 @@ function AccountLayout({ title }) {
     const location = useLocation();
 
     // Get current tab from URL path
-    const currentTab = location.pathname.includes('account-unit') ? 'account-unit' : 'account-root';
+    const currentTab = location.pathname.includes('account-assign') ? 'account-assign' : 'account-create';
 
     const handleChangeTab = (event, newValue) => {
         navigate(newValue);
@@ -62,8 +62,8 @@ function AccountLayout({ title }) {
                             }}
                             variant="fullWidth"
                         >
-                            <Tab label={t('account-root')} value="account-root" />
-                            <Tab label={t('account-unit')} value="account-unit" />
+                            <Tab label={t('account-create')} value="account-create" />
+                            <Tab label={t('account-assign')} value="account-assign" />
                         </Tabs>
                         <Box
                             sx={{
@@ -83,9 +83,9 @@ function Account({ title }) {
     return (
         <Routes>
             <Route element={<AccountLayout title={title} />}>
-                <Route path="account-root" element={<AccountRoot />} />
-                <Route path="account-unit" element={<AccountUnit />} />
-                <Route index element={<Navigate to="account-root" replace />} />
+                <Route path="account-create" element={<AccountRoot />} />
+                <Route path="account-assign" element={<AccountUnit />} />
+                <Route index element={<Navigate to="account-create" replace />} />
             </Route>
         </Routes>
     );

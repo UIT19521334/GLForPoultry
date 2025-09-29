@@ -13,7 +13,7 @@ export async function ApiListExpense(valueSearch, setDataList) {
         const data = await response.data?.Response ?? [];
         let filteredData = data;
         if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["ExpenseName", "ExpenseId", "GroupId", "GroupName_VN", "Description"];
+            const fieldsToSearch = ["ExpenseName", "ExpenseId", "GroupId", "GroupName_VN"];
             filteredData = _.filter(data, (item) => {
                 const search = _.toLower(valueSearch);
                 return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));

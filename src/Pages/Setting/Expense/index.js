@@ -63,7 +63,7 @@ function ExpenseLayout({ title }) {
                             }}
                             variant="fullWidth"
                         >
-                            <Tab label={t('expense-details')} value="expense-details" />
+                            <Tab label={t('expense')} value="expense-details" />
                             <Tab label={t('expense-group')} value="expense-group" />
                         </Tabs>
                         <Box

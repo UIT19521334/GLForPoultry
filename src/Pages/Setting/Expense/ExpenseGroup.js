@@ -44,20 +44,14 @@ function ExpenseGroupGroup({ title }) {
     const columns = [
         {
             field: 'GroupId',
-            headerName: t('code'),
-            minWidth: 150,
-            headerClassName: 'super-app-theme--header',
-        },
-        {
-            field: 'GroupName_EN',
-            headerName: t('name'),
+            headerName: t('expense-group-code'),
             minWidth: 200,
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'Description',
-            headerName: t('description'),
-            minWidth: 300,
+            field: 'GroupName_EN',
+            headerName: t('expense-group-name'),
+            minWidth: 200,
             flex: 1,
             headerClassName: 'super-app-theme--header',
         }
@@ -78,7 +72,7 @@ function ExpenseGroupGroup({ title }) {
     const handleSearch = () => {
         let filteredData = dataList;
         if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["GroupId", "GroupName_EN", "Description"];
+            const fieldsToSearch = ["GroupId", "GroupName_EN"];
             filteredData = _.filter(dataList, (item) => {
                 const search = _.toLower(valueSearch);
                 return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
@@ -344,8 +338,8 @@ function ExpenseGroupGroup({ title }) {
                         title={t('expense-toast-new')}
                         content={
                             <>
-                                {t('code')}: {valueCode}
-                                <br /> {t('name')}: {valueName}
+                                {t('expense-group-code')}: {valueCode}
+                                <br /> {t('expense-group-name')}: {valueName}
                                 <br /> {t('description')}:{valueDescription}
                             </>
                         }
@@ -359,8 +353,8 @@ function ExpenseGroupGroup({ title }) {
                         title={t('expense-toast-update')}
                         content={
                             <>
-                                {t('code')}: {valueCode}
-                                <br /> {t('name')}: {valueName}
+                                {t('expense-group-code')}: {valueCode}
+                                <br /> {t('expense-group-name')}: {valueName}
                                 <br /> {t('description')}:{valueDescription}
                             </>
                         }
@@ -374,8 +368,8 @@ function ExpenseGroupGroup({ title }) {
                         title={t('expense-toast-delete')}
                         content={
                             <>
-                                {t('code')}: {valueCode}
-                                <br /> {t('name')}: {valueName}
+                                {t('expense-group-code')}: {valueCode}
+                                <br /> {t('expense-group-name')}: {valueName}
                                 <br /> {t('description')}:{valueDescription}
                             </>
                         }
@@ -538,7 +532,7 @@ function ExpenseGroupGroup({ title }) {
                                         <Stack spacing={3}>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <div>{t('code')}</div>
+                                                    <div>{t('expense-group-code')}</div>
                                                 </div>
                                                 <Input
                                                     variant="outlined"
@@ -562,7 +556,7 @@ function ExpenseGroupGroup({ title }) {
                                             </Stack>
                                             <Stack direction={'row'} spacing={2}>
                                                 <div className="form-title">
-                                                    <div>{t('name')}</div>
+                                                    <div>{t('expense-group-name')}</div>
                                                 </div>
                                                 <Input
                                                     variant="outlined"

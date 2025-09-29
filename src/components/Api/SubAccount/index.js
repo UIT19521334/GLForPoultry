@@ -12,7 +12,7 @@ export async function ApiListSupAccount(valueSearch, setDataList) {
         const data = await response.data?.Response ?? [];
         let filteredData = data;
         if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["AccountSubId", "AccountSubName", "SubTypeName", "TypeId", "Description"];
+            const fieldsToSearch = ["AccountSubId", "AccountSubName", "SubTypeName", "TypeId"];
             filteredData = _.filter(data, (item) => {
                 const search = _.toLower(valueSearch);
                 return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));

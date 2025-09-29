@@ -86,7 +86,7 @@ function AccountGroup({ title }) {
 	const handleSearch = () => {
 		let filteredData = dataList;
 		if (valueSearch && valueSearch.trim() !== "") {
-			const fieldsToSearch = ["GroupName", "GroupId", "Description", "Content"];
+			const fieldsToSearch = ["GroupName", "GroupId", "Content"];
 
 			filteredData = _.filter(dataList, (item) => {
 				const search = _.toLower(valueSearch);

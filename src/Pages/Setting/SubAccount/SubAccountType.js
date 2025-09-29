@@ -77,7 +77,7 @@ function SubAccountType() {
 	useEffect(() => {
 		let filteredData = listSubAccountType;
 		if (valueSearch && valueSearch.trim() !== "") {
-			const fieldsToSearch = ["SubTypeId", "SubTypeName", "Description"];
+			const fieldsToSearch = ["SubTypeId", "SubTypeName"];
 			filteredData = _.filter(dataList, (item) => {
 				const search = _.toLower(valueSearch);
 				return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
@@ -91,7 +91,7 @@ function SubAccountType() {
 	const handleSearch = () => {
 		let filteredData = dataList;
 		if (valueSearch && valueSearch.trim() !== "") {
-			const fieldsToSearch = ["SubTypeId", "SubTypeName", "Description"];
+			const fieldsToSearch = ["SubTypeId", "SubTypeName"];
 
 			filteredData = _.filter(dataList, (item) => {
 				const search = _.toLower(valueSearch);

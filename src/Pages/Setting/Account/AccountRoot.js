@@ -100,7 +100,7 @@ function AccountRoot() {
 	const handleSearch = () => {
 		let filteredData = dataList;
 		if (valueSearch && valueSearch.trim() !== "") {
-			const fieldsToSearch = ["AccountName", "AccountId", "Description"];
+			const fieldsToSearch = ["AccountName", "AccountId"];
 			filteredData = _.filter(dataList, (item) => {
 				const search = _.toLower(valueSearch);
 				return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));

@@ -48,33 +48,27 @@ function ExpenseDetails() {
 	const columns = [
 		{
 			field: 'ExpenseId',
-			headerName: t('code'),
+			headerName: t('expense-code'),
 			minWidth: 150,
 			headerClassName: 'super-app-theme--header',
 		},
 		{
 			field: 'ExpenseName',
-			headerName: t('name'),
+			headerName: t('expense-name'),
 			minWidth: 200,
 			headerClassName: 'super-app-theme--header',
 		},
 		{
 			field: 'GroupId',
-			headerName: t('memo-type'),
+			headerName: t('expense-group-code'),
 
-			minWidth: 100,
+			minWidth: 200,
 			headerClassName: 'super-app-theme--header',
 		},
 		{
 			field: 'GroupName_VN',
 			headerName: t('expense-group-name'),
 			minWidth: 200,
-			headerClassName: 'super-app-theme--header',
-		},
-		{
-			field: 'Description',
-			headerName: t('description'),
-			minWidth: 300,
 			flex: 1,
 			headerClassName: 'super-app-theme--header',
 		}
@@ -96,7 +90,7 @@ function ExpenseDetails() {
 	const handleSearch = () => {
 		let filteredData = dataList;
 		if (valueSearch && valueSearch.trim() !== "") {
-			const fieldsToSearch = ["ExpenseName", "ExpenseId", "GroupId", "GroupName_VN", "Description"];
+			const fieldsToSearch = ["ExpenseName", "ExpenseId", "GroupId", "GroupName_VN"];
 
 			filteredData = _.filter(dataList, (item) => {
 				const search = _.toLower(valueSearch);
@@ -377,9 +371,9 @@ function ExpenseDetails() {
 						title={t('expense-toast-new')}
 						content={
 							<>
-								{t('code')}: {valueCode}
-								<br /> {t('name')}: {valueName}
-								<br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueGroupName}`}
+								{t('expense-code')}: {valueCode}
+								<br /> {t('expense-name')}: {valueName}
+								<br /> {t('expense-group-code')}:{`[${valueGroupID}] - ${valueGroupName}`}
 								<br /> {t('description')}:{valueDescription}
 							</>
 						}
@@ -393,9 +387,9 @@ function ExpenseDetails() {
 						title={t('expense-toast-update')}
 						content={
 							<>
-								{t('code')}: {valueCode}
-								<br /> {t('name')}: {valueName}
-								<br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueGroupName}`}
+								{t('expense-code')}: {valueCode}
+								<br /> {t('expense-name')}: {valueName}
+								<br /> {t('expense-group-code')}:{`[${valueGroupID}] - ${valueGroupName}`}
 								<br /> {t('description')}:{valueDescription}
 							</>
 						}
@@ -409,9 +403,9 @@ function ExpenseDetails() {
 						title={t('expense-toast-delete')}
 						content={
 							<>
-								{t('code')}: {valueCode}
-								<br /> {t('name')}: {valueName}
-								<br /> {t('memo-type')}:{`[${valueGroupID}] - ${valueGroupName}`}
+								{t('expense-code')}: {valueCode}
+								<br /> {t('expense-name')}: {valueName}
+								<br /> {t('expense-group-code')}:{`[${valueGroupID}] - ${valueGroupName}`}
 								<br /> {t('description')}:{valueDescription}
 							</>
 						}
@@ -574,7 +568,7 @@ function ExpenseDetails() {
 										<Stack spacing={3}>
 											<Stack direction={'row'} spacing={2}>
 												<div className="form-title">
-													<div>{t('code')}</div>
+													<div>{t('expense-code')}</div>
 												</div>
 												<Input
 													variant="outlined"
@@ -598,7 +592,7 @@ function ExpenseDetails() {
 											</Stack>
 											<Stack direction={'row'} spacing={2}>
 												<div className="form-title">
-													<div>{t('name')}</div>
+													<div>{t('expense-name')}</div>
 												</div>
 												<Input
 													variant="outlined"
@@ -613,7 +607,7 @@ function ExpenseDetails() {
 											</Stack>
 											<Stack direction={'row'} spacing={2}>
 												<div className="form-title">
-													<div>{t('memo-type')}</div>
+													<div>{t('expense-group-code')}</div>
 												</div>
 												<Select
 													autoFocus
