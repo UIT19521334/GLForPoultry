@@ -14,6 +14,7 @@ import IndexRate from '~/Pages/Setting/IndexRate';
 import SubAccount from '~/Pages/Setting/SubAccount';
 import Expense from '~/Pages/Setting/Expense';
 
+// Id lấy từ menu lv2 của master app
 const otherRoutes = [
     { path: '/', component: Home, title: 'Dashboard' },
     { path: '/userprofile', component: UserProfile, title: 'menu-profile' },
