@@ -2,6 +2,7 @@ import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
 import _ from 'lodash';
 import { store } from "~/Redux/store";
+import { updateDialogError } from '~/Redux/Reducer/Thunk';
 
 export async function ApiListExpenseGroup(valueSearch, setDataList) {
     try {
@@ -21,8 +22,7 @@ export async function ApiListExpenseGroup(valueSearch, setDataList) {
 
         setDataList(filteredData);
     } catch (error) {
-        console.log(error);
-        toast.error(' Error api get data expense list!');
+        store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api get data expense group: ${error}` }));
     }
 }
 
@@ -53,11 +53,10 @@ export async function ApiCreateExpenseGroup(valueCode, valueName, valueDescripti
             toast.success(' Success create new expense!');
             statusCode = true;
         } catch (error) {
-            console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api create new expense group:\n ${error.response.data.ErrorMessage}` }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api create new expense group:\n ${error.message}` }));
             }
             statusCode = false;
         }
@@ -90,11 +89,10 @@ export async function ApiUpdateExpenseGroup(valueCode, valueName, valueDescripti
             toast.success(' Success update expense!');
             statusCode = true;
         } catch (error) {
-            console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api update expense group:\n ${error.response.data.ErrorMessage}` }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api update expense group:\n ${error.message}` }));
             }
             statusCode = false;
         }
@@ -113,11 +111,10 @@ export async function ApiDeleteExpenseGroup(valueCode) {
             toast.success(' Success delete expense !');
             statusCode = true;
         } catch (error) {
-            console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api delete expense group:\n ${error.response.data.ErrorMessage}` }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api delete expense group:\n ${error.message}` }));
             }
             statusCode = false;
         }

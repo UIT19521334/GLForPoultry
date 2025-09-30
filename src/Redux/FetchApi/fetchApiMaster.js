@@ -74,15 +74,12 @@ export const fetchApiListExpenseGroup = createAsyncThunk('master/fetchApiListExp
     return data.Response;
 });
 
-export const fetchApiListExpense = createAsyncThunk('master/fetchApiListExpense', async (token, expenseGroupId) => {
+export const fetchApiListExpense = createAsyncThunk('master/fetchApiListExpense', async (token) => {
     const header = {
         Authorization: token,
     };
     const response = await DomainPoultry.get(`master/expense`, { headers: header });
     const data = await response.data;
-    if (expenseGroupId) {
-        return _.filter(data.Response, { GroupId: "GE005" });
-    }
     return data.Response;
 });
 

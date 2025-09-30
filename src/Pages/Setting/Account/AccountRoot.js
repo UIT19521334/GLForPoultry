@@ -114,7 +114,7 @@ function AccountRoot() {
 
 	//! select row in datagrid
 	const onRowsSelectionHandler = (ids) => {
-		const selectedRowsData = ids.map((id) => displayData.find((row) => row.AccountId === id));
+		const selectedRowsData = ids.map((id) => displayData.find((row) => row.Id === id));
 		if (selectedRowsData) {
 			{
 				selectedRowsData.map((key) => {
@@ -560,7 +560,7 @@ function AccountRoot() {
 										<DataGrid
 											rows={displayData}
 											columns={columns}
-											getRowId={(row) => row.AccountId}
+											getRowId={(row) => row.Id}
 											initialState={{
 												pagination: {
 													paginationModel: { page: 0, pageSize: 5 },
@@ -706,206 +706,6 @@ function AccountRoot() {
 													style={{ color: '#000' }}
 												/>
 											</Stack>
-											{/* <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('unit')}</div>
-                                                </div>
-                                                <Select
-                                                    autoFocus
-                                                    size="small"
-                                                    fullWidth
-                                                    style={{ textAlign: 'left' }}
-                                                    value={valueUnitId}
-                                                    onChange={handleOnChangeValueUnit}
-                                                    disabled={valueReadonly}
-                                                    endAdornment={
-                                                        valueUnitId ? (
-                                                            <InputAdornment position="start">
-                                                                <IconButton
-                                                                    tabIndex={-1}
-                                                                    size="small"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation(); // chặn mở dropdown
-                                                                        setValueUnitId("");
-                                                                        setValueUnitName("");
-                                                                    }}
-                                                                >
-                                                                    <ClearIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </InputAdornment>
-                                                        ) : null
-                                                    }
-                                                >
-                                                    {_.isArray(listUnit) &&
-                                                        listUnit.map((data) => {
-                                                            return (
-                                                                <MenuItem style={{ textAlign: 'left' }} key={data.UnitId} value={data.UnitId}>
-                                                                    {`[${data.UnitId}] - ${data.UnitName}`}
-                                                                </MenuItem>
-                                                            );
-                                                        })}
-                                                </Select>
-                                            </Stack>
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('expense-group')}</div>
-                                                </div>
-                                                <Select
-                                                    autoFocus
-                                                    size="small"
-                                                    fullWidth
-                                                    style={{ textAlign: 'left' }}
-                                                    value={valueExpenseGroupId}
-                                                    onChange={handleOnChangeValueExpenseGroupID}
-                                                    disabled={valueReadonly}
-                                                    endAdornment={
-                                                        valueExpenseGroupId ? (
-                                                            <InputAdornment position="start">
-                                                                <IconButton
-                                                                    tabIndex={-1}
-                                                                    size="small"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation(); // chặn mở dropdown
-                                                                        setValueExpenseGroupId("");
-                                                                        setValueExpenseGroupName("");
-                                                                    }}
-                                                                >
-                                                                    <ClearIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </InputAdornment>
-                                                        ) : null
-                                                    }
-                                                >
-                                                    {_.isArray(listExpenseGroup) &&
-                                                        listExpenseGroup.map((data) => {
-                                                            return (
-                                                                <MenuItem style={{ textAlign: 'left' }} key={data.GroupId} value={data.GroupId}>
-                                                                    {`[${data.GroupId}] - ${data.GroupName_EN}`}
-                                                                </MenuItem>
-                                                            );
-                                                        })}
-                                                </Select>
-                                            </Stack>
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('expense')}</div>
-                                                </div>
-                                                <Select
-                                                    autoFocus
-                                                    size="small"
-                                                    fullWidth
-                                                    style={{ textAlign: 'left' }}
-                                                    value={valueExpenseId}
-                                                    onChange={handleOnChangeValueExpenseID}
-                                                    disabled={valueReadonly}
-                                                    endAdornment={
-                                                        valueExpenseId ? (
-                                                            <InputAdornment position="start">
-                                                                <IconButton
-                                                                    tabIndex={-1}
-                                                                    size="small"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation(); // chặn mở dropdown
-                                                                        setValueExpenseId("");
-                                                                        setValueExpenseName("");
-                                                                    }}
-                                                                >
-                                                                    <ClearIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </InputAdornment>
-                                                        ) : null
-                                                    }
-                                                >
-                                                    {_.isArray(listExpense) &&
-                                                        listExpense.map((data) => {
-                                                            return (
-                                                                <MenuItem style={{ textAlign: 'left' }} key={data.ExpenseId} value={data.ExpenseId}>
-                                                                    {`[${data.ExpenseId}] - ${data.ExpenseName}`}
-                                                                </MenuItem>
-                                                            );
-                                                        })}
-                                                </Select>
-                                            </Stack>
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('method')}</div>
-                                                </div>
-                                                <Select
-                                                    autoFocus
-                                                    size="small"
-                                                    fullWidth
-                                                    style={{ textAlign: 'left' }}
-                                                    value={valueMethodId}
-                                                    onChange={handleOnChangeValueMethod}
-                                                    disabled={valueReadonly}
-                                                    endAdornment={
-                                                        valueMethodId ? (
-                                                            <InputAdornment position="start">
-                                                                <IconButton
-                                                                    tabIndex={-1}
-                                                                    size="small"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation(); // chặn mở dropdown
-                                                                        setValueMethodId("");
-                                                                        setValueMethodName("");
-                                                                    }}
-                                                                >
-                                                                    <ClearIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </InputAdornment>
-                                                        ) : null
-                                                    }
-                                                >
-                                                    {_.isArray(listMethod) &&
-                                                        listMethod.map((data) => {
-                                                            return (
-                                                                <MenuItem style={{ textAlign: 'left' }} key={data.MethodId} value={data.MethodId}>
-                                                                    {`[${data.MethodId}] - ${data.MethodName}`}
-                                                                </MenuItem>
-                                                            );
-                                                        })}
-                                                </Select>
-                                            </Stack>
-                                            <Stack direction={'row'} spacing={2}>
-                                                <div className="form-title">
-                                                    <div>{t('menu-sub-acc-type')}</div>
-                                                </div>
-                                                <Select
-                                                    autoFocus
-                                                    size="small"
-                                                    fullWidth
-                                                    style={{ textAlign: 'left' }}
-                                                    value={valueSubAccountTypeId}
-                                                    onChange={handleOnChangeValueSubAccountType}
-                                                    disabled={valueReadonly}
-                                                    endAdornment={
-                                                        valueSubAccountTypeId ? (
-                                                            <InputAdornment position="start">
-                                                                <IconButton
-                                                                    tabIndex={-1}
-                                                                    size="small"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation(); // chặn mở dropdown
-                                                                        setValueSubAccountTypeId("");
-                                                                        setValueSubAccountTypeName("");
-                                                                    }}
-                                                                >
-                                                                    <ClearIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </InputAdornment>
-                                                        ) : null
-                                                    }
-                                                >
-                                                    {_.isArray(listSubAccountType) &&
-                                                        listSubAccountType.map((data) => {
-                                                            return (
-                                                                <MenuItem style={{ textAlign: 'left' }} key={data.SubTypeId} value={data.SubTypeId}>
-                                                                    {`[${data.SubTypeId}] - ${data.SubTypeName}`}
-                                                                </MenuItem>
-                                                            );
-                                                        })}
-                                                </Select>
-                                            </Stack> */}
 
 											<Stack direction={'row'} spacing={2}>
 												<div className="form-title">

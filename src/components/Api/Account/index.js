@@ -1,5 +1,6 @@
 import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
+import { updateDialogError } from '~/Redux/Reducer/Thunk';
 import { store } from "~/Redux/store";
 
 export async function ApiListAccount() {
@@ -12,7 +13,7 @@ export async function ApiListAccount() {
         return data
     } catch (error) {
         console.log(error);
-        toast.error(' Error api get data expense list!');
+        store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get data expense list!' }));
         return []
     }
 }
@@ -27,7 +28,7 @@ export async function ApiListAccountByUnit(body) {
         return data
     } catch (error) {
         console.log(error);
-        toast.error(' Error api get data expense list!');
+        store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get data expense list!' }));
         return []
     }
 }
@@ -45,15 +46,14 @@ export async function ApiCreateAccount(params) {
                 params,
                 { headers: header }
             );
-
             toast.success(' Success create new expense!');
             statusCode = true;
         } catch (error) {
             console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api create account!' }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api create account!' }));
             }
             statusCode = false;
         }
@@ -80,9 +80,9 @@ export async function ApiCreateListAccount(params) {
         } catch (error) {
             console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api create list account!' }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api create list account!' }));
             }
             statusCode = false;
         }
@@ -105,11 +105,10 @@ export async function ApiUpdateAccount(params) {
             toast.success(' Success update expense!');
             statusCode = true;
         } catch (error) {
-            console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api update account!' }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api update account!' }));
             }
             statusCode = false;
         }
@@ -128,11 +127,10 @@ export async function ApiDeleteAccount(valueCode) {
             toast.success(' Success delete expense !');
             statusCode = true;
         } catch (error) {
-            console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message }));
             }
             statusCode = false;
         }

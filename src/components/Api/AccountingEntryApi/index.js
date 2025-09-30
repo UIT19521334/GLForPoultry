@@ -51,9 +51,9 @@ export async function ApiCreateAccountEntryHeader(
         } catch (error) {
             console.log(error);
             if (error.response) {
-                toast.error(' Error api create account entry header! \n' + error.response.data);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api create account entry header!' }));
             } else {
-                toast.error(' Error api create account entry header! \n' + error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api create account entry header!' }));
             }
             statusCode = false;
         }
@@ -98,9 +98,9 @@ export async function ApiUpdateAccountEntryHeader(
             console.log(error);
             console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(' Error api update account entry header! \n' + error.response.data);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api update account entry header!' }));
             } else {
-                toast.error(' Error api update account entry header! \n' + error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api update account entry header!' }));
             }
             statusCode = false;
         }
@@ -118,15 +118,12 @@ export async function ApiDeleteAccountEntryHeader(access_token, valueDocCode) {
                 'Unit',
             )}/delete?username=${localStorage.getItem('UserName')}`;
             const response = await DomainApi.put(url, valueDocCode, { headers: header });
-            // setDataAEListHeader(response.data);
             toast.success(' Success delete account entry header!');
         } catch (error) {
-            console.log(error);
-            console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(' Error api delete account entry header! \n' + error.response.data);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api delete account entry header!' }));
             } else {
-                toast.error(' Error api delete account entry header! \n' + error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api delete account entry header!' }));
             }
         }
     }

@@ -20,11 +20,13 @@ import TextField from '@mui/material/TextField';
 import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import _ from 'lodash';
+import _, { update } from 'lodash';
 import { Autocomplete, Breadcrumbs, Chip, IconButton, InputAdornment, Link, MenuItem, Select, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchApiListAccount, fetchApiListExpense, fetchApiListExpenseGroup, fetchApiListMethod, fetchApiListSubAccountType } from '~/Redux/FetchApi/fetchApiMaster';
 import { ClearIcon } from '@mui/x-date-pickers';
+import { DomainPoultry } from '~/DomainApi';
+import { setGlobalLoading, updateDialogError, updateListExpense } from '~/Redux/Reducer/Thunk';
 
 const Item = styled(Paper)(({ theme }) => ({
 	backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -51,6 +53,7 @@ function AccountUnit() {
 	const token = useSelector((state) => state.FetchApi.token);
 	const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
 	const loadingGlobal = useSelector((state) => state.FetchApi.isLoading);
+	const currentRegionId = useSelector((state) => state.FetchApi.currentUnit.RegionId ?? "01");
 
 
 	//! columns header
@@ -147,7 +150,15 @@ function AccountUnit() {
 	useEffect(() => {
 		const fetchApiSupport = async () => {
 			if (valueExpenseGroupId) {
-				dispatch(fetchApiListExpense(token, valueExpenseGroupId));
+				try {
+					dispatch(setGlobalLoading(true));
+					const result = await DomainPoultry.get(`master/expense-bygroup?groupid=${valueExpenseGroupId}&regionid=${currentRegionId}`, { headers: { Authorization: token } });
+					dispatch(updateListExpense(result.data?.Response ?? []));
+					dispatch(setGlobalLoading(false));
+				} catch (error) {
+					dispatch(setGlobalLoading(false));
+					dispatch(updateDialogError({ open: true, title: t('error'), content: error.message ?? "Can't get expense list" }));
+				}
 			}
 		};
 		fetchApiSupport();
@@ -169,7 +180,7 @@ function AccountUnit() {
 
 	//! select row in datagrid
 	const onRowsSelectionHandler = (ids) => {
-		const selectedRowsData = ids.map((id) => displayData.find((row) => row.AccountId === id));
+		const selectedRowsData = ids.map((id) => displayData.find((row) => row.Id === id));
 		if (selectedRowsData) {
 			{
 				selectedRowsData.map((key) => {
@@ -261,13 +272,6 @@ function AccountUnit() {
 	};
 	/* #endregion */
 
-	const handleChangeValueCode = (event) => {
-		const inputValue = event.target.value;
-		// Regex: không cho ký tự đăc biệt, chỉ cho phép số và khoảng trắng
-		if (/^[0-9 ]*$/u.test(inputValue)) {
-			setValueAccountId(inputValue);
-		}
-	};
 	const handleChangeValueName = (event) => {
 		setValueAccountName(event.target.value);
 	};
@@ -639,7 +643,7 @@ function AccountUnit() {
 										<DataGrid
 											rows={displayData}
 											columns={columns}
-											getRowId={(row) => row.AccountId}
+											getRowId={(row) => row.Id}
 											initialState={{
 												pagination: {
 													paginationModel: { page: 0, pageSize: 5 },
@@ -834,7 +838,7 @@ function AccountUnit() {
 													)}
 													endAdornment={
 														valueUnitId.length > 0 && !valueReadonlyUnit ? (
-															<InputAdornment position="end">
+															<InputAdornment position="start">
 																<IconButton
 																	tabIndex={-1}
 																	size="small"

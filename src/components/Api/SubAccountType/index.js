@@ -1,5 +1,6 @@
 import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
+import { updateDialogError } from '~/Redux/Reducer/Thunk';
 import { store } from "~/Redux/store";
 
 export async function ApiCreateSubAccountType(valueCode, valueName, valueDescription) {
@@ -30,9 +31,9 @@ export async function ApiCreateSubAccountType(valueCode, valueName, valueDescrip
         } catch (error) {
             console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api create new sub account:\n ${error.response.data.ErrorMessage}` }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api create new sub account:\n ${error.message}` }));
             }
             statusCode = false;
         }
@@ -64,11 +65,10 @@ export async function ApiUpdateSubAccountType(valueCode, valueName, valueDescrip
             toast.success(' Success update sub account!');
             statusCode = true;
         } catch (error) {
-            console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api update sub account:\n ${error.response.data.ErrorMessage}` }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api update sub account:\n ${error.message}` }));
             }
             statusCode = false;
         }
@@ -89,9 +89,9 @@ export async function ApiDeleteSubAccountType(valueCode) {
         } catch (error) {
             console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api delete sub account:\n ${error.response.data.ErrorMessage}` }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api delete sub account:\n ${error.message}` }));
             }
             statusCode = false;
         }

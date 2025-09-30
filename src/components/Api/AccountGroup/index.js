@@ -2,6 +2,7 @@ import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
 import _ from 'lodash';
 import { store } from "~/Redux/store";
+import { updateDialogError } from '~/Redux/Reducer/Thunk';
 
 export async function ApiListAccountGroup(valueSearch, setDataList) {
     try {
@@ -25,7 +26,7 @@ export async function ApiListAccountGroup(valueSearch, setDataList) {
         setDataList(filteredData);
     } catch (error) {
         console.log(error);
-        toast.error(' Error api get data account group list!');
+        store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get data account group list!' }));
     }
 }
 
@@ -58,9 +59,9 @@ export async function ApiCreateAccountGroup(valueCode, valueName, valueDescripti
         } catch (error) {
             console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api create account group!' }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api create account group!' }));
             }
             statusCode = false;
         }
@@ -93,11 +94,10 @@ export async function ApiUpdateAccountGroup(valueCode, valueName, valueDescripti
             toast.success(' Success update account group!');
             statusCode = true;
         } catch (error) {
-            console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api update account group!' }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api update account group!' }));
             }
             statusCode = false;
         }
@@ -116,11 +116,10 @@ export async function ApiDeleteAccountGroup(valueCode) {
             toast.success(' Success delete account group!');
             statusCode = true;
         } catch (error) {
-            console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data.ErrorMessage);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage }));
             } else {
-                toast.error(error.message);
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message }));
             }
             statusCode = false;
         }
