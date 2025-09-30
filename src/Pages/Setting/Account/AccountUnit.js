@@ -159,6 +159,8 @@ function AccountUnit() {
 					dispatch(setGlobalLoading(false));
 					dispatch(updateDialogError({ open: true, title: t('error'), content: error.message ?? "Can't get expense list" }));
 				}
+			} else {
+				dispatch(fetchApiListExpense(token));
 			}
 		};
 		fetchApiSupport();
@@ -186,11 +188,21 @@ function AccountUnit() {
 				selectedRowsData.map((key) => {
 					setValueAccountId(key.AccountId ?? "XXXX");
 					setValueAccountName(key.AccountName ?? '');
+
 					setValueUnitId([key.UnitId] ?? []);
+					setValueUnitName([key.UnitName] ?? []);
+
 					setValueExpenseGroupId(key.ExpenseGroupId ?? '');
+					setValueExpenseGroupName(key.ExpenseGroupName ?? '');
+
 					setValueExpenseId(key.ExpenseId ?? '');
+					setValueExpenseName(key.ExpenseName ?? '');
+
 					setValueMethodId(key.MethodId ?? '');
+					setValueMethodName(key.MethodName ?? '');
+
 					setValueSubAccountTypeId(key.AccountSubTypeId ?? '');
+					setValueSubAccountTypeName(key.AccountSubTypeName ?? '');
 					setValueId(key.Id ?? '');
 					setValueDescription(key.Description ?? '');
 				});
@@ -316,7 +328,7 @@ function AccountUnit() {
 	const asyncApiUpdateAccount = async () => {
 		setIsLoading(true);
 		const body = {
-			UnitName: valueUnitName,
+			UnitName: valueUnitName[0],
 			ExpenseName: valueExpenseName,
 			ExpenseGroupName: valueExpenseGroupName,
 			ExpenseGroupId: valueExpenseGroupId,
@@ -330,7 +342,7 @@ function AccountUnit() {
 			Username: username,
 			CreatedAt: new Date().toISOString(),
 			UpdatedAt: new Date().toISOString(),
-			UnitId: valueUnitId,
+			UnitId: valueUnitId[0],
 			ExpenseId: valueExpenseId,
 			MethodId: valueMethodId,
 			AccountSubTypeId: valueSubAccountTypeId,
@@ -904,6 +916,13 @@ function AccountUnit() {
 																</MenuItem>
 															);
 														})}
+													{/* Nếu value không rỗng và không có trong list thì render mặc định */}
+													{valueExpenseGroupId &&
+														!listExpenseGroup.some((d) => d.GroupId === valueExpenseGroupId) && (
+															<MenuItem style={{ textAlign: 'left' }} value={valueExpenseGroupId}>
+																{`[${valueExpenseGroupId}] - ${valueExpenseGroupName}`}
+															</MenuItem>
+														)}
 												</Select>
 											</Stack>
 
@@ -945,6 +964,13 @@ function AccountUnit() {
 																</MenuItem>
 															);
 														})}
+													{/* Nếu valueExpenseId không rỗng và không có trong listExpense thì render mặc định */}
+													{valueExpenseId &&
+														!listExpense.some((d) => d.ExpenseId === valueExpenseId) && (
+															<MenuItem style={{ textAlign: 'left' }} value={valueExpenseId}>
+																{`[${valueExpenseId}] - ${valueExpenseName}`}
+															</MenuItem>
+														)}
 												</Select>
 											</Stack>
 
