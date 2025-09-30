@@ -1012,6 +1012,13 @@ function AccountUnit() {
 																</MenuItem>
 															);
 														})}
+													{/* Nếu value không rỗng và không có trong list thì render mặc định */}
+													{valueMethodId &&
+														!listMethod.some((d) => d.MethodId === valueMethodId) && (
+															<MenuItem style={{ textAlign: 'left' }} value={valueMethodId}>
+																{`[${valueMethodId}] - ${valueMethodName}`}
+															</MenuItem>
+														)}
 												</Select>
 											</Stack>
 
@@ -1054,6 +1061,13 @@ function AccountUnit() {
 																</MenuItem>
 															);
 														})}
+													{/* Nếu value không rỗng và không có trong list thì render mặc định */}
+													{valueSubAccountTypeId &&
+														!listSubAccountType.some((d) => d.SubTypeId === valueSubAccountTypeId) && (
+															<MenuItem style={{ textAlign: 'left' }} value={valueSubAccountTypeId}>
+																{`[${valueSubAccountTypeId}] - ${valueSubAccountTypeName}`}
+															</MenuItem>
+														)}
 												</Select>
 											</Stack>
 
