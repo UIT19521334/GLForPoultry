@@ -1,21 +1,21 @@
 import { toast } from 'react-toastify';
-import DomainApi from '~/DomainApi';
+import DomainApi, { DomainPoultry } from '~/DomainApi';
 import dayjs from 'dayjs';
+import { store } from "~/Redux/store";
+import { updateDialogError } from '~/Redux/Reducer/Thunk';
 
-export async function ApiAccountEntryListHeader(valueDateMonth, valueDateYear, valueSearch, setDataAEListHeader) {
+// period format MMYYYY
+export async function ApiAccountEntryListHeader(period, docTypeId) {
     try {
-        let url = `journal/acc-entry/unitcode/${localStorage.getItem('Unit')}?username=${localStorage.getItem(
-            'UserName',
-        )}&acc_period_month=${valueDateMonth}&acc_period_year=${valueDateYear}`;
-        if (valueSearch) {
-            url += `&search_text=${valueSearch}`;
-        }
-        const response = await DomainApi.get(url);
-
-        setDataAEListHeader(response.data.sort((a, b) => b.doc_code - a.doc_code));
+        const UnitId = store.getState().FetchApi.currentUnit?.UnitId
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const response = await DomainPoultry.get(`journal/entry?unitid=${UnitId}&period=${period}&doctypeid=${docTypeId}`, { headers: header });
+        return response.data?.Response;
     } catch (error) {
-        console.log(error);
-        toast.error(' Error api get data account entry list!');
+        store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get data account entry list!' }));
+        return [];
     }
 }
 

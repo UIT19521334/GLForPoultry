@@ -2,6 +2,7 @@ import Header from '~/components/Layout/Header';
 import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import { styled, alpha, useTheme } from '@mui/material/styles';
+import DialogError from '~/components/AlertDialog/DialogError';
 
 const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -14,6 +15,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 function DefaultLayout({ children, title }) {
     return (
         <div>
+            <DialogError />
             <Header title={title} />
             <DrawerHeader />
             <div className={'container'}>{children}</div>

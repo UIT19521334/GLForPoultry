@@ -62,7 +62,8 @@ const initialState = {
     listData_Method: [],
     userInfo: {}, // Master App
     menu: [], // Master App
-    currentUnit: [],
+    currentUnit: {},
+    dialogError: { open: false, title: '', content: '' },
 };
 
 export const period = createSlice({
@@ -81,6 +82,9 @@ export const period = createSlice({
         updateCurrentUnit: (state, action) => {
             state.currentUnit = action.payload;
         },
+        updateDialogError: (state, action) => {
+            state.dialogError = action.payload;
+        }
     },
     extraReducers: (builder) => {
         // Add reducers for additional action types here, and handle loading state as needed
@@ -376,6 +380,6 @@ export const period = createSlice({
     },
 });
 
-export const { updateToken, updateUserInfo, updateUserMenuFromMasterApp, updateCurrentUnit } = period.actions;
+export const { updateToken, updateUserInfo, updateUserMenuFromMasterApp, updateCurrentUnit, updateDialogError } = period.actions;
 
 export default period.reducer;

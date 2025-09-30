@@ -759,7 +759,6 @@ function Header() {
                                             justifyContent: open ? 'initial' : 'center',
                                             px: 2.5,
                                         }}
-                                        selected={location.pathname.includes(route.path.replace('/*', '')) ? true : false}
                                     >
                                         <ListItemIcon
                                             sx={{
@@ -809,7 +808,7 @@ function Header() {
                                             justifyContent: open ? 'initial' : 'center',
                                             px: 2.5,
                                         }}
-                                        selected={location.pathname.includes(route.path.replace('/*', '')) ? true : false}
+
                                     >
                                         <ListItemIcon
                                             sx={{
@@ -872,7 +871,7 @@ function Header() {
                                                 justifyContent: open ? 'initial' : 'center',
                                                 px: 2.5,
                                             }}
-                                            selected={location.pathname.includes(route.path.replace('/*', '')) ? true : false}
+
                                         >
                                             <ListItemIcon
                                                 sx={{

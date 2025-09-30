@@ -28,6 +28,7 @@ import dayjs from 'dayjs';
 import { Button, FormControl, FormLabel, MenuItem, Select } from '@mui/material';
 import { CloudUpload, Delete, PostAdd } from '@mui/icons-material';
 import { fetchApiListAccountGroup } from '~/Redux/FetchApi/fetchApiMaster';
+import { ApiAccountEntryListHeader } from '~/components/Api/AccountingEntryApi';
 
 const Item = styled(Paper)(({ theme }) => ({
 	backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -50,6 +51,8 @@ const VisuallyHiddenInput = styled('input')({
 	width: 1,
 });
 
+const MANUAL_ACCOUNTING_ENTRIES_TYPE_ID = 1;
+
 function JournalEntryManagement() {
 	const { t } = useTranslation();
 	const dispatch = useDispatch();
@@ -67,7 +70,7 @@ function JournalEntryManagement() {
 	//! columns header
 	const columns = [
 		{
-			field: 'AccountId',
+			field: 'EntryId',
 			headerName: t('entry-code'),
 			minWidth: 150,
 			headerClassName: 'super-app-theme--header',
@@ -76,10 +79,11 @@ function JournalEntryManagement() {
 			field: 'CreatedAt',
 			headerName: t('entry-posting-date'),
 			minWidth: 150,
+			valueFormatter: (params) => dayjs(params.value).format('DD/MM/YYYY hh:mm:ss'),
 			headerClassName: 'super-app-theme--header',
 		},
 		{
-			field: 'AccountId',
+			field: 'GroupAccountId',
 			headerName: t('account-group'),
 			minWidth: 150,
 			headerClassName: 'super-app-theme--header',
@@ -92,7 +96,7 @@ function JournalEntryManagement() {
 			headerClassName: 'super-app-theme--header',
 		},
 		{
-			field: 'AccountId',
+			field: 'PeriodID',
 			headerName: t('entry-import-code'),
 			minWidth: 150,
 			headerClassName: 'super-app-theme--header',
@@ -223,21 +227,17 @@ function JournalEntryManagement() {
 
 	/* #endregion */
 
-	// TODO call api get data account group
+	// TODO call api get data accounting entry
 	useEffect(() => {
-		const fetchApiGetDataAccount = async () => {
+		const fetchApiGetDataAccountingEntry = async () => {
 			setIsLoading(true);
-			const body = {
-				IncludeUnit: false,
-				Units: []
-			}
-			const result = await ApiListAccountByUnit(body);
+			const result = await ApiAccountEntryListHeader(valueDocsDate.format('MMYYYY'), MANUAL_ACCOUNTING_ENTRIES_TYPE_ID);
 			dispatch(fetchApiListAccountGroup(token))
 			setDataList(result);
 			setDisplayData(result);
 			setIsLoading(false);
 		};
-		fetchApiGetDataAccount();
+		fetchApiGetDataAccountingEntry();
 	}, [reloadListAccount]);
 
 	const handleChangeDateAccountPeriod = (event) => {
@@ -253,7 +253,7 @@ function JournalEntryManagement() {
 	const handleSearch = () => {
 		let filteredData = dataList;
 		if (valueSearch && valueSearch.trim() !== "") {
-			const fieldsToSearch = ["AccountName", "AccountId"];
+			const fieldsToSearch = ["EntryId", "DocTypeName", "AccountGroupName"];
 			filteredData = _.filter(dataList, (item) => {
 				const search = _.toLower(valueSearch);
 				return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
@@ -305,11 +305,11 @@ function JournalEntryManagement() {
 
 	//! select row in datagrid
 	const onRowsSelectionHandler = (ids) => {
-		const selectedRowsData = ids.map((id) => displayData.find((row) => row.AccountId === id));
+		const selectedRowsData = ids.map((id) => displayData.find((row) => row.EntryId === id));
 		if (selectedRowsData) {
 			{
 				selectedRowsData.map((key) => {
-					setValueCode(key.AccountId ?? "XXXX");
+					setValueCode(key.EntryId ?? "XXXX");
 					setValueDocsDate(dayjs(key.CreatedAt));
 					setValueDescription(key.Description ?? '');
 					setValueDate(dayjs(key.UpdateAt));
@@ -848,7 +848,7 @@ function JournalEntryManagement() {
 										<DataGrid
 											rows={displayData}
 											columns={columns}
-											getRowId={(row) => row.AccountId}
+											getRowId={(row) => row.EntryId}
 											initialState={{
 												pagination: {
 													paginationModel: { page: 0, pageSize: 5 },
