@@ -1,8 +1,8 @@
 import React from 'react';
 import { useMsal } from '@azure/msal-react';
 import { useDispatch } from 'react-redux';
-import { updateToken, updateUserInfo, updateUserMenuFromMasterApp } from '~/Redux/Reducer/Thunk';
-import DomainApi, { DomainMasterApp } from '~/DomainApi';
+import { updateCurrentUnit, updateToken, updateUserAccess, updateUserInfo, updateUserMenuFromMasterApp } from '~/Redux/Reducer/Thunk';
+import DomainApi, { DomainMasterApp, DomainPoultry } from '~/DomainApi';
 import { fetchApiAuthInfo } from '~/Redux/FetchApi/fetchApiMaster';
 import { toast } from 'react-toastify';
 
@@ -64,8 +64,21 @@ export default function ApiToken() {
                     const menu = response_menu.data;
                     const ids = getAllIdNums(menu);
                     dispatch(updateUserMenuFromMasterApp(ids));
-                    // Auth info from poultry
-                    dispatch(fetchApiAuthInfo(activeAccount ? activeAccount.username : '', userInfo?.accessToken));
+                    const body = {
+                        email: activeAccount.username,
+                    };
+                    const response_user_access = await DomainPoultry.post(`auth/info`, body, { headers: header });
+                    const userAccess = response_user_access.data?.Response;
+                    dispatch(updateUserAccess(userAccess));
+                    const listUnit = userAccess.units;
+                    const prevUnitId = localStorage.getItem('Unit')
+                    const exists = listUnit.find(unit => unit.UnitId === prevUnitId);
+                    if (exists) {
+                        dispatch(updateCurrentUnit(exists))
+                    } else {
+                        dispatch(updateCurrentUnit(listUnit[0]))
+                        localStorage.setItem('Unit', listUnit[0].UnitId);
+                    }
                     setValueAccessToken({ token: userInfo.accessToken, status: true });
                 } catch (error) {
                     toast.error(error.response ? error.response.data : error);

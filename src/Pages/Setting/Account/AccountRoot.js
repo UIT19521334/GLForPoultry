@@ -21,7 +21,8 @@ import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateListAccount } from '~/Redux/Reducer/Thunk';
 
 const Item = styled(Paper)(({ theme }) => ({
 	backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -39,6 +40,7 @@ function AccountRoot() {
 	const [dataList, setDataList] = useState([]);
 	const [displayData, setDisplayData] = useState([]);
 	const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
+	const dispatch = useDispatch();
 
 	//! columns header
 	const columns = [
@@ -90,6 +92,7 @@ function AccountRoot() {
 			const result = await ApiListAccountByUnit(body);
 			setDataList(result);
 			setDisplayData(result);
+			dispatch(updateListAccount(result));
 			setIsLoading(false);
 		};
 		fetchApiGetDataAccount();

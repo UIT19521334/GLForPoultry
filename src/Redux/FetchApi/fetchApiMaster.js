@@ -74,12 +74,15 @@ export const fetchApiListExpenseGroup = createAsyncThunk('master/fetchApiListExp
     return data.Response;
 });
 
-export const fetchApiListExpense = createAsyncThunk('master/fetchApiListExpense', async (token) => {
+export const fetchApiListExpense = createAsyncThunk('master/fetchApiListExpense', async (token, expenseGroupId) => {
     const header = {
         Authorization: token,
     };
     const response = await DomainPoultry.get(`master/expense`, { headers: header });
     const data = await response.data;
+    if (expenseGroupId) {
+        return _.filter(data.Response, { GroupId: "GE005" });
+    }
     return data.Response;
 });
 
@@ -101,13 +104,16 @@ export const fetchApiListSubAccountType = createAsyncThunk('master/fetchApiListS
     return data;
 });
 
-export const fetchApiListAccount = createAsyncThunk('master/fetchApiListAccount', async (valueSearch) => {
-    let url = `master/chart-of-account/unit/${localStorage.getItem('Unit')}/list`;
-    if (valueSearch) {
-        url += `?acc_code=${valueSearch}`;
+export const fetchApiListAccount = createAsyncThunk('master/fetchApiListAccount', async (token) => {
+    const header = {
+        Authorization: token,
+    };
+    const body = {
+        IncludeUnit: false,
+        Units: []
     }
-    const response = await DomainApi.get(url);
-    const data = response.data.sort((a, b) => parseFloat(a.account_code) - parseFloat(b.account_code));
+    const response = await DomainPoultry.post(`master/account/unit`, body, { headers: header });
+    const data = await response.data?.Response ?? [];
     return data;
 });
 

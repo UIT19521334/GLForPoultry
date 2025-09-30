@@ -61,6 +61,35 @@ export async function ApiCreateAccount(params) {
     }
 }
 
+export async function ApiCreateListAccount(params) {
+    if (params[0].AccountId && params[0].AccountName) {
+        try {
+            var statusCode = false;
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
+
+            await DomainPoultry.post(
+                `master/account/assign`,
+                params,
+                { headers: header }
+            );
+
+            toast.success(' Success create new expense!');
+            statusCode = true;
+        } catch (error) {
+            console.log('>>Error: ', error);
+            if (error.response) {
+                toast.error(error.response.data.ErrorMessage);
+            } else {
+                toast.error(error.message);
+            }
+            statusCode = false;
+        }
+        return statusCode;
+    }
+}
+
 export async function ApiUpdateAccount(params) {
     if (params.AccountId && params.AccountName && params.Id) {
         try {

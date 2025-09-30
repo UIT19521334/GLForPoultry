@@ -7,7 +7,7 @@ import { updateDialogError } from '~/Redux/Reducer/Thunk';
 // period format MMYYYY
 export async function ApiAccountEntryListHeader(period, docTypeId) {
     try {
-        const UnitId = store.getState().FetchApi.currentUnit?.UnitId
+        const UnitId = localStorage.getItem('Unit');
         const header = {
             Authorization: store.getState().FetchApi.token,
         };

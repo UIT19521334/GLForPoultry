@@ -13,7 +13,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SearchIcon from '@mui/icons-material/Search';
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
-import { ApiCreateAccount, ApiDeleteAccount, ApiListAccount, ApiListAccountByUnit, ApiUpdateAccount } from '~/components/Api/Account';
+import { ApiCreateAccount, ApiCreateListAccount, ApiDeleteAccount, ApiListAccount, ApiListAccountByUnit, ApiUpdateAccount } from '~/components/Api/Account';
 import SaveIcon from '@mui/icons-material/Save';
 import '../../../Container.css';
 import TextField from '@mui/material/TextField';
@@ -21,9 +21,9 @@ import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
-import { Breadcrumbs, IconButton, InputAdornment, Link, MenuItem, Select, Typography } from '@mui/material';
+import { Autocomplete, Breadcrumbs, Chip, IconButton, InputAdornment, Link, MenuItem, Select, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchApiListExpense, fetchApiListExpenseGroup, fetchApiListMethod, fetchApiListSubAccountType } from '~/Redux/FetchApi/fetchApiMaster';
+import { fetchApiListAccount, fetchApiListExpense, fetchApiListExpenseGroup, fetchApiListMethod, fetchApiListSubAccountType } from '~/Redux/FetchApi/fetchApiMaster';
 import { ClearIcon } from '@mui/x-date-pickers';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -44,11 +44,13 @@ function AccountUnit() {
 	const [displayData, setDisplayData] = useState([]);
 	const listExpenseGroup = useSelector((state) => state.FetchApi.listData_ExpenseGroup);
 	const listSubAccountType = useSelector((state) => state.FetchApi.listData_SubAccountType);
+	const listAccount = useSelector((state) => state.FetchApi.listData_Account);
 	const listMethod = useSelector((state) => state.FetchApi.listData_Method);
 	const listExpense = useSelector((state) => state.FetchApi.listData_Expense);
 	const listUnit = useSelector((state) => state.FetchApi.userAccess.units);
 	const token = useSelector((state) => state.FetchApi.token);
 	const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
+	const loadingGlobal = useSelector((state) => state.FetchApi.isLoading);
 
 
 	//! columns header
@@ -102,8 +104,8 @@ function AccountUnit() {
 	const [valueId, setValueId] = React.useState('');
 	const [valueAccountId, setValueAccountId] = React.useState('');
 	const [valueAccountName, setValueAccountName] = React.useState('');
-	const [valueUnitId, setValueUnitId] = React.useState('');
-	const [valueUnitName, setValueUnitName] = React.useState('');
+	const [valueUnitId, setValueUnitId] = React.useState([]);
+	const [valueUnitName, setValueUnitName] = React.useState([]);
 	const [valueExpenseGroupName, setValueExpenseGroupName] = React.useState('');
 	const [valueExpenseGroupId, setValueExpenseGroupId] = React.useState('');
 	const [valueExpenseId, setValueExpenseId] = React.useState('');
@@ -135,12 +137,21 @@ function AccountUnit() {
 	useEffect(() => {
 		const fetchApiSupport = async () => {
 			dispatch(fetchApiListExpenseGroup(token));
-			dispatch(fetchApiListExpense(token));
 			dispatch(fetchApiListMethod(token));
 			dispatch(fetchApiListSubAccountType(token));
+			dispatch(fetchApiListAccount(token));
 		};
 		fetchApiSupport();
 	}, []);
+
+	useEffect(() => {
+		const fetchApiSupport = async () => {
+			if (valueExpenseGroupId) {
+				dispatch(fetchApiListExpense(token, valueExpenseGroupId));
+			}
+		};
+		fetchApiSupport();
+	}, [valueExpenseGroupId]);
 
 	// Handle search
 	const [valueSearch, setValueSearch] = React.useState('');
@@ -164,7 +175,7 @@ function AccountUnit() {
 				selectedRowsData.map((key) => {
 					setValueAccountId(key.AccountId ?? "XXXX");
 					setValueAccountName(key.AccountName ?? '');
-					setValueUnitId(key.UnitId ?? '');
+					setValueUnitId([key.UnitId] ?? []);
 					setValueExpenseGroupId(key.ExpenseGroupId ?? '');
 					setValueExpenseId(key.ExpenseId ?? '');
 					setValueMethodId(key.MethodId ?? '');
@@ -200,8 +211,9 @@ function AccountUnit() {
 
 	const asyncApiCreateAccount = async () => {
 		setIsLoading(true);
-		const body = {
-			UnitName: valueUnitName,
+		const body = valueUnitId.map((unitId, index) => ({
+			UnitId: unitId,
+			UnitName: valueUnitName[index],
 			ExpenseName: valueExpenseName,
 			ExpenseGroupName: valueExpenseGroupName,
 			ExpenseGroupId: valueExpenseGroupId,
@@ -215,17 +227,19 @@ function AccountUnit() {
 			Username: username,
 			CreatedAt: new Date().toISOString(),
 			UpdatedAt: new Date().toISOString(),
-			UnitId: valueUnitId,
 			ExpenseId: valueExpenseId,
 			MethodId: valueMethodId,
 			AccountSubTypeId: valueSubAccountTypeId,
-		}
-		const statusCode = await ApiCreateAccount(body);
+		}));
+
+		console.log(body)
+
+		const statusCode = await ApiCreateListAccount(body);
 		if (statusCode) {
 			setValueAccountId('');
 			setValueAccountName('');
-			setValueUnitId('');
-			setValueUnitName('');
+			setValueUnitId([]);
+			setValueUnitName([]);
 			setValueExpenseGroupId('');
 			setValueExpenseGroupName('');
 			setValueExpenseId('');
@@ -247,44 +261,38 @@ function AccountUnit() {
 	};
 	/* #endregion */
 
-	const handleOnChangeValueCode = (event) => {
+	const handleChangeValueCode = (event) => {
 		const inputValue = event.target.value;
 		// Regex: không cho ký tự đăc biệt, chỉ cho phép số và khoảng trắng
 		if (/^[0-9 ]*$/u.test(inputValue)) {
 			setValueAccountId(inputValue);
 		}
 	};
-	const handleOnChangeValueName = (event) => {
+	const handleChangeValueName = (event) => {
 		setValueAccountName(event.target.value);
 	};
 
-	const handleOnChangeValueDescription = (event) => {
+	const handleChangeValueDescription = (event) => {
 		setValueDescription(event.target.value);
 	};
 
-	const handleOnChangeValueUnit = (e) => {
-		const data = e.target.value && listUnit.find(item => item.UnitId === e.target.value);
-		setValueUnitId(data.UnitId);
-		setValueUnitName(data.UnitName);
-	};
-
-	const handleOnChangeValueExpenseGroupID = (e) => {
+	const handleChangeValueExpenseGroupID = (e) => {
 		const data = e.target.value && listExpenseGroup.find(item => item.GroupId === e.target.value);
 		setValueExpenseGroupId(data.GroupId);
 		setValueExpenseGroupName(data.GroupName_EN);
 	};
 
-	const handleOnChangeValueExpenseID = (e) => {
+	const handleChangeValueExpenseID = (e) => {
 		const data = e.target.value && listExpense.find(item => item.ExpenseId === e.target.value);
 		setValueExpenseId(data.ExpenseId);
 		setValueExpenseName(data.ExpenseName);
 	};
-	const handleOnChangeValueMethod = (e) => {
+	const handleChangeValueMethod = (e) => {
 		const data = e.target.value && listMethod.find(item => item.MethodId === e.target.value);
 		setValueMethodId(data.MethodId);
 		setValueMethodName(data.MethodName);
 	};
-	const handleOnChangeValueSubAccountType = (e) => {
+	const handleChangeValueSubAccountType = (e) => {
 		const data = e.target.value && listSubAccountType.find(item => item.SubTypeId === e.target.value);
 		setValueSubAccountTypeId(data.SubTypeId);
 		setValueSubAccountTypeName(data.SubTypeName);
@@ -353,8 +361,8 @@ function AccountUnit() {
 		if (statusCode) {
 			setValueAccountId('');
 			setValueAccountName('');
-			setValueUnitId('');
-			setValueUnitName('');
+			setValueUnitId([]);
+			setValueUnitName([]);
 			setValueExpenseGroupId('');
 			setValueExpenseGroupName('');
 			setValueExpenseId('');
@@ -390,8 +398,8 @@ function AccountUnit() {
 		setValueDisableSaveButton(false);
 		setValueDisableDeleteButton(true);
 		setValueDisableUpdateButton(true);
-		setValueUnitId('');
-		setValueUnitName('');
+		setValueUnitId([]);
+		setValueUnitName([]);
 		setValueExpenseGroupId('');
 		setValueExpenseGroupName('');
 		setValueExpenseId('');
@@ -519,7 +527,7 @@ function AccountUnit() {
 		</Stack>
 	);
 	return (
-		<Spin size="large" tip={t('loading')} spinning={false}>
+		<Spin size="large" tip={t('loading')} spinning={loadingGlobal}>
 			<div className="main">
 				<ToastContainer position='bottom-right' stacked />
 				{dialogIsOpenNew && (
@@ -741,25 +749,37 @@ function AccountUnit() {
 												<div className="form-title">
 													<div>{t('account-code')}</div>
 												</div>
-												<Input
-													variant="outlined"
-													type="text"
-													size="large"
-													status={!valueAccountId || valueAccountId.length !== 9 ? 'error' : ''}
-													count={{
-														show: !valueReadonly,
-														max: 9,
-														// strategy: (txt) => txt.length,
-														// exceedFormatter: (txt, { max }) => txt.slice(0, max),
-													}}
-													value={valueAccountId}
-													onChange={(event) =>
-														event.target.value.length <= 9 && handleOnChangeValueCode(event)
+												<Autocomplete
+													fullWidth
+													size="small"
+													autoHighlight
+													options={Array.isArray(listAccount) ? listAccount : []}
+													getOptionLabel={(option) =>
+														option ? `[${option.AccountId}] - ${option.AccountName}` : ""
 													}
-													ref={inputAccountIdRef}
-													placeholder="xxxxx xxx"
-													disabled={valueReadonlyCode}
-													style={{ color: '#000' }}
+													value={
+														listAccount.find((acc) => acc.AccountId === valueAccountId) || null
+													}
+													onChange={(event, newValue) => {
+														if (newValue) {
+															setValueAccountId(newValue.AccountId);
+															setValueAccountName(newValue.AccountName);
+														} else {
+															setValueAccountId("");
+															setValueAccountName("");
+														}
+													}}
+													disabled={valueReadonlyUnit}
+													renderInput={(params) => (
+														<TextField
+															{...params}
+															autoFocus
+															label={t('account-code')}
+															InputProps={{
+																...params.InputProps,
+															}}
+														/>
+													)}
 												/>
 											</Stack>
 											<Stack direction={'row'} spacing={2}>
@@ -771,7 +791,7 @@ function AccountUnit() {
 													size="large"
 													status={!valueAccountName ? 'error' : ''}
 													value={valueAccountName}
-													onChange={(event) => handleOnChangeValueName(event)}
+													onChange={(event) => handleChangeValueName(event)}
 													placeholder="name..."
 													disabled={valueReadonlyCode}
 													style={{ color: '#000' }}
@@ -782,23 +802,46 @@ function AccountUnit() {
 													<div>{t('unit')}</div>
 												</div>
 												<Select
+													multiple
 													autoFocus
 													size="small"
 													fullWidth
-													style={{ textAlign: 'left' }}
-													value={valueUnitId}
-													onChange={handleOnChangeValueUnit}
+													style={{ textAlign: "left" }}
+													value={valueUnitId} // array UnitId
+													onChange={(e) => {
+														const newValue = e.target.value;
+														setValueUnitId(newValue);
+														setValueUnitName(
+															listUnit
+																.filter((u) => newValue.includes(u.UnitId))
+																.map((u) => u.UnitName)
+														);
+													}}
 													disabled={valueReadonlyUnit}
+													renderValue={(selected) => (
+														<Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+															{selected.map((unitId) => {
+																const unit = listUnit.find((u) => u.UnitId === unitId);
+																return (
+																	<Chip
+																		key={unitId}
+																		label={unit ? unit.UnitName : unitId}
+																		size="small"
+																	/>
+																);
+															})}
+														</Box>
+													)}
 													endAdornment={
-														(valueUnitId && !valueReadonlyUnit) ? (
-															<InputAdornment position="start">
+														valueUnitId.length > 0 && !valueReadonlyUnit ? (
+															<InputAdornment position="end">
 																<IconButton
 																	tabIndex={-1}
 																	size="small"
 																	onClick={(e) => {
-																		e.stopPropagation(); // chặn mở dropdown
-																		setValueUnitId("");
-																		setValueUnitName("");
+																		e.stopPropagation();
+																		setValueUnitId([]);
+																		setValueUnitName([]);
 																	}}
 																>
 																	<ClearIcon fontSize="small" />
@@ -807,14 +850,16 @@ function AccountUnit() {
 														) : null
 													}
 												>
-													{_.isArray(listUnit) &&
-														listUnit.map((data) => {
-															return (
-																<MenuItem style={{ textAlign: 'left' }} key={data.UnitId} value={data.UnitId}>
-																	{`[${data.UnitId}] - ${data.UnitName}`}
-																</MenuItem>
-															);
-														})}
+													{Array.isArray(listUnit) &&
+														listUnit.map((data) => (
+															<MenuItem
+																key={data.UnitId}
+																value={data.UnitId}
+																style={{ textAlign: "left" }}
+															>
+																{`[${data.UnitId}] - ${data.UnitName}`}
+															</MenuItem>
+														))}
 												</Select>
 											</Stack>
 											<Stack direction={'row'} spacing={2}>
@@ -827,7 +872,7 @@ function AccountUnit() {
 													fullWidth
 													style={{ textAlign: 'left' }}
 													value={valueExpenseGroupId}
-													onChange={handleOnChangeValueExpenseGroupID}
+													onChange={handleChangeValueExpenseGroupID}
 													disabled={valueReadonly}
 													endAdornment={
 														(valueExpenseGroupId && !valueReadonly) ? (
@@ -868,7 +913,7 @@ function AccountUnit() {
 													fullWidth
 													style={{ textAlign: 'left' }}
 													value={valueExpenseId}
-													onChange={handleOnChangeValueExpenseID}
+													onChange={handleChangeValueExpenseID}
 													disabled={valueReadonly}
 													endAdornment={
 														(valueExpenseId && !valueReadonly) ? (
@@ -909,7 +954,7 @@ function AccountUnit() {
 													fullWidth
 													style={{ textAlign: 'left' }}
 													value={valueMethodId}
-													onChange={handleOnChangeValueMethod}
+													onChange={handleChangeValueMethod}
 													disabled={valueReadonly}
 													endAdornment={
 														(valueMethodId && !valueReadonly) ? (
@@ -951,7 +996,7 @@ function AccountUnit() {
 													fullWidth
 													style={{ textAlign: 'left' }}
 													value={valueSubAccountTypeId}
-													onChange={handleOnChangeValueSubAccountType}
+													onChange={handleChangeValueSubAccountType}
 													disabled={valueReadonly}
 													endAdornment={
 														(valueSubAccountTypeId && !valueReadonly) ? (
@@ -990,7 +1035,7 @@ function AccountUnit() {
 													size="large"
 													maxLength={250}
 													value={valueDescription}
-													onChange={(event) => handleOnChangeValueDescription(event)}
+													onChange={(event) => handleChangeValueDescription(event)}
 													rows={2}
 													placeholder="..."
 													disabled={valueReadonly}

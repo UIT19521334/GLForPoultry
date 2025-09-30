@@ -22,7 +22,7 @@ const otherRoutes = [
 
 export const settingRoutes = [
     { path: '/accountgroup', component: AccountGroup, title: 'menu-acc-group', menuid: 618 },
-    { path: '/expense/*', component: Expense, title: 'menu-expense', menuid: 620 },
+    { path: '/expense/*', component: Expense, title: 'expense-group', menuid: 620 },
     { path: '/subaccount/*', component: SubAccount, title: 'menu-sub-acc', menuid: 622 },
     { path: '/account/*', component: Account, title: 'menu-acc', menuid: 621 },
     // { path: '/indexrate', component: IndexRate, title: 'Index Rate' },

@@ -13,7 +13,6 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SearchIcon from '@mui/icons-material/Search';
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
-import { ApiCreateAccount, ApiDeleteAccount, ApiListAccountByUnit, ApiUpdateAccount } from '~/components/Api/Account';
 import SaveIcon from '@mui/icons-material/Save';
 import '../../../Container.css';
 import TextField from '@mui/material/TextField';
@@ -314,8 +313,8 @@ function JournalEntryManagement() {
 					setValueDescription(key.Description ?? '');
 					setValueDate(dayjs(key.UpdateAt));
 					setValueUser(key.Username ?? 'IT TEST');
-					setValueAccountGroupId(key.ExpenseId ?? '');
-					setValueCurrencyId(key.MethodId ?? '');
+					setValueAccountGroupId(key.GroupAccountId ?? '');
+					setValueCurrencyId(key.CurrencyId ?? '');
 					setValueTotalDebit(23984);
 					setValueTotalCredit(10000);
 					setValueNewButton(false);
@@ -1153,7 +1152,7 @@ function JournalEntryManagement() {
 																	return (
 																		<MenuItem
 																			key={data.CurrencyId}
-																			value={data.CurrencyName}
+																			value={data.CurrencyId}
 																		>
 																			{data.CurrencyName}
 																		</MenuItem>

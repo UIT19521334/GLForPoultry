@@ -82,6 +82,12 @@ export const period = createSlice({
         updateCurrentUnit: (state, action) => {
             state.currentUnit = action.payload;
         },
+        updateListAccount: (state, action) => {
+            state.listData_Account = action.payload;
+        },
+        updateUserAccess: (state, action) => {
+            state.userAccess = action.payload;
+        },
         updateDialogError: (state, action) => {
             state.dialogError = action.payload;
         }
@@ -380,6 +386,6 @@ export const period = createSlice({
     },
 });
 
-export const { updateToken, updateUserInfo, updateUserMenuFromMasterApp, updateCurrentUnit, updateDialogError } = period.actions;
+export const { updateToken, updateUserInfo, updateUserMenuFromMasterApp, updateCurrentUnit, updateDialogError, updateListAccount, updateUserAccess } = period.actions;
 
 export default period.reducer;
