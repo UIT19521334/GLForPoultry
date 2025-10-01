@@ -101,6 +101,15 @@ export const fetchApiListSubAccountType = createAsyncThunk('master/fetchApiListS
     return data;
 });
 
+export const fetchApiListSubAccount = createAsyncThunk('master/fetchApiListSubAccoun', async (token) => {
+    const header = {
+        Authorization: token,
+    };
+    const response = await DomainPoultry.get(`master/sub-account`, { headers: header });
+    const data = await response.data?.Response ?? [];
+    return data;
+});
+
 export const fetchApiListAccount = createAsyncThunk('master/fetchApiListAccount', async (token) => {
     const header = {
         Authorization: token,

@@ -26,7 +26,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { Autocomplete, Button, Checkbox, FormControl, FormLabel, MenuItem, Select } from '@mui/material';
 import { Check, CloudUpload, Delete, Domain, PostAdd } from '@mui/icons-material';
-import { fetchApiListAccount, fetchApiListAccountGroup, fetchApiListExpense } from '~/Redux/FetchApi/fetchApiMaster';
+import { fetchApiListAccountGroup, fetchApiListSubAccount } from '~/Redux/FetchApi/fetchApiMaster';
 import { ApiAccountEntryListHeader, ApiCreateAccountEntry, ApiUpdateAccountEntry } from '~/components/Api/AccountingEntryApi';
 import { DomainPoultry } from '~/DomainApi';
 import { updateDialogError } from '~/Redux/Reducer/Thunk';
@@ -66,6 +66,7 @@ function JournalEntryManagement() {
 	// Redux selectors
 	const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
 	const listAccountGroup = useSelector((state) => state.FetchApi.listData_AccountGroup);
+	const listSubAccount = useSelector((state) => state.FetchApi.listData_SubAccount);
 	const listCurrency = useSelector((state) => state.FetchApi.listData_Currency);
 	const listUnit = useSelector((state) => state.FetchApi.userAccess.units);
 	const token = useSelector((state) => state.FetchApi.token);
@@ -234,6 +235,13 @@ function JournalEntryManagement() {
 			field: 'AccountSubId',
 			headerName: t('account-subcode'),
 			minWidth: 150,
+			renderEditCell: (params) => (<SubAccountEditInputCell {...params} />),
+			valueFormatter: (params) => {
+				const row = params.api.getRow(params.id);
+				const acc = listSubAccount.find((a) => a.AccountSubId === params.value);
+				console.log('>>>>>acc: ', acc);
+				return acc ? `${acc.AccountSubId} - ${acc.AccountSubName}` : params.value;
+			},
 			headerClassName: 'super-app-theme--header',
 			editable: true,
 		},
@@ -317,6 +325,7 @@ function JournalEntryManagement() {
 				MANUAL_ACCOUNTING_ENTRIES_TYPE_ID
 			);
 			dispatch(fetchApiListAccountGroup(token));
+			dispatch(fetchApiListSubAccount(token));
 			setDataList(result);
 			setDisplayData(result);
 			setIsLoading(false);
@@ -345,6 +354,7 @@ function JournalEntryManagement() {
 				}
 			}
 		};
+		setDataAccountEntryDetails([]);
 		fetchApiSupport();
 	}, [valueUnitId]);
 
@@ -399,7 +409,6 @@ function JournalEntryManagement() {
 		if (selectedRowsData) {
 			selectedRowsData.map((key) => {
 				setValueEntryId(key.EntryId);
-				getAccountEntryDetail(key.EntryId);
 				setValueDocsDate(dayjs(key.CreatedAt));
 				setValueDescription(key.Description ?? '');
 				setValueUpdateDate(dayjs(key.UpdateAt));
@@ -416,6 +425,9 @@ function JournalEntryManagement() {
 				setValueReadonly(true);
 				setValueReadonlyPostingDate(true);
 				setValueDisableEditDetail(true);
+				setTimeout(() =>
+					getAccountEntryDetail(key.EntryId)
+					, 0);
 			});
 
 			setValueReadonly(true);
@@ -481,7 +493,6 @@ function JournalEntryManagement() {
 			});
 		};
 		const selected = listAccount?.find((acc) => acc.AccountId === value) || null;
-		console.log('>>>>> list account: ', listAccount);
 
 		return (
 			<Autocomplete
@@ -492,6 +503,34 @@ function JournalEntryManagement() {
 				options={listAccount || []}
 				getOptionLabel={(option) =>
 					option ? `${option.AccountId} - ${option.AccountName}` : ""
+				}
+				renderInput={(params) => (
+					<TextField {...params} variant="outlined" size="small" />
+				)}
+			/>
+		);
+	}
+
+	function SubAccountEditInputCell(props) {
+		const { id, field, value, api, row } = props; // default []
+		const handleChange = (event, newValue) => {
+			api.setEditCellValue({
+				id,
+				field,
+				value: newValue?.AccountSubId || "",
+			});
+		};
+		const selected = listSubAccount?.find((acc) => acc.AccountSubId === value) || null;
+
+		return (
+			<Autocomplete
+				size="small"
+				fullWidth
+				value={selected}
+				onChange={handleChange}
+				options={listSubAccount || []}
+				getOptionLabel={(option) =>
+					option ? `${option.AccountSubId} - ${option.AccountSubName}` : ""
 				}
 				renderInput={(params) => (
 					<TextField {...params} variant="outlined" size="small" />
@@ -542,14 +581,14 @@ function JournalEntryManagement() {
 		setValueTotalCredit(0);
 		setValueTotalDebit(0);
 		setDataAccountEntryDetails([]);
-		setValueNewButton(false);
+		setValueNewButton(true);
 		setValueDisableSaveButton(false);
 		setValueDisableDeleteButton(true);
 		setValueDisableUpdateButton(true);
 		setValueReadonly(false);
-		setValueReadonlyCode(false);
+		setValueReadonlyCode(true);
 		setValueReadonlyPostingDate(true);
-		setValueDisableEditDetail(true);
+		setValueDisableEditDetail(false);
 	};
 
 	const agreeDialogNew = () => {
@@ -564,7 +603,28 @@ function JournalEntryManagement() {
 
 	const asyncApiCreateAccountingEntry = async () => {
 		setIsLoading(true);
-		const body = {};
+		const body = {
+			header: {
+				doc_date: valueDocsDate.format('YYYY-MM-DD'), //ngay tao but toan
+				desciption: valueDescription, // mo ta but toan
+				currency: valueCurrencyId, // loai tien
+				grp_acc: parseInt(valueAccountGroupId, 10), // luon la 9000 voi but toan thu cong
+				username: username,
+				unitid: valueUnitId, // unit 
+				amount: valueTotalCredit
+			},
+			detail: dataAccountEntryDetails.map(item => {
+				return {
+					accountid: item.AccountId,
+					description: item.Description,
+					credit_amount: item.Amount_Cr,
+					debit_amount: item.Amount_Dr,
+					subaccountid: item.AccountSubId,
+					costing_methodid: item.CostingMethod,
+					non_deductible: item.Non_Deductible
+				};
+			})
+		};
 		const statusCode = await ApiCreateAccountEntry(body);
 
 		if (statusCode) {
@@ -602,32 +662,27 @@ function JournalEntryManagement() {
 
 		const body = {
 			header: {
-				UnitName: valueUnitName,
-				DocTypeName: valueUnitId,
-				CurrencyName: valueCurrencyName,
-				AccountGroupName: valueAccountGroupName,
-				EntryId: valueEntryId,
-				DocDate: valueDocsDate.toISOString(),
-				Description: valueDescription,
-				Username: valueUser,
-				Amount: 0.0,
-				CurrencyId: valueCurrencyId,
-				UnitId: valueUnitId,
-				PeriodID: valueDocsDate.format('MMYYYY'),
-				GroupAccountId: valueAccountGroupId,
-				DocTypeID: 1.0,
-				DocRefAllocId: null,
-				DocRefMemoId: null,
-				DocRefUploaId: null,
-				CreatedAt: valueDocsDate.toISOString(),
-				UpdatedAt: new Date().toISOString(),
-				Active: true,
+				doc_date: valueDocsDate.format('YYYY-MM-DD'), //ngay tao but toan
+				desciption: valueDescription, // mo ta but toan
+				currency: valueCurrencyId, // loai tien
+				grp_acc: parseInt(valueAccountGroupId, 10), // luon la 9000 voi but toan thu cong
+				username: username,
+				unitid: valueUnitId, // unit 
+				amount: valueTotalCredit
 			},
-			detail: dataAccountEntryDetails
+			detail: dataAccountEntryDetails.map(item => {
+				return {
+					accountid: item.AccountId,
+					description: item.Description,
+					credit_amount: item.Amount_Cr,
+					debit_amount: item.Amount_Dr,
+					subaccountid: item.AccountSubId,
+					costing_methodid: item.CostingMethod,
+					non_deductible: item.Non_Deductible
+				};
+			})
 		};
-		console.log('>>> body for update: ', body);
 		const statusCode = await ApiUpdateAccountEntry(valueEntryId, body);
-
 		if (statusCode) {
 			setValueReadonly(true);
 			setValueUpdateButton(false);
@@ -641,7 +696,7 @@ function JournalEntryManagement() {
 
 	// SAVE Operation
 	const handleClickSave = () => {
-		if (!valueEntryId || valueAccountGroupId.length === 0 || !valueCurrencyId || valueCurrencyId.length === 0 || !valueUnitId || valueUnitId.length === 0) {
+		if (valueAccountGroupId.length === 0 || !valueCurrencyId || valueCurrencyId.length === 0 || !valueUnitId || valueUnitId.length === 0) {
 			toast.error(t('account-valid-empty'));
 			return;
 		}
@@ -705,20 +760,20 @@ function JournalEntryManagement() {
 	const handleAddDetail = () => {
 		const newId = dataAccountEntryDetails.length > 0 ? Math.max(...dataAccountEntryDetails.map((r) => r.EntryDetailId)) + 1 : 1;
 		const newRow = {
-			AccountName: "Tên TK mới",
-			MethodName: "Method demo",
-			SubAccountTypeName: "Loại TK con",
+			AccountName: "",
+			MethodName: "",
+			SubAccountTypeName: "",
 			EntryDetailId: newId,
 			EntryHdId: valueEntryId,
-			AccountId: "53546 787",
-			Description: `Detail ${newId}`,
+			AccountId: "",
+			Description: ``,
 			Amount_Cr: 0.0,
 			Amount_Dr: 0.0,
 			CreatedAt: new Date().toISOString(),
 			UpdatedAt: new Date().toISOString(),
 			Active: true,
-			AccountSubId: "SA001",
-			CostingMethod: "DF0013/0002",
+			AccountSubId: "",
+			CostingMethod: "",
 			Non_Deductible: false,
 		};
 		setDataAccountEntryDetails((prev) => [...prev, newRow]);
