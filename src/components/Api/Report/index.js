@@ -24,7 +24,7 @@ export async function Api_Export_CostAllocation(setDataExport) {
     } catch (error) {
         console.log(error);
         if (error.response) {
-            toast.error(' Error api export list! \n' + error.response.data);
+            toast.error(' Error api export list! \n' + error.response.data.ErrorMessage);
         } else {
             toast.error(' Error api export list! \n' + error.message);
         }
@@ -49,7 +49,7 @@ export async function Api_Report_COGS({ COSTCENTER, PERIOD_YEAR, PERIOD_MONTH, s
         status_code = true;
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -73,7 +73,7 @@ export async function Api_Export_InOut_SH({ COSTCENTER, PERIOD_YEAR, PERIOD_MONT
         status_code = true;
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -98,7 +98,7 @@ export async function Api_PDF_Report_COGS({ COSTCENTER, PERIOD_YEAR, PERIOD_MONT
         // setDataExport(response.data.cogs_detail);
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -123,7 +123,7 @@ export async function Api_PDF_Report_InOutWard({ COSTCENTER, PERIOD_YEAR, PERIOD
         // setDataExport(response.data.cogs_detail);
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -147,7 +147,7 @@ export async function Api_Report_COGM({ COSTCENTER, PERIOD_YEAR, PERIOD_MONTH, s
         status_code = true;
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -172,7 +172,7 @@ export async function Api_PDF_Report_COGM({ COSTCENTER, PERIOD_YEAR, PERIOD_MONT
         // setDataExport(response.data.cogs_detail);
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -197,7 +197,7 @@ export async function Api_PDF_Report_InOutWard_CH({ COSTCENTER, PERIOD_YEAR, PER
         // setDataExport(response.data.cogs_detail);
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -221,7 +221,7 @@ export async function Api_Export_InOut_CH({ COSTCENTER, PERIOD_YEAR, PERIOD_MONT
         status_code = true;
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -246,7 +246,7 @@ export async function Api_PDF_Report_COGS_Meat({ COSTCENTER, PERIOD_YEAR, PERIOD
         // setDataExport(response.data.cogs_detail);
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -270,7 +270,7 @@ export async function Api_Export_COGS_Meat({ COSTCENTER, PERIOD_YEAR, PERIOD_MON
         status_code = true;
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -298,7 +298,7 @@ export async function Api_PDF_Report_COGS_New({ COSTCENTER, PERIOD_YEAR, PERIOD_
         // setDataExport(response.data.cogs_detail);
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -325,7 +325,7 @@ export async function Api_Export_COGS_New({ COSTCENTER, PERIOD_YEAR, PERIOD_MONT
         status_code = true;
     } catch (error) {
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }

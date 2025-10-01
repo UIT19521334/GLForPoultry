@@ -17,7 +17,7 @@ export async function ApiCostAllocationListHeader(valueStatus, setDataListCostAl
     } catch (error) {
         console.log(error);
         if (error.response) {
-            toast.error(' Error api get data CostAllocation list! \n' + error.response.data);
+            toast.error(' Error api get data CostAllocation list! \n' + error.response.data.ErrorMessage);
         } else {
             toast.error(' Error api get data CostAllocation list! \n' + error.message);
         }
@@ -62,7 +62,7 @@ export async function ApiCreateCostAllocationHeader(
         } catch (error) {
             console.log(error);
             if (error.response) {
-                toast.error(' Error api create cost allocation! \n' + error.response.data);
+                toast.error(' Error api create cost allocation! \n' + error.response.data.ErrorMessage);
             } else {
                 toast.error(' Error api create cost allocation! \n' + error.message);
             }
@@ -114,7 +114,7 @@ export async function ApiUpdateCostAllocationHeader(
         } catch (error) {
             console.log(error);
             if (error.response) {
-                toast.error(' Error api update cost allocation! \n' + error.response.data);
+                toast.error(' Error api update cost allocation! \n' + error.response.data.ErrorMessage);
             } else {
                 toast.error(' Error api update cost allocation! \n' + error.message);
             }
@@ -151,7 +151,7 @@ export async function ApiCostAllocationListDetail(valueDocCode, setDataListCostA
     } catch (error) {
         console.log(error);
         if (error.response) {
-            toast.error(' Error api get data CostAllocation list! \n' + error.response.data);
+            toast.error(' Error api get data CostAllocation list! \n' + error.response.data.ErrorMessage);
         } else {
             toast.error(' Error api get data CostAllocation list! \n' + error.message);
         }
@@ -174,7 +174,7 @@ export async function ApiProcessCostAllocation(access_token, valueDocCode) {
         } catch (error) {
             console.log(error);
             if (error.response) {
-                toast.error(' Error api process! \n' + error.response.data);
+                toast.error(' Error api process! \n' + error.response.data.ErrorMessage);
             } else {
                 toast.error(' Error api process! \n' + error.message);
             }
@@ -200,7 +200,7 @@ export async function ApiPauseCostAllocation(access_token, valueDocCode) {
         } catch (error) {
             console.log(error);
             if (error.response) {
-                toast.error(' Error api pause! \n' + error.response.data);
+                toast.error(' Error api pause! \n' + error.response.data.ErrorMessage);
             } else {
                 toast.error(' Error api pause! \n' + error.message);
             }

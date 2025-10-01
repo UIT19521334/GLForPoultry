@@ -23,7 +23,7 @@ export async function ApiCalCOGM({ access_token, PERIOD_MONTH, PERIOD_YEAR }) {
     } catch (error) {
         console.log(error);
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -51,7 +51,7 @@ export async function ApiCalCostTransfer({ access_token, PERIOD_MONTH, PERIOD_YE
     } catch (error) {
         console.log(error);
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }

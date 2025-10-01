@@ -27,6 +27,19 @@ export async function ApiListExpense(valueSearch, setDataList) {
     }
 }
 
+export async function ApiListExpenseByRegion(regionId) {
+    try {
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const response = await DomainPoultry.get(`master/expense?regionId=${regionId}`, { headers: header });
+        const data = await response.data?.Response ?? [];
+        return data;
+    } catch (error) {
+        store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get data expense list!' }));
+    }
+}
+
 export async function ApiCreateExpense(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
     if (valueCode && valueName) {
         try {

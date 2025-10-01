@@ -22,7 +22,7 @@ export async function ApiOpenPeriod(access_token) {
     } catch (error) {
         console.log('>>Error: ', error);
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }
@@ -56,7 +56,7 @@ export async function ApiReopenPeriod(access_token, periodDate, user) {
     } catch (error) {
         console.log('>>Error: ', error);
         if (error.response) {
-            toast.error(error.response.data);
+            toast.error(error.response.data.ErrorMessage);
         } else {
             toast.error(error.message);
         }

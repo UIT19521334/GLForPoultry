@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
-import { DataGrid, GridActionsCellItem, GridDeleteIcon } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridDeleteIcon, useGridApiRef } from '@mui/x-data-grid';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AlertDialog from '~/components/AlertDialog';
@@ -19,15 +19,19 @@ import TextField from '@mui/material/TextField';
 import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import _ from 'lodash';
+import _, { set } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { Button, FormControl, FormLabel, MenuItem, Select } from '@mui/material';
-import { CloudUpload, Delete, PostAdd } from '@mui/icons-material';
-import { fetchApiListAccountGroup } from '~/Redux/FetchApi/fetchApiMaster';
-import { ApiAccountEntryListHeader } from '~/components/Api/AccountingEntryApi';
+import { Autocomplete, Button, Checkbox, FormControl, FormLabel, MenuItem, Select } from '@mui/material';
+import { Check, CloudUpload, Delete, Domain, PostAdd } from '@mui/icons-material';
+import { fetchApiListAccount, fetchApiListAccountGroup, fetchApiListExpense } from '~/Redux/FetchApi/fetchApiMaster';
+import { ApiAccountEntryListHeader, ApiCreateAccountEntry, ApiUpdateAccountEntry } from '~/components/Api/AccountingEntryApi';
+import { DomainPoultry } from '~/DomainApi';
+import { updateDialogError } from '~/Redux/Reducer/Thunk';
+import { ApiListAccountByUnit } from '~/components/Api/Account';
+import { ApiListExpenseByRegion } from '~/components/Api/Expense';
 
 const Item = styled(Paper)(({ theme }) => ({
 	backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -50,23 +54,83 @@ const VisuallyHiddenInput = styled('input')({
 	width: 1,
 });
 
+
+
 const MANUAL_ACCOUNTING_ENTRIES_TYPE_ID = 1;
 
 function JournalEntryManagement() {
+	// ==================== HOOKS & REDUX ====================
 	const { t } = useTranslation();
 	const dispatch = useDispatch();
-	const [isLoading, setIsLoading] = React.useState(false);
-	const [reloadListAccount, setReloadListAccount] = React.useState(false);
-	const [dataList, setDataList] = useState([]);
-	const [displayData, setDisplayData] = useState([]);
+
+	// Redux selectors
 	const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
-	const dataListAccountGroup = useSelector((state) => state.FetchApi.listData_AccountGroup);
-	const dataListAccount = useSelector((state) => state.FetchApi.listData_Account);
-	const dataListCostCenter = useSelector((s) => s.FetchApi.listData_CostCenter);
-	const dataListCurrency = useSelector((state) => state.FetchApi.listData_Currency);
+	const listAccountGroup = useSelector((state) => state.FetchApi.listData_AccountGroup);
+	const listCurrency = useSelector((state) => state.FetchApi.listData_Currency);
+	const listUnit = useSelector((state) => state.FetchApi.userAccess.units);
 	const token = useSelector((state) => state.FetchApi.token);
 
-	//! columns header
+	// ==================== STATE MANAGEMENT ====================
+	// Loading & Data states
+	const [isLoading, setIsLoading] = React.useState(false);
+	const [isLoadingDetail, setIsLoadingDetail] = React.useState(false);
+	const [reloadData, setReloadData] = React.useState(false);
+	const [dataList, setDataList] = useState([]);
+	const [displayData, setDisplayData] = useState([]);
+	const [valueSearch, setValueSearch] = React.useState('');
+	const [dataAccountEntryDetails, setDataAccountEntryDetails] = useState([]);
+	const [listAccount, setListAccount] = useState([]);
+	const [listExpense, setListExpense] = useState([]);
+
+	// Form input states
+	const [valueEntryId, setValueEntryId] = useState('');
+	const [valueUser, setValueUser] = useState('');
+	const [valueDescription, setValueDescription] = useState('');
+	const [valueDocsDate, setValueDocsDate] = useState(dayjs());
+	const [valueUpdateDate, setValueUpdateDate] = useState(dayjs());
+	const [valueDateAccountPeriod, setValueUpdateDateAccountPeriod] = React.useState(dayjs());
+	const [valueTotalDebit, setValueTotalDebit] = useState(0);
+	const [valueTotalCredit, setValueTotalCredit] = useState(0);
+	const [valueAccountGroupId, setValueAccountGroupId] = useState("");
+	const [valueAccountGroupName, setValueAccountGroupName] = useState();
+	const [valueCurrencyId, setValueCurrencyId] = useState('');
+	const [valueCurrencyName, setValueCurrencyName] = useState('');
+	const [valueUnitId, setValueUnitId] = useState('');
+	const [valueUnitName, setValueUnitName] = useState('');
+	const [valueUnitRegion, setValueUnitRegion] = useState('01');
+
+	// UI control states
+	const [valueReadonly, setValueReadonly] = React.useState(true);
+	const [valueReadonlyPostingDate, setValueReadonlyPostingDate] = React.useState(true);
+	const [valueReadonlyCode, setValueReadonlyCode] = React.useState(true);
+	const [buttonSelectMode, setButtonSelectMode] = React.useState(false);
+	const apiRefDetail = useGridApiRef();
+
+	// Button states
+	const [valueNewButton, setValueNewButton] = React.useState(false);
+	const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
+	const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
+	const [valueDisableDeleteButton, setValueDisableDeleteButton] = React.useState(true);
+	const [valueDisableUpdateButton, setValueDisableUpdateButton] = React.useState(true);
+	const [valueDisableEditDetail, setValueDisableEditDetail] = React.useState(false);
+
+	// Dialog states
+	const [dialogIsOpenNew, setDialogIsOpenNew] = React.useState(false);
+	const [dialogIsOpenUpdate, setDialogIsOpenUpdate] = React.useState(false);
+	const [dialogIsOpenDelete, setDialogIsOpenDelete] = React.useState(false);
+	const [dialogIsOpenImportFile, setDialogIsOpenImportFile] = React.useState(false);
+	const [openDialogDetail, setOpenDialogDetail] = React.useState(false);
+
+	// File import states
+	const [fileExcel, setFileExcell] = React.useState([]);
+	const [callApiImportFile, setCallApiImportFile] = React.useState(false);
+
+	// Other states
+	const [isNew, setIsNew] = React.useState(false);
+	const [dataUpdate, setDataUpdate] = React.useState([]);
+
+	// ==================== COLUMNS CONFIGURATION ====================
+	// Header columns
 	const columns = [
 		{
 			field: 'EntryId',
@@ -78,7 +142,7 @@ function JournalEntryManagement() {
 			field: 'CreatedAt',
 			headerName: t('entry-posting-date'),
 			minWidth: 150,
-			valueFormatter: (params) => dayjs(params.value).format('DD/MM/YYYY hh:mm:ss'),
+			valueFormatter: (params) => dayjs(params.value).format('DD-MM-YYYY'),
 			headerClassName: 'super-app-theme--header',
 		},
 		{
@@ -95,15 +159,15 @@ function JournalEntryManagement() {
 			headerClassName: 'super-app-theme--header',
 		},
 		{
-			field: 'PeriodID',
+			field: 'DocRefUploaId',
 			headerName: t('entry-import-code'),
 			minWidth: 150,
 			headerClassName: 'super-app-theme--header',
 		}
 	];
 
-	// columns details
-	const columnsDataDetail = [
+	// Detail columns
+	const columnsDataDetail = React.useMemo(() => [
 		{
 			field: 'actions',
 			type: 'actions',
@@ -117,178 +181,264 @@ function JournalEntryManagement() {
 						key={id}
 						icon={<Delete />}
 						label="Delete"
-						onClick={handleDeleteClickDetail(id)}
+						onClick={handleDeleteDetail(id)}
 						color="inherit"
 					/>,
 				];
 			},
 		},
 		{
-			field: 'id',
+			field: 'EntryDetailId',
 			headerName: t('no'),
 			width: 50,
 			headerClassName: 'super-app-theme--header',
 		},
-
 		{
-			field: 'cost_center',
-			headerName: t('cost-center'),
-			width: 150,
-			// editable: valueEditGrid,
-			type: 'singleSelect',
-			getOptionValue: (value) => value.code,
-			getOptionLabel: (value) => value.name,
-			valueOptions: dataListCostCenter,
-			headerAlign: 'center',
-			headerClassName: 'super-app-theme--header',
-		},
-		{
-			field: 'acc_code',
+			field: 'AccountId',
 			headerName: t('account-code'),
-			width: 200,
-			// editable: valueEditGrid,
-			type: 'singleSelect',
-			getOptionValue: (value) => value.account_code,
-			getOptionLabel: (value) => `${value.account_code_display} - ${value.account_name}`,
-			valueOptions: dataListAccount,
-			PaperProps: {
-				sx: { maxHeight: 200 },
+			width: 300,
+			renderEditCell: (params) => (<AccountEditInputCell {...params} listAccount={listAccount} />),
+			valueFormatter: (params) => {
+				const row = params.api.getRow(params.id);
+				const acc = listAccount.find((a) => a.AccountId === params.value);
+				return acc ? `${acc.AccountId} - ${acc.AccountName}` : `${row.AccountId} - ${row.AccountName}`;
 			},
-			headerClassName: 'super-app-theme--header',
+			headerClassName: 'super-app-theme--header', editable: true,
 		},
-
 		{
-			field: 'debit_amount',
+			field: 'Amount_Dr',
 			headerName: t('debit'),
 			width: 150,
-			// editable: valueEditGrid,
 			type: 'number',
 			headerAlign: 'center',
 			headerClassName: 'super-app-theme--header',
-			// valueFormatter: (params) => dayjs(params.value).format('DD/ MM/ YYYY'),
+			editable: true,
 		},
 		{
-			field: 'credit_amount',
+			field: 'Amount_Cr',
 			headerName: t('credit'),
 			width: 150,
-			// editable: valueEditGrid,
 			type: 'number',
 			headerAlign: 'center',
 			headerClassName: 'super-app-theme--header',
-			// valueFormatter: (params) => dayjs(params.value).format('DD/ MM/ YYYY'),
+			editable: true,
 		},
 		{
-			field: 'description',
+			field: 'Description',
 			headerName: t('description'),
-			minWidth: 400,
-			// editable: valueEditGrid,
+			minWidth: 200,
+			headerClassName: 'super-app-theme--header',
+			editable: true,
+		},
+		{
+			field: 'AccountSubId',
+			headerName: t('account-subcode'),
+			minWidth: 150,
+			headerClassName: 'super-app-theme--header',
+			editable: true,
+		},
+		{
+			field: 'CostingMethod',
+			headerName: t('expense-code'),
+			minWidth: 150,
+			headerClassName: 'super-app-theme--header',
+			editable: true,
+		},
+		{
+			field: 'Non_Deductible',
+			headerName: t('non-deductible'),
+			minWidth: 50,
+			headerAlign: 'center',
+			align: 'center',
+			type: 'boolean',
 			flex: 1,
 			headerClassName: 'super-app-theme--header',
+			editable: true,
 		},
-	];
+	], [listAccount]);
 
-	const [valueDateAccountPeriod, setValueDateAccountPeriod] = React.useState(dayjs());
-	const [buttonSelectMode, setButtonSelectMode] = React.useState(false);
-	const inputAccountIdRef = useRef(null);
+	// ==================== COMPUTED VALUES ====================
+	// Visibility column in datagrid
+	const columnVisibilityModel = React.useMemo(() => {
+		if (valueDisableEditDetail) {
+			return { actions: false };
+		}
+		return { actions: true };
+	}, [valueDisableEditDetail]);
 
-	/* #region  handle value */
-	const [valueCode, setValueCode] = useState('');
-	const [valueUser, setValueUser] = useState('');
-	const [valueDescription, setValueDescription] = useState('');
-	const [valueDocsDate, setValueDocsDate] = useState(dayjs());
-	const [valueDate, setValueDate] = useState(dayjs());
-	const [valueTotalDebit, setValueTotalDebit] = useState(0);
-	const [valueTotalCredit, setValueTotalCredit] = useState(0);
-	const [valueAccountGroupId, setValueAccountGroupId] = useState();
-	const [valueCurrencyId, setValueCurrencyId] = useState();
-	const [dataListAccountEntryDetail, setDataListAccountEntryDetail] = useState([]);
-	const handleChangeValueCode = (event) => {
-		setValueCode(event.target.value);
+	// ==================== FORM HANDLERS ====================
+	const handleChangevalueEntryId = (event) => {
+		setValueEntryId(event.target.value);
 	};
+
 	const handleChangeValueUser = (event) => {
 		setValueUser(event.target.value);
 	};
+
 	const handleChangeValueDescription = (event) => {
 		setValueDescription(event.target.value);
 	};
+
 	const handleChangeValueDocsDate = (event) => {
-		setValueDocsDate(event);
+		setValueDocsDate(event.target.value);
 	};
-	const handleChangeValueDate = (event) => {
-		setValueDate(event);
+
+	const handleChangeValueUpdateDate = (event) => {
+		setValueUpdateDate(event);
 	};
+
 	const handleChangeCurrency = (event) => {
 		setValueCurrencyId(event.target.value);
+		setValueCurrencyName(listCurrency.find(c => c.CurrencyId === event.target.value)?.CurrencyName || '')
 	};
+
 	const handleChangeAccountGroup = (event) => {
 		setValueAccountGroupId(event.target.value);
 	};
 
-	/* #endregion */
+	const handleChangeUnit = (event) => {
+		// const unit = listUnit.find(u => u.UnitId === event.target.value);
+		// setValueUnitRegion(unit?.RegionId || '');
+		// setValueUnitName(unit?.UnitName || '');
+		setValueUnitId(event.target.value);
+	};
 
-	// TODO call api get data accounting entry
+	const handleChangeDateAccountPeriod = (event) => {
+		setValueUpdateDateAccountPeriod(event);
+	};
+
+	// ==================== DATA LOADING ====================
+	// Fetch accounting entry data
 	useEffect(() => {
 		const fetchApiGetDataAccountingEntry = async () => {
 			setIsLoading(true);
-			const result = await ApiAccountEntryListHeader(valueDocsDate.format('MMYYYY'), MANUAL_ACCOUNTING_ENTRIES_TYPE_ID);
-			dispatch(fetchApiListAccountGroup(token))
+			const result = await ApiAccountEntryListHeader(
+				valueDateAccountPeriod.format('MMYYYY'),
+				MANUAL_ACCOUNTING_ENTRIES_TYPE_ID
+			);
+			dispatch(fetchApiListAccountGroup(token));
 			setDataList(result);
 			setDisplayData(result);
 			setIsLoading(false);
 		};
 		fetchApiGetDataAccountingEntry();
-	}, [reloadListAccount]);
+	}, [reloadData]);
 
-	const handleChangeDateAccountPeriod = (event) => {
-		setValueDateAccountPeriod(event);
+	useEffect(() => {
+		const fetchApiSupport = async () => {
+			if (valueUnitId && listUnit.length > 0) {
+				try {
+					setIsLoadingDetail(true);
+					const body = {
+						IncludeUnit: true,
+						Units: [valueUnitId]
+					}
+					const data_listAccount = await ApiListAccountByUnit(body);
+					const data_listExpense = await ApiListExpenseByRegion(valueUnitRegion);
+					setListAccount(data_listAccount);
+					setListExpense(data_listExpense);
+					setIsLoadingDetail(false);
+				} catch (error) {
+					setListAccount([]);
+					dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api get list account by unit!\n ${error}` }));
+					setIsLoadingDetail(false);
+				}
+			}
+		};
+		fetchApiSupport();
+	}, [valueUnitId]);
+
+	const handleReloadData = () => {
+		setReloadData(!reloadData);
 	};
 
-	const handleReloadListAccount = () => {
-		setReloadListAccount(!reloadListAccount)
+	const getAccountEntryDetail = async (entryId) => {
+		try {
+			setIsLoadingDetail(true);
+			const accountEntry = await DomainPoultry.get(`journal/entry/${entryId}`, { headers: { Authorization: token } });
+			const entryDetails = accountEntry.data?.Response.detail ?? [];
+			setDataAccountEntryDetails(entryDetails);
+			setIsLoadingDetail(false);
+		} catch (error) {
+			setIsLoadingDetail(false);
+			dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api get data account entry detail!\n ${error}` }));
+		}
 	}
 
-	// Handle search
-	const [valueSearch, setValueSearch] = React.useState('');
+	useEffect(() => {
+		if (dataAccountEntryDetails.length > 0) {
+			const totalCr = _.sumBy(dataAccountEntryDetails, "Amount_Cr");
+			const totalDr = _.sumBy(dataAccountEntryDetails, "Amount_Dr");
+			setValueTotalCredit(totalCr);
+			setValueTotalDebit(totalDr);
+		}
+	}, [dataAccountEntryDetails])
+
+
+	// ==================== SEARCH FUNCTIONALITY ====================
 	const handleSearch = () => {
 		let filteredData = dataList;
 		if (valueSearch && valueSearch.trim() !== "") {
 			const fieldsToSearch = ["EntryId", "DocTypeName", "AccountGroupName"];
 			filteredData = _.filter(dataList, (item) => {
 				const search = _.toLower(valueSearch);
-				return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
+				return _.some(fieldsToSearch, (field) =>
+					_.includes(_.toLower(item[field]), search)
+				);
 			});
 		}
 		setDisplayData(filteredData);
-	}
+	};
 
-	//! handle click import file
-	const [fileExcel, setFileExcell] = React.useState([]);
+	// ==================== ROW SELECTION ====================
+	const onRowsSelectionHandler = (ids) => {
+		const selectedRowsData = ids.map((id) =>
+			displayData.find((row) => row.EntryId === id)
+		);
+
+		if (selectedRowsData) {
+			selectedRowsData.map((key) => {
+				setValueEntryId(key.EntryId);
+				getAccountEntryDetail(key.EntryId);
+				setValueDocsDate(dayjs(key.CreatedAt));
+				setValueDescription(key.Description ?? '');
+				setValueUpdateDate(dayjs(key.UpdateAt));
+				setValueUser(key.Username ?? 'japfa system');
+				setValueAccountGroupId(key.GroupAccountId ?? '');
+				setValueAccountGroupName(key.DocTypeName ?? '');
+				setValueCurrencyId(key.CurrencyId ?? '');
+				setValueCurrencyName(key.CurrencyName ?? '');
+				setValueUnitId(key.UnitId ?? '');
+				setValueUnitName(key.UnitName ?? '');
+				setValueNewButton(false);
+				setValueUpdateButton(false);
+				setValueDisableSaveButton(true);
+				setValueReadonly(true);
+				setValueReadonlyPostingDate(true);
+				setValueDisableEditDetail(true);
+			});
+
+			setValueReadonly(true);
+			setValueReadonlyCode(true);
+			setValueDisableSaveButton(true);
+			setValueDisableDeleteButton(false);
+			setValueNewButton(false);
+			setValueUpdateButton(false);
+			setValueDisableUpdateButton(false);
+		}
+	};
+
+	// ==================== FILE IMPORT ====================
 	const handleClickChoseFile = (event) => {
 		setFileExcell(event.target.files);
 	};
 
-	const [dialogIsOpenImportFile, setDialogIsOpenImportFile] = React.useState(false);
-	const [callApiImportFile, setCallApiImportFile] = React.useState(false);
-	const agreeDialogImportFile = async () => {
-		setDialogIsOpenImportFile(false);
-		setCallApiImportFile(!callApiImportFile);
-	};
-	const closeDialogImportFile = () => {
-		setDialogIsOpenImportFile(false);
-		toast.warning(t('toast-cancel-upload'));
-	};
-
-	useEffect(() => {
-		const apiImportFile = async () => {
-			// await ApiImportAccountEntry(fileExcel);
-			setFileExcell('');
-			handleReloadListAccount();
-		};
-		apiImportFile();
-	}, [callApiImportFile]);
-
 	const handleClickImportFile = () => {
-		let fileType = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
+		const fileType = [
+			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			'text/csv'
+		];
+
 		if (fileExcel.length === 0) {
 			toast.warning(t('toast-nofile'));
 		} else {
@@ -301,96 +451,182 @@ function JournalEntryManagement() {
 		}
 	};
 
-
-	//! select row in datagrid
-	const onRowsSelectionHandler = (ids) => {
-		const selectedRowsData = ids.map((id) => displayData.find((row) => row.EntryId === id));
-		if (selectedRowsData) {
-			{
-				selectedRowsData.map((key) => {
-					setValueCode(key.EntryId ?? "XXXX");
-					setValueDocsDate(dayjs(key.CreatedAt));
-					setValueDescription(key.Description ?? '');
-					setValueDate(dayjs(key.UpdateAt));
-					setValueUser(key.Username ?? 'IT TEST');
-					setValueAccountGroupId(key.GroupAccountId ?? '');
-					setValueCurrencyId(key.CurrencyId ?? '');
-					setValueTotalDebit(23984);
-					setValueTotalCredit(10000);
-					setValueNewButton(false);
-					setValueUpdateButton(false);
-					setValueDisableSaveButton(true);
-					setValueReadonly(true);
-					setValueReadonlyPostingDate(true);
-					setValueEditGrid(false);
-				});
-				setValueReadonly(true);
-				setValueReadonlyCode(true);
-				setValueDisableSaveButton(true);
-				setValueDisableDeleteButton(false)
-				setValueNewButton(false);
-				setValueUpdateButton(false);
-				setValueDisableUpdateButton(false);
-			}
-		}
+	const agreeDialogImportFile = async () => {
+		setDialogIsOpenImportFile(false);
+		setCallApiImportFile(!callApiImportFile);
 	};
 
-	// TODO call api new
-	/* #region  call api new */
-	const [dialogIsOpenNew, setDialogIsOpenNew] = React.useState(false);
-	const [dialogIsOpenUpdate, setDialogIsOpenUpdate] = React.useState(false);
-	const [dialogIsOpenDelete, setDialogIsOpenDelete] = React.useState(false);
+	const closeDialogImportFile = () => {
+		setDialogIsOpenImportFile(false);
+		toast.warning(t('toast-cancel-upload'));
+	};
+
+	useEffect(() => {
+		const apiImportFile = async () => {
+			// await ApiImportAccountEntry(fileExcel);
+			setFileExcell('');
+			handleReloadData();
+		};
+		apiImportFile();
+	}, [callApiImportFile]);
+
+	// ==================== RENDER SUB UI ====================
+	function AccountEditInputCell(props) {
+		const { id, field, value, api, row } = props; // default []
+		const handleChange = (event, newValue) => {
+			api.setEditCellValue({
+				id,
+				field,
+				value: newValue?.AccountId || "",
+			});
+		};
+		const selected = listAccount?.find((acc) => acc.AccountId === value) || null;
+		console.log('>>>>> list account: ', listAccount);
+
+		return (
+			<Autocomplete
+				size="small"
+				fullWidth
+				value={selected}
+				onChange={handleChange}
+				options={listAccount || []}
+				getOptionLabel={(option) =>
+					option ? `${option.AccountId} - ${option.AccountName}` : ""
+				}
+				renderInput={(params) => (
+					<TextField {...params} variant="outlined" size="small" />
+				)}
+			/>
+		);
+	}
+
+	// ==================== CRUD OPERATIONS ====================
+	// Reset form to initial state
+	const resetFormState = () => {
+		setValueEntryId('');
+		setValueDocsDate(dayjs());
+		setValueUpdateDate(dayjs());
+		setValueUser(username);
+		setValueDescription('');
+		setValueAccountGroupId('');
+		setValueAccountGroupName('');
+		setValueCurrencyId('');
+		setValueCurrencyName('');
+		setValueUnitName('');
+		setValueUnitId('');
+		setValueUnitRegion('01');
+		setValueTotalDebit(0);
+		setValueTotalCredit(0);
+		setValueNewButton(false);
+		setValueDisableSaveButton(true);
+		setDataAccountEntryDetails([]);
+		setValueReadonly(true);
+		setValueReadonlyPostingDate(true);
+		setValueDisableEditDetail(true);
+	};
+
+	// NEW Operation
+	const handleClickNew = () => {
+		setValueEntryId('');
+		setValueDocsDate(dayjs());
+		setValueUpdateDate(dayjs());
+		setValueUser(username);
+		setValueDescription('');
+		setValueAccountGroupId('');
+		setValueAccountGroupName('');
+		setValueCurrencyId('');
+		setValueCurrencyName('');
+		setValueUnitName('');
+		setValueUnitId('');
+		setValueUnitRegion('01');
+		setValueTotalCredit(0);
+		setValueTotalDebit(0);
+		setDataAccountEntryDetails([]);
+		setValueNewButton(false);
+		setValueDisableSaveButton(false);
+		setValueDisableDeleteButton(true);
+		setValueDisableUpdateButton(true);
+		setValueReadonly(false);
+		setValueReadonlyCode(false);
+		setValueReadonlyPostingDate(true);
+		setValueDisableEditDetail(true);
+	};
+
 	const agreeDialogNew = () => {
 		setDialogIsOpenNew(false);
-		asyncApiCreateAccount();
+		asyncApiCreateAccountingEntry();
 	};
+
 	const closeDialogNew = () => {
 		setDialogIsOpenNew(false);
 		toast.warning(t('toast-cancel-new'));
 	};
 
-	const asyncApiCreateAccount = async () => {
+	const asyncApiCreateAccountingEntry = async () => {
 		setIsLoading(true);
-		const body = {}
-		// const statusCode = await ApiCreateAccount(body);
-		const statusCode = true;
-		if (statusCode) {
-			setValueCode('');
-			setValueDocsDate(dayjs());
-			setValueDate(dayjs());
-			setValueUser(username);
-			setValueDescription('');
-			setValueAccountGroupId('');
-			setValueTotalDebit(0);
-			setValueTotalCredit(0);
-			setValueNewButton(false);
-			setValueDisableSaveButton(true);
-			setDataListAccountEntryDetail([]);
-			setValueReadonly(true);
-			setValueReadonlyPostingDate(true);
-			setValueEditGrid(false);
-		}
-		setIsLoading(false);
-		setReloadListAccount(!reloadListAccount);
-	};
-	/* #endregion */
+		const body = {};
+		const statusCode = await ApiCreateAccountEntry(body);
 
-	// TODO call api update
-	/* #region  call api update */
+		if (statusCode) {
+			resetFormState();
+		}
+
+		setIsLoading(false);
+		setReloadData(!reloadData);
+	};
+
+	// UPDATE Operation
+	const handleClickUpdate = () => {
+		setValueUser(username);
+		setValueNewButton(false);
+		setValueUpdateButton(true);
+		setValueReadonlyCode(true);
+		setValueReadonly(false);
+		setValueDisableSaveButton(false);
+		setValueDisableDeleteButton(true);
+		setValueDisableEditDetail(false);
+	};
+
 	const agreeDialogUpdate = () => {
 		setDialogIsOpenUpdate(false);
-		asyncApiUpdateAccount();
+		asyncApiUpdateAccountingEntry();
 	};
+
 	const closeDialogUpdate = () => {
 		setDialogIsOpenUpdate(false);
 		toast.warning(t('toast-cancel-update'));
 	};
 
-	const asyncApiUpdateAccount = async () => {
+	const asyncApiUpdateAccountingEntry = async () => {
 		setIsLoading(true);
-		const body = {}
-		// const statusCode = await ApiUpdateAccount(body);
-		const statusCode = true;
+
+		const body = {
+			header: {
+				UnitName: valueUnitName,
+				DocTypeName: valueUnitId,
+				CurrencyName: valueCurrencyName,
+				AccountGroupName: valueAccountGroupName,
+				EntryId: valueEntryId,
+				DocDate: valueDocsDate.toISOString(),
+				Description: valueDescription,
+				Username: valueUser,
+				Amount: 0.0,
+				CurrencyId: valueCurrencyId,
+				UnitId: valueUnitId,
+				PeriodID: valueDocsDate.format('MMYYYY'),
+				GroupAccountId: valueAccountGroupId,
+				DocTypeID: 1.0,
+				DocRefAllocId: null,
+				DocRefMemoId: null,
+				DocRefUploaId: null,
+				CreatedAt: valueDocsDate.toISOString(),
+				UpdatedAt: new Date().toISOString(),
+				Active: true,
+			},
+			detail: dataAccountEntryDetails
+		};
+		console.log('>>> body for update: ', body);
+		const statusCode = await ApiUpdateAccountEntry(valueEntryId, body);
 
 		if (statusCode) {
 			setValueReadonly(true);
@@ -398,18 +634,36 @@ function JournalEntryManagement() {
 			setValueDisableSaveButton(true);
 			setValueDisableDeleteButton(true);
 		}
+
 		setIsLoading(false);
-		setReloadListAccount(!reloadListAccount);
+		setReloadData(!reloadData);
 	};
 
-	/* #endregion */
+	// SAVE Operation
+	const handleClickSave = () => {
+		if (!valueEntryId || valueAccountGroupId.length === 0 || !valueCurrencyId || valueCurrencyId.length === 0 || !valueUnitId || valueUnitId.length === 0) {
+			toast.error(t('account-valid-empty'));
+			return;
+		}
 
-	// TODO call api delete
-	/* #region  call api delete */
+		if (valueNewButton) {
+			setDialogIsOpenNew(true);
+		}
+		if (valueUpdateButton) {
+			setDialogIsOpenUpdate(true);
+		}
+	};
+
+	// DELETE Operation
+	const handleClickDelete = async () => {
+		setDialogIsOpenDelete(true);
+	};
+
 	const agreeDialogDelete = () => {
 		setDialogIsOpenDelete(false);
 		asyncApiDeleteAccount();
 	};
+
 	const closeDialogDelete = () => {
 		setDialogIsOpenDelete(false);
 		toast.warning(t('toast-cancel-delete'));
@@ -419,136 +673,55 @@ function JournalEntryManagement() {
 		setIsLoading(true);
 		// const statusCode = await ApiDeleteAccount(valueId);
 		const statusCode = true;
+
 		if (statusCode) {
-			setValueCode('');
-			setValueDocsDate(dayjs());
-			setValueDate(dayjs());
-			setValueUser(username);
-			setValueDescription('');
-			setValueAccountGroupId('');
-			setValueTotalDebit(0);
-			setValueTotalCredit(0);
-			setValueNewButton(false);
-			setValueDisableSaveButton(true);
-			setDataListAccountEntryDetail([]);
-			setValueReadonly(true);
-			setValueReadonlyPostingDate(true);
-			setValueEditGrid(false);
+			resetFormState();
 		}
+
 		setIsLoading(false);
-		setReloadListAccount(!reloadListAccount);
+		setReloadData(!reloadData);
 	};
 
-	/* #endregion */
-
-	const [valueReadonly, setValueReadonly] = React.useState(true);
-	const [valueReadonlyPostingDate, setValueReadonlyPostingDate] = React.useState(true);
-	const [valueReadonlyCode, setValueReadonlyCode] = React.useState(true);
-	const [valueEditGrid, setValueEditGrid] = React.useState(false);
-
-	//! visibility column in datagrid
-	const columnVisibilityModel = React.useMemo(() => {
-		if (valueEditGrid) {
-			return {
-				actions: true,
-			};
-		}
-		return {
-			actions: false,
-		};
-	}, [valueEditGrid]);
-
-	/* #region  button new */
-
-	const [valueNewButton, setValueNewButton] = React.useState(false);
-	const handleClickNew = () => {
-		setValueCode('');
-		setValueDocsDate(dayjs());
-		setValueDate(dayjs());
-		setValueUser(username);
-		setValueDescription('');
-		setValueAccountGroupId('');
-		setValueTotalDebit(0);
-		setValueTotalCredit(0);
-		setValueNewButton(false);
-		setValueDisableSaveButton(true);
-		setDataListAccountEntryDetail([]);
-		setValueReadonly(false);
-		setValueReadonlyPostingDate(true);
-		setValueEditGrid(false);
-	};
-	/* #endregion */
-
-	/* #region  button update */
-	const [valueUpdateButton, setValueUpdateButton] = React.useState(false);
-	const [valueDisableUpdateButton, setValueDisableUpdateButton] = React.useState(true);
-	const handleClickUpdate = () => {
-		setValueNewButton(false);
-		setValueUpdateButton(true);
-		setValueReadonlyCode(true);
-		setValueReadonly(false);
-		setValueDisableSaveButton(false);
-		setValueDisableDeleteButton(true);
-		if (inputAccountIdRef.current) {
-			setTimeout(() => {
-				inputAccountIdRef.current.focus();
-			}, 0);
-		}
-	};
-	/* #endregion */
-
-	/* #region  button save */
-	const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
-	const handleClickSave = () => {
-		if (!valueCode) {
-			toast.error(t('account-valid-empty'));
-			return;
-		}
-		if (valueCode.length != 9) {
-			toast.error(t('account-valid-length'));
-			return;
-		}
-		if (valueNewButton) {
-			setDialogIsOpenNew(true);
-		}
-		if (valueUpdateButton) {
-			setDialogIsOpenUpdate(true);
-		}
-	};
-	/* #endregion */
-
-	/* #region  button delete */
-	const [valueDisableDeleteButton, setValueDisableDeleteButton] = React.useState(true);
-	const handleClickDelete = async () => {
-		setDialogIsOpenDelete(true);
-	};
-	/* #endregion */
-
-	//! handle click delete detail
-	const handleDeleteClickDetail = (id) => () => {
-		const item = dataListAccountEntryDetail.find((row) => row.detail_ids === id);
-
-		if (!item) return; // Không tìm thấy item
-
-		if (item.is_new_item) {
-			// Nếu là item mới chưa lưu -> xóa khỏi danh sách
-			setDataListAccountEntryDetail(dataListAccountEntryDetail.filter((row) => row.detail_ids !== id));
+	// ==================== DETAIL OPERATIONS ====================
+	const handleDeleteDetail = (id) => () => {
+		if (!valueDisableEditDetail) {
+			setDataAccountEntryDetails((prevData) => prevData.filter((item) => item.EntryDetailId !== id));
 		} else {
-			// Nếu là item đã lưu -> gắn cờ is_delete_item
-			const updatedRow = { ...item, is_delete_item: true };
-			setDataListAccountEntryDetail(
-				dataListAccountEntryDetail.map((row) => (row.detail_ids === id ? updatedRow : row)),
-			);
+			toast.warning(t('toast-click-update'));
 		}
 	};
 
-	const [isNew, setIsNew] = React.useState(false);
-	const [dataUpdate, setDataUpdate] = React.useState([]);
-	const [openDialogDetail, setOpenDialogDetail] = React.useState(false);
-	const handleClickOpenDialogDetail = (isnew) => {
-		setOpenDialogDetail(true);
-		setIsNew(isnew);
-		setValueDisableSaveButton(true);
+	const handleUpdateDetail = (newRow, oldRow) => {
+		if (valueDisableEditDetail) {
+			toast.warning(t('toast-click-update'));
+			return oldRow;
+		}
+		setDataAccountEntryDetails((prev) =>
+			prev.map((row) => (row.EntryDetailId === oldRow.EntryDetailId ? { ...row, ...newRow } : row))
+		);
+		return newRow;
+	};
+
+	const handleAddDetail = () => {
+		const newId = dataAccountEntryDetails.length > 0 ? Math.max(...dataAccountEntryDetails.map((r) => r.EntryDetailId)) + 1 : 1;
+		const newRow = {
+			AccountName: "Tên TK mới",
+			MethodName: "Method demo",
+			SubAccountTypeName: "Loại TK con",
+			EntryDetailId: newId,
+			EntryHdId: valueEntryId,
+			AccountId: "53546 787",
+			Description: `Detail ${newId}`,
+			Amount_Cr: 0.0,
+			Amount_Dr: 0.0,
+			CreatedAt: new Date().toISOString(),
+			UpdatedAt: new Date().toISOString(),
+			Active: true,
+			AccountSubId: "SA001",
+			CostingMethod: "DF0013/0002",
+			Non_Deductible: false,
+		};
+		setDataAccountEntryDetails((prev) => [...prev, newRow]);
 	};
 
 	const handleCloseDialogDetail = () => {
@@ -556,13 +729,11 @@ function JournalEntryManagement() {
 		setValueDisableSaveButton(false);
 	};
 
-	//! on key event
-	// OnKeyEvent(() => setReloadListAccount(!reloadListAccount), 'Enter');
+	// ==================== KEYBOARD SHORTCUTS ====================
 	OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
 	OnMultiKeyEvent(handleClickUpdate, valueDisableUpdateButton ? '' : 'u');
 	OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
 	OnMultiKeyEvent(handleClickDelete, valueDisableDeleteButton ? '' : 'd');
-
 	//! mobile responsive
 	const mobileResponsive = (
 		<Stack
@@ -641,7 +812,7 @@ function JournalEntryManagement() {
 						title={t('entry-toast-new')}
 						content={
 							<>
-								{t('entry-code')}: {valueCode}
+								{t('entry-code')}: {valueEntryId}
 								<br /> {t('description')}: {valueDescription}
 								<br /> {t('currency')}: {valueCurrencyId}
 								<br /> {t('account-group')}: {valueAccountGroupId}
@@ -657,7 +828,7 @@ function JournalEntryManagement() {
 						title={t('account-toast-update')}
 						content={
 							<>
-								{t('entry-code')}: {valueCode}
+								{t('entry-code')}: {valueEntryId}
 								<br /> {t('description')}: {valueDescription}
 								<br /> {t('currency')}: {valueCurrencyId}
 								<br /> {t('account-group')}: {valueAccountGroupId}
@@ -673,7 +844,7 @@ function JournalEntryManagement() {
 						title={t('account-toast-delete')}
 						content={
 							<>
-								{t('entry-code')}: {valueCode}
+								{t('entry-code')}: {valueEntryId}
 								<br /> {t('description')}: {valueDescription}
 								<br /> {t('currency')}: {valueCurrencyId}
 								<br /> {t('account-group')}: {valueAccountGroupId}
@@ -756,8 +927,8 @@ function JournalEntryManagement() {
 												variant="contained"
 												color="warning"
 												onClick={() =>
-													setReloadListAccount(
-														!reloadListAccount,
+													setReloadData(
+														!reloadData,
 													)
 												}
 												sx={{ whiteSpace: 'nowrap' }}
@@ -965,9 +1136,9 @@ function JournalEntryManagement() {
 														fullWidth
 														size="large"
 														placeholder="xxxxxxxxx"
-														value={valueCode}
-														onChange={handleChangeValueCode}
-														disabled
+														value={valueEntryId}
+														onChange={handleChangevalueEntryId}
+														disabled={valueReadonlyCode}
 													/>
 												</Stack>
 											</Grid>
@@ -997,7 +1168,7 @@ function JournalEntryManagement() {
 																onChange={(e) =>
 																	handleChangeValueDocsDate(e)
 																}
-																disabled={valueReadonly}
+																disabled
 															/>
 														</LocalizationProvider>
 													</div>
@@ -1043,7 +1214,7 @@ function JournalEntryManagement() {
 															<DatePicker
 																// label={'"month" and "year"'}
 																// views={['month', 'year']}
-																value={valueDate}
+																value={valueUpdateDate}
 																sx={{ width: '100%' }}
 																slotProps={{
 																	textField: { size: 'small' },
@@ -1051,7 +1222,7 @@ function JournalEntryManagement() {
 																formatDensity="spacious"
 																format="DD-MM-YYYY"
 																onChange={(e) =>
-																	handleChangeValueDate(e)
+																	handleChangeValueUpdateDate(e)
 																}
 																disabled
 															/>
@@ -1102,20 +1273,15 @@ function JournalEntryManagement() {
 														>
 															<Select
 																value={valueAccountGroupId}
-																displayEmpty
 																onChange={handleChangeAccountGroup}
 																disabled={valueReadonly}
 															>
-																{dataListAccountGroup.map(
+																{listAccountGroup.map(
 																	(data) => {
 																		return (
 																			<MenuItem
-																				key={
-																					data.GroupId
-																				}
-																				value={
-																					data.GroupId
-																				}
+																				key={data.GroupId}
+																				value={data.GroupId}
 																			>
 																				{data.GroupId} -{' '}
 																				{data.GroupName}
@@ -1123,6 +1289,13 @@ function JournalEntryManagement() {
 																		);
 																	},
 																)}
+																{/* Nếu value không rỗng và không có trong list thì render mặc định */}
+																{valueAccountGroupId !== "" &&
+																	!listAccountGroup.some((d) => d.GroupId === valueAccountGroupId) && (
+																		<MenuItem style={{ textAlign: 'left' }} value={valueAccountGroupId}>
+																			{`[${valueAccountGroupId}] - ${valueAccountGroupName}`}
+																		</MenuItem>
+																	)}
 															</Select>
 														</FormControl>
 													</Stack>
@@ -1148,7 +1321,7 @@ function JournalEntryManagement() {
 																onChange={handleChangeCurrency}
 																disabled={valueReadonly}
 															>
-																{dataListCurrency.map((data) => {
+																{listCurrency.map((data) => {
 																	return (
 																		<MenuItem
 																			key={data.CurrencyId}
@@ -1217,6 +1390,56 @@ function JournalEntryManagement() {
 													</Stack>
 												</Stack>
 											</Grid>
+											<Grid xs={12} md={6}>
+												<Stack spacing={1}>
+													<Stack
+														direction={'row'}
+														spacing={2}
+														alignItems={'center'}
+														justifyContent={'flex-start'}
+													>
+														<h6 style={{ width: '40%' }}>
+															{t('unit')}
+														</h6>
+														<FormControl
+															sx={{
+																m: 1,
+																width: '100%',
+																// minWidth: 100,
+																// maxWidth: 200,
+															}}
+															size="small"
+														>
+															<Select
+																value={valueUnitId}
+																onChange={handleChangeUnit}
+																disabled={valueReadonly}
+															>
+																{listUnit.map(
+																	(data) => {
+																		return (
+																			<MenuItem
+																				key={data.UnitId}
+																				value={data.UnitId}
+																			>
+																				{data.UnitId} -{' '}
+																				{data.UnitName}
+																			</MenuItem>
+																		);
+																	},
+																)}
+																{/* Nếu value không rỗng và không có trong list thì render mặc định */}
+																{valueUnitId !== "" &&
+																	!listUnit.some((d) => d.UnitId === valueUnitId) && (
+																		<MenuItem style={{ textAlign: 'left' }} value={valueUnitId}>
+																			{`[${valueUnitId}] - ${valueUnitName}`}
+																		</MenuItem>
+																	)}
+															</Select>
+														</FormControl>
+													</Stack>
+												</Stack>
+											</Grid>
 										</Grid>
 									</Item>
 								</Grid>
@@ -1253,9 +1476,9 @@ function JournalEntryManagement() {
 													startIcon={<AddBoxIcon />}
 													variant="contained"
 													color="success"
-													onClick={() => handleClickOpenDialogDetail(true)}
+													onClick={() => handleAddDetail(true)}
 													sx={{ alignItems: 'left', whiteSpace: 'nowrap' }}
-													disabled={!valueEditGrid}
+													disabled={valueDisableEditDetail}
 												>
 													{t('button-detail')}
 												</LoadingButton>
@@ -1267,23 +1490,16 @@ function JournalEntryManagement() {
 											<Stack spacing={0}>
 												<div style={{ width: '100%', minHeight: 500 }}>
 													<DataGrid
+														apiRef={apiRefDetail}
 														columnVisibilityModel={columnVisibilityModel}
-														rows={dataListAccountEntryDetail.filter(
-															(data) =>
-																data.isactive === true &&
-																data.is_delete_item !== true,
-														)}
+														rows={dataAccountEntryDetails}
 														columns={columnsDataDetail}
 														autoHeight
 														showCellVerticalBorder
 														showColumnVerticalBorder
-														getRowId={(id) => id.detail_ids}
-														loading={isLoading}
-														onRowDoubleClick={(params) => {
-															valueEditGrid &&
-																handleClickOpenDialogDetail(false);
-															setDataUpdate(params.row);
-														}}
+														getRowId={(id) => id.EntryDetailId}
+														processRowUpdate={handleUpdateDetail}
+														loading={isLoadingDetail}
 														slotProps={{
 															baseSelect: {
 																MenuProps: {

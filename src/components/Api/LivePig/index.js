@@ -53,7 +53,7 @@ export async function ApiCreateLivePig(
         } catch (error) {
             console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data);
+                toast.error(error.response.data.ErrorMessage);
             } else {
                 toast.error(error.message);
             }
@@ -100,7 +100,7 @@ export async function ApiUpdateLivePig(
         } catch (error) {
             console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data);
+                toast.error(error.response.data.ErrorMessage);
             } else {
                 toast.error(error.message);
             }
@@ -127,7 +127,7 @@ export async function ApiDeleteLivePig(access_token, valueCode) {
         } catch (error) {
             console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data);
+                toast.error(error.response.data.ErrorMessage);
             } else {
                 toast.error(error.message);
             }
@@ -150,7 +150,7 @@ export async function ApiGetListFarm(valueCostCenter, valuePeriodMonth, valuePer
         } catch (error) {
             console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(error.response.data);
+                toast.error(error.response.data.ErrorMessage);
             } else {
                 toast.error(error.message);
             }

@@ -3,9 +3,8 @@ import { useMsal } from '@azure/msal-react';
 import { useDispatch } from 'react-redux';
 import { updateCurrentUnit, updateDialogError, updateToken, updateUserAccess, updateUserInfo, updateUserMenuFromMasterApp } from '~/Redux/Reducer/Thunk';
 import DomainApi, { DomainMasterApp, DomainPoultry } from '~/DomainApi';
-import { fetchApiAuthInfo } from '~/Redux/FetchApi/fetchApiMaster';
-import { toast } from 'react-toastify';
 import { store } from '~/Redux/store';
+import axios from 'axios';
 
 export default function ApiToken() {
     const { instance } = useMsal();
@@ -82,8 +81,18 @@ export default function ApiToken() {
                     }
                     setValueAccessToken({ token: userInfo.accessToken, status: true });
                 } catch (error) {
-                    store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api get token:\n ${error.response ? error.response.data : error}` }));
-                    setValueAccessToken({ token: error.response ? error.response.data : error, status: false });
+                    console.log(`>>Error: ${error}`);
+                    console.log(error);
+                    const apiName = error?.config?.url || "Unknown API";
+                    const message = error.response?.data?.ErrorMessage
+                        || error.message
+                        || "Unexpected error";
+
+                    setValueAccessToken({
+                        token: `API ${apiName} failed: ${message}`,
+                        status: false,
+                    });
+                    return
                 }
             }
         }

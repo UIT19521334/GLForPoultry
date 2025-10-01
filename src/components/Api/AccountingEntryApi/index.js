@@ -19,88 +19,24 @@ export async function ApiAccountEntryListHeader(period, docTypeId) {
     }
 }
 
-export async function ApiCreateAccountEntryHeader(
-    access_token,
-    valueDocsDateAe,
-    valueDescription,
-    valueCurrency,
-    valueAccountGroup,
-    modelDetail,
-) {
-    if (access_token && valueDescription && valueCurrency && valueAccountGroup) {
+export async function ApiCreateAccountEntry(body) {
+    if (body) {
         try {
             var statusCode = false;
             const header = {
-                Authorization: access_token,
+                Authorization: store.getState().FetchApi.token,
             };
 
-            const model = {
-                doc_date: dayjs(valueDocsDateAe).utc(true),
-                desciption: valueDescription,
-                currency: valueCurrency,
-                grp_acc: valueAccountGroup,
-                detail: modelDetail.filter((data) => data.is_delete_item !== true),
-            };
-            let url = `journal/acc-entry/unitcode//${localStorage.getItem('Unit')}?username=${localStorage.getItem(
-                'UserName',
-            )}`;
-            const response = await DomainApi.post(url, model, { headers: header });
-            // setDataAEListHeader(response.data);
-            toast.success(' Success create new account entry header!');
-            statusCode = true;
-        } catch (error) {
-            console.log(error);
-            if (error.response) {
-                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api create account entry header!' }));
-            } else {
-                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api create account entry header!' }));
-            }
-            statusCode = false;
-        }
-        return statusCode;
-    }
-}
-
-export async function ApiUpdateAccountEntryHeader(
-    access_token,
-    valueDocsDateAe,
-    valueDocCode,
-    valueDescription,
-    valueCurrency,
-    valueAccountGroup,
-    modelDetail,
-    setValueTotalDebitAe,
-    setValueTotalCreditAe,
-) {
-    if (access_token && valueDocCode && valueCurrency && valueAccountGroup && modelDetail) {
-        try {
-            var statusCode = false;
-            const header = {
-                Authorization: access_token,
-            };
-            const model = {
-                doc_date: dayjs(valueDocsDateAe).utc(true),
-                desciption: valueDescription,
-                currency: valueCurrency,
-                grp_acc: valueAccountGroup,
-                detail: modelDetail,
-            };
-            let url = `journal/acc-entry/unitcode/${localStorage.getItem(
-                'Unit',
-            )}/docno/${valueDocCode}?username=${localStorage.getItem('UserName')}`;
-            const response = await DomainApi.put(url, model, { headers: header });
+            let url = `journal/entry`;
+            const response = await DomainPoultry.post(url, body, { headers: header });
             console.log(response.data);
-            setValueTotalDebitAe(response.data.total_debit);
-            setValueTotalCreditAe(response.data.total_credit);
             toast.success(' Success update account entry header!');
             statusCode = true;
         } catch (error) {
-            console.log(error);
-            console.log('>>Error: ', error);
             if (error.response) {
-                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api update account entry header!' }));
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api create account entry!' }));
             } else {
-                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api update account entry header!' }));
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api create account entry!' }));
             }
             statusCode = false;
         }
@@ -108,24 +44,52 @@ export async function ApiUpdateAccountEntryHeader(
     }
 }
 
-export async function ApiDeleteAccountEntryHeader(access_token, valueDocCode) {
-    if (access_token && valueDocCode.length > 0) {
+export async function ApiUpdateAccountEntry(valueCode, body) {
+    if (body && valueCode) {
         try {
+            var statusCode = false;
             const header = {
-                Authorization: access_token,
+                Authorization: store.getState().FetchApi.token,
             };
-            let url = `journal/acc-entry/unitcode/${localStorage.getItem(
-                'Unit',
-            )}/delete?username=${localStorage.getItem('UserName')}`;
-            const response = await DomainApi.put(url, valueDocCode, { headers: header });
-            toast.success(' Success delete account entry header!');
+
+            let url = `journal/entry/${valueCode}`;
+            const response = await DomainPoultry.put(url, body, { headers: header });
+            console.log(response.data);
+            toast.success(' Success update account entry header!');
+            statusCode = true;
         } catch (error) {
             if (error.response) {
-                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api delete account entry header!' }));
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api update account entry!' }));
             } else {
-                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api delete account entry header!' }));
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api update account entry!' }));
             }
+            statusCode = false;
         }
+        return statusCode;
+    }
+}
+
+export async function ApiDeleteAccountEntryHeader(valueCode) {
+    if (valueCode) {
+        try {
+            var statusCode = false;
+            const header = {
+                Authorization: store.getState().FetchApi.token,
+            };
+            let url = `journal/entry/${valueCode}`;
+            const response = await DomainPoultry.delete(url, { headers: header });
+            console.log(response.data);
+            toast.success(' Success update account entry header!');
+            statusCode = true;
+        } catch (error) {
+            if (error.response) {
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api delete account entry!' }));
+            } else {
+                store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api delete account entry!' }));
+            }
+            statusCode = false;
+        }
+        return statusCode;
     }
 }
 
@@ -162,7 +126,7 @@ export async function ApiAccountEntryListDetail(valueDocNo, valueSearch, setData
         } catch (error) {
             console.log(error);
             if (error.response) {
-                toast.error(' Error api get list account entry detail! \n' + error.response.data);
+                toast.error(' Error api get list account entry detail! \n' + error.response.data.ErrorMessage);
             } else {
                 toast.error(' Error api get list account entry detail! \n' + error.message);
             }
@@ -191,7 +155,7 @@ export async function ApiImportAccountEntry(access_token, valueFile) {
             console.log(error);
             console.log('>>Error: ', error);
             if (error.response) {
-                toast.error(' Error import file! \n' + error.response.data);
+                toast.error(' Error import file! \n' + error.response.data.ErrorMessage);
             } else {
                 toast.error('  Error import file! \n' + error.message);
             }
