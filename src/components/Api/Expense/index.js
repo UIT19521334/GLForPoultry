@@ -34,6 +34,7 @@ export async function ApiCreateExpense(valueCode, valueName, valueTypeID, valueT
             const header = {
                 Authorization: store.getState().FetchApi.token,
             };
+            const currentRegionId = store.getState().FetchApi.currentUnit.RegionId ?? "";
 
             const body = {
                 GroupName_EN: valueTypeName,
@@ -45,7 +46,7 @@ export async function ApiCreateExpense(valueCode, valueName, valueTypeID, valueT
                 Username: store.getState().FetchApi.userInfo?.userID_old ?? "",
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
-                RegionId: null,
+                RegionId: currentRegionId,
                 IsShow: false,
                 GroupId: valueTypeID,
             };
@@ -78,6 +79,7 @@ export async function ApiUpdateExpense(valueCode, valueName, valueTypeID, valueT
             const header = {
                 Authorization: store.getState().FetchApi.token,
             };
+            const currentRegionId = store.getState().FetchApi.currentUnit.RegionId ?? "";
             const body = {
                 GroupName_EN: valueTypeName,
                 GroupName_VN: valueTypeName,
@@ -88,7 +90,7 @@ export async function ApiUpdateExpense(valueCode, valueName, valueTypeID, valueT
                 Username: store.getState().FetchApi.userInfo?.userID_old ?? "",
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
-                RegionId: null,
+                RegionId: currentRegionId,
                 IsShow: false,
                 GroupId: valueTypeID,
             };
