@@ -62,8 +62,8 @@ function AccountLayout({ title }) {
                             }}
                             variant="fullWidth"
                         >
-                            <Tab label={t('journal-entry-management')} value="journal-entry-management" />
-                            <Tab label={t('transfer-memo')} value="transfer-memo" />
+                            <Tab label={t('entry-management')} value="journal-entry-management" />
+                            <Tab label={t('memo-transfer')} value="transfer-memo" />
                         </Tabs>
                         <Box
                             sx={{

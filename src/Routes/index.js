@@ -1,6 +1,6 @@
 import Home from '~/Pages/Home';
-import Account from '~/Pages/Setting/Account';
-import AccountGroup from '~/Pages/Setting/AccountGroup';
+import Account from '~/Pages/Master/Account';
+import AccountGroup from '~/Pages/Master/AccountGroup';
 import AccountingEntry from '~/Pages/Accountant/AccountingEntry';
 import CostAllocation from '~/Pages/Accountant/CostAllocation';
 import CloseAccountingPeriod from '~/Pages/Accountant/CloseAccountingPeriod';
@@ -8,11 +8,8 @@ import OpenAccountingPeriod from '~/Pages/Accountant/OpenAccountingPeriod';
 import Report_COGM from '~/Pages/Report/COGM';
 import Report_InOut_Ward from '~/Pages/Report/InOutWard';
 import UserProfile from '~/Pages/UserProfile';
-import Report_COGS from '~/Pages/Report/COGS/COGSindex';
-import Report_COGS_Meat from '~/Pages/Report/COGSMeat';
-import IndexRate from '~/Pages/Setting/IndexRate';
-import SubAccount from '~/Pages/Setting/SubAccount';
-import Expense from '~/Pages/Setting/Expense';
+import SubAccount from '~/Pages/Master/SubAccount';
+import Expense from '~/Pages/Master/Expense';
 
 // Id lấy từ menu lv2 của master app
 const otherRoutes = [
