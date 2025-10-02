@@ -32,6 +32,8 @@ import { DomainPoultry } from '~/DomainApi';
 import { updateDialogError } from '~/Redux/Reducer/Thunk';
 import { ApiListAccountByUnit } from '~/components/Api/Account';
 import { ApiListExpenseByRegion } from '~/components/Api/Expense';
+import { read } from 'xlsx';
+import { ApiListSupAccountByType } from '~/components/Api/SubAccount';
 
 const Item = styled(Paper)(({ theme }) => ({
 	backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -66,7 +68,6 @@ function JournalEntryManagement() {
 	// Redux selectors
 	const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
 	const listAccountGroup = useSelector((state) => state.FetchApi.listData_AccountGroup);
-	const listSubAccount = useSelector((state) => state.FetchApi.listData_SubAccount);
 	const listCurrency = useSelector((state) => state.FetchApi.listData_Currency);
 	const listUnit = useSelector((state) => state.FetchApi.userAccess.units);
 	const token = useSelector((state) => state.FetchApi.token);
@@ -81,6 +82,7 @@ function JournalEntryManagement() {
 	const [valueSearch, setValueSearch] = React.useState('');
 	const [dataAccountEntryDetails, setDataAccountEntryDetails] = useState([]);
 	const [listAccount, setListAccount] = useState([]);
+	const [listSubAccount, setListSubAccount] = useState([]);
 	const [listExpense, setListExpense] = useState([]);
 
 	// Form input states
@@ -125,10 +127,6 @@ function JournalEntryManagement() {
 	// File import states
 	const [fileExcel, setFileExcell] = React.useState([]);
 	const [callApiImportFile, setCallApiImportFile] = React.useState(false);
-
-	// Other states
-	const [isNew, setIsNew] = React.useState(false);
-	const [dataUpdate, setDataUpdate] = React.useState([]);
 
 	// ==================== COLUMNS CONFIGURATION ====================
 	// Header columns
@@ -263,7 +261,7 @@ function JournalEntryManagement() {
 			headerClassName: 'super-app-theme--header',
 			editable: true,
 		},
-	], [listAccount]);
+	], [listAccount, listSubAccount]);
 
 	// ==================== COMPUTED VALUES ====================
 	// Visibility column in datagrid
@@ -288,7 +286,7 @@ function JournalEntryManagement() {
 	};
 
 	const handleChangeValueDocsDate = (event) => {
-		setValueDocsDate(event.target.value);
+		setValueDocsDate(event);
 	};
 
 	const handleChangeValueUpdateDate = (event) => {
@@ -325,7 +323,7 @@ function JournalEntryManagement() {
 				MANUAL_ACCOUNTING_ENTRIES_TYPE_ID
 			);
 			dispatch(fetchApiListAccountGroup(token));
-			dispatch(fetchApiListSubAccount(token));
+			// dispatch(fetchApiListSubAccount(token));
 			setDataList(result);
 			setDisplayData(result);
 			setIsLoading(false);
@@ -485,12 +483,14 @@ function JournalEntryManagement() {
 	// ==================== RENDER SUB UI ====================
 	function AccountEditInputCell(props) {
 		const { id, field, value, api, row } = props; // default []
-		const handleChange = (event, newValue) => {
+		const handleChange = async (event, newValue) => {
 			api.setEditCellValue({
 				id,
 				field,
 				value: newValue?.AccountId || "",
 			});
+			const data_listSubAccount = await ApiListSupAccountByType(newValue?.AccountSubTypeId || 0);
+			setListSubAccount(data_listSubAccount);
 		};
 		const selected = listAccount?.find((acc) => acc.AccountId === value) || null;
 
@@ -587,7 +587,7 @@ function JournalEntryManagement() {
 		setValueDisableUpdateButton(true);
 		setValueReadonly(false);
 		setValueReadonlyCode(true);
-		setValueReadonlyPostingDate(true);
+		setValueReadonlyPostingDate(false);
 		setValueDisableEditDetail(false);
 	};
 
@@ -642,6 +642,7 @@ function JournalEntryManagement() {
 		setValueUpdateButton(true);
 		setValueReadonlyCode(true);
 		setValueReadonly(false);
+		setValueReadonlyPostingDate(true);
 		setValueDisableSaveButton(false);
 		setValueDisableDeleteButton(true);
 		setValueDisableEditDetail(false);
@@ -1223,7 +1224,7 @@ function JournalEntryManagement() {
 																onChange={(e) =>
 																	handleChangeValueDocsDate(e)
 																}
-																disabled
+																disabled={valueReadonlyPostingDate}
 															/>
 														</LocalizationProvider>
 													</div>
