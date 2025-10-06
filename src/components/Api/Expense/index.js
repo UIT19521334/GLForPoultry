@@ -4,44 +4,23 @@ import _ from 'lodash';
 import { store } from "~/Redux/store";
 import { updateDialogError } from '~/Redux/Reducer/Thunk';
 
-export async function ApiListExpense(valueSearch, setDataList) {
-    try {
-        const currentRegionId = store.getState().FetchApi.currentUnit.RegionId ?? "";
-        const header = {
-            Authorization: store.getState().FetchApi.token,
-        };
-        const response = await DomainPoultry.get(`master/expense?regionId=${currentRegionId}`, { headers: header });
-        const data = await response.data?.Response ?? [];
-        let filteredData = data;
-        if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["ExpenseName", "ExpenseId", "GroupId", "GroupName_VN"];
-            filteredData = _.filter(data, (item) => {
-                const search = _.toLower(valueSearch);
-                return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
-            });
-        }
-
-        setDataList(filteredData);
-    } catch (error) {
-        store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get data expense list!' }));
-    }
-}
-
 export async function ApiListExpenseByRegion(regionId) {
     try {
         const header = {
             Authorization: store.getState().FetchApi.token,
         };
-        const response = await DomainPoultry.get(`master/expense?regionId=${regionId}`, { headers: header });
+        const url = regionId ? `master/expense?regionId=${regionId}` : `master/expense`;
+        const response = await DomainPoultry.get(url, { headers: header });
         const data = await response.data?.Response ?? [];
         return data;
     } catch (error) {
         store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get data expense list!' }));
+        return [];
     }
 }
 
 export async function ApiCreateExpense(valueCode, valueName, valueTypeID, valueTypeName, valueDescription) {
-    if (valueCode && valueName) {
+    if (valueName) {
         try {
             var statusCode = false;
             const header = {

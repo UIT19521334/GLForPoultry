@@ -4,30 +4,31 @@ import _ from 'lodash';
 import { store } from "~/Redux/store";
 import { updateDialogError } from '~/Redux/Reducer/Thunk';
 
-export async function ApiListExpenseGroup(valueSearch, setDataList) {
+export async function ApiListExpenseGroup(currentRegionId) {
     try {
         const header = {
             Authorization: store.getState().FetchApi.token,
         };
-        const response = await DomainPoultry.get(`master/expense-group`, { headers: header });
+        const url = currentRegionId ? `master/expense-group?regionid=${currentRegionId}` : `master/expense-group`;
+        const response = await DomainPoultry.get(url, { headers: header });
         const data = await response.data?.Response ?? [];
-        let filteredData = data;
-        if (valueSearch && valueSearch.trim() !== "") {
-            const fieldsToSearch = ["GroupId", "GroupName_EN"];
-            filteredData = _.filter(data, (item) => {
-                const search = _.toLower(valueSearch);
-                return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
-            });
-        }
-
-        setDataList(filteredData);
+        // let filteredData = data;
+        // if (valueSearch && valueSearch.trim() !== "") {
+        //     const fieldsToSearch = ["GroupId", "GroupName_EN"];
+        //     filteredData = _.filter(data, (item) => {
+        //         const search = _.toLower(valueSearch);
+        //         return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
+        //     });
+        // }
+        return data;
     } catch (error) {
         store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api get data expense group: ${error}` }));
+        return []
     }
 }
 
 export async function ApiCreateExpenseGroup(valueCode, valueName, valueDescription) {
-    if (valueCode && valueName) {
+    if (valueName) {
         try {
             var statusCode = false;
             const header = {

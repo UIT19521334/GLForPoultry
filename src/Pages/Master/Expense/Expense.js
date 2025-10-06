@@ -13,7 +13,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SearchIcon from '@mui/icons-material/Search';
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
-import { ApiCreateExpense, ApiDeleteExpense, ApiListExpense, ApiUpdateExpense } from '~/components/Api/Expense';
+import { ApiCreateExpense, ApiDeleteExpense, ApiListExpense, ApiListExpenseByRegion, ApiUpdateExpense } from '~/components/Api/Expense';
 import SaveIcon from '@mui/icons-material/Save';
 import '../../../Container.css';
 import TextField from '@mui/material/TextField';
@@ -42,7 +42,10 @@ function ExpenseDetails() {
 	const [isLoading, setIsLoading] = React.useState(false);
 	const [reloadListExpense, setReloadListExpense] = React.useState(false);
 	const [dataList, setDataList] = useState([]);
+	const [dataDisplay, setDataDisplay] = useState([]);
 	const listExpenseGroup = useSelector((state) => state.FetchApi.listData_ExpenseGroup);
+	const token = useSelector((state) => state.FetchApi.token);
+	const currentRegionId = useSelector((state) => state.FetchApi.currentUnit?.RegionId);
 
 	//! columns header
 	const columns = [
@@ -78,12 +81,16 @@ function ExpenseDetails() {
 	useEffect(() => {
 		const fetchApiGetDataExpense = async () => {
 			setIsLoading(true);
-			await ApiListExpense(valueSearch, setDataList);
-			dispatch(fetchApiListExpenseGroup());
+			const res = await ApiListExpenseByRegion(currentRegionId);
+			setDataList(res);
+			setDataDisplay(res);
+			dispatch(fetchApiListExpenseGroup({ token, currentRegionId }));
 			setIsLoading(false);
 		};
 		fetchApiGetDataExpense();
-	}, [reloadListExpense]);
+	}, [reloadListExpense, currentRegionId]);
+
+	const inputRef = React.useRef(null);
 
 	// Handle search
 	const [valueSearch, setValueSearch] = React.useState('');
@@ -97,7 +104,7 @@ function ExpenseDetails() {
 				return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
 			});
 		}
-		setDataList(filteredData);
+		setDataDisplay(filteredData);
 	}
 
 	const [valueCode, setValueCode] = React.useState('');
@@ -108,7 +115,7 @@ function ExpenseDetails() {
 
 	//! select row in datagrid
 	const onRowsSelectionHandler = (ids) => {
-		const selectedRowsData = ids.map((id) => dataList.find((row) => row.ExpenseId === id));
+		const selectedRowsData = ids.map((id) => dataDisplay.find((row) => row.ExpenseId === id));
 		if (selectedRowsData) {
 			{
 				selectedRowsData.map((key) => {
@@ -256,6 +263,11 @@ function ExpenseDetails() {
 		setValueDisableSaveButton(false);
 		setValueDisableDeleteButton(true);
 		setValueDisableUpdateButton(true);
+		if (inputRef.current) {
+			setTimeout(() => {
+				inputRef.current.focus();
+			}, 0);
+		}
 	};
 	/* #endregion */
 
@@ -275,15 +287,17 @@ function ExpenseDetails() {
 	/* #region  button save */
 	const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
 	const handleClickSave = () => {
-		if (valueCode && valueName && valueCode.length == 5) {
-			if (valueNewButton) {
-				setDialogIsOpenNew(true);
-			}
-			if (valueUpdateButton) {
-				setDialogIsOpenUpdate(true);
-			}
-		} else {
-			toast.error(t('expense-toast-error'));
+		if (!valueName) {
+			toast.error(t('toast-valid-empty'));
+			return
+		}
+		if (valueNewButton) {
+			setDialogIsOpenNew(true);
+			return
+		}
+		if (valueUpdateButton) {
+			setDialogIsOpenUpdate(true);
+			return
 		}
 	};
 	/* #endregion */
@@ -296,7 +310,6 @@ function ExpenseDetails() {
 	/* #endregion */
 
 	//! on key event
-	OnKeyEvent(() => setReloadListExpense(!reloadListExpense), 'Enter');
 	OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
 	OnMultiKeyEvent(handleClickUpdate, valueDisableUpdateButton ? '' : 'u');
 	OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
@@ -435,6 +448,11 @@ function ExpenseDetails() {
 										// type="number"
 										value={valueSearch}
 										onChange={(event) => setValueSearch(event.target.value)}
+										onKeyDown={(event) => {
+											if (event.key === 'Enter') {
+												handleSearch();
+											}
+										}}
 									/>
 									<div>
 										<LoadingButton
@@ -458,7 +476,7 @@ function ExpenseDetails() {
 									</h5>
 									<div style={{ width: '100%' }}>
 										<DataGrid
-											rows={dataList}
+											rows={dataDisplay}
 											columns={columns}
 											getRowId={(row) => row.ExpenseId}
 											initialState={{
@@ -574,7 +592,6 @@ function ExpenseDetails() {
 													variant="outlined"
 													type="text"
 													size="large"
-													status={!valueCode ? 'error' : ''}
 													count={{
 														show: !valueReadonlyCode,
 														max: 5,
@@ -586,7 +603,7 @@ function ExpenseDetails() {
 														event.target.value.length <= 5 && handleOnChangeValueCode(event)
 													}
 													placeholder="xxxxx"
-													disabled={valueReadonlyCode}
+													disabled
 													style={{ color: '#000' }}
 												/>
 											</Stack>
@@ -599,6 +616,7 @@ function ExpenseDetails() {
 													size="large"
 													status={!valueName ? 'error' : ''}
 													value={valueName}
+													ref={inputRef}
 													onChange={(event) => handleOnChangeValueName(event)}
 													placeholder="name..."
 													disabled={valueReadonly}
@@ -651,7 +669,6 @@ function ExpenseDetails() {
 												</div>
 												<Input.TextArea
 													size="large"
-													status={!valueDescription ? 'error' : ''}
 													maxLength={250}
 													value={valueDescription}
 													onChange={(event) => handleOnChangeValueDescription(event)}

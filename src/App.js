@@ -22,7 +22,7 @@ import { RemoveAsteriskRedirect } from './Routes/RemoveAsteriskRedirect';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { I18nextProvider } from 'react-i18next';
 import i18next from 'i18next';
-import './TranslationLanguage/i18n.js';
+import './TranslationLanguage/i18n';
 
 const WrapperView = () => {
     // CallApiMaster();
@@ -31,9 +31,6 @@ const WrapperView = () => {
         palette: {
             mode: 'light',
         },
-    });
-    i18next.init({
-        interpolation: { escapeValue: false }, // React already does escaping
     });
 
     return (

@@ -588,12 +588,6 @@ function Header() {
                             v1.0.0
                         </Typography>
                     </Stack>
-                    <Search>
-                        <SearchIconWrapper>
-                            <SearchIcon />
-                        </SearchIconWrapper>
-                        <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
-                    </Search>
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ display: { xs: 'flex', md: 'flex' } }}>
                         <Typography
@@ -638,7 +632,7 @@ function Header() {
                                 {dataUnit.map((unit) => {
                                     return (
                                         <MenuItem key={unit.UnitId} value={unit.UnitId}>
-                                            {unit.UnitName}
+                                            {unit.UnitName} - {unit?.RegionId == '01' ? `South` : 'North'}
                                         </MenuItem>
                                     );
                                 })}

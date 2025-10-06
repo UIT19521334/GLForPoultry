@@ -5,6 +5,59 @@ import { store } from "~/Redux/store";
 import { updateDialogError } from '~/Redux/Reducer/Thunk';
 
 // period format MMYYYY
+
+export async function ApiFlockByUnit(UnitId) {
+    try {
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const response = await DomainPoultry.get(`master/flock?unitid=${UnitId}`, { headers: header });
+        return response.data?.Response;
+    } catch (error) {
+        store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get flock list!' }));
+        return [];
+    }
+}
+
+export async function ApiFarmByUnit(UnitId) {
+    try {
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const response = await DomainPoultry.get(`master/farm?unitid=${UnitId}`, { headers: header });
+        return response.data?.Response;
+    } catch (error) {
+        store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get flock list!' }));
+        return [];
+    }
+}
+
+export async function ApiAreaByUnit(UnitId) {
+    try {
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const response = await DomainPoultry.get(`master/area-byunit?unitid=${UnitId}`, { headers: header });
+        return response.data?.Response;
+    } catch (error) {
+        store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get flock list!' }));
+        return [];
+    }
+}
+
+export async function ApiMaterialByRegion(RegionId) {
+    try {
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const response = await DomainPoultry.get(`master/material?regionid=${RegionId}`, { headers: header });
+        return response.data?.Response;
+    } catch (error) {
+        store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get flock list!' }));
+        return [];
+    }
+}
+
 export async function ApiAccountEntryListHeader(period, docTypeId) {
     try {
         const UnitId = localStorage.getItem('Unit');
@@ -14,7 +67,37 @@ export async function ApiAccountEntryListHeader(period, docTypeId) {
         const response = await DomainPoultry.get(`journal/entry?unitid=${UnitId}&period=${period}&doctypeid=${docTypeId}`, { headers: header });
         return response.data?.Response;
     } catch (error) {
-        store.dispatch(updateDialogError({ open: true, title: 'Error', content: 'Error api get data account entry list!' }));
+        if (error.response) {
+            store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api get data account entry list!' }));
+        } else {
+            store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api get data account entry list!' }));
+        }
+        return [];
+    }
+}
+
+export async function ApiListAccountEntry(period, docTypeId) {
+    try {
+
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+
+        const listUnit = store.getState().FetchApi.userAccess.units;
+        const unitIds = listUnit.map(u => u.UnitId);
+        const body = {
+            unitid: unitIds,
+            period: period,
+            doctypeid: docTypeId
+        }
+        const response = await DomainPoultry.post(`journal/all-entry`, body, { headers: header });
+        return response.data?.Response;
+    } catch (error) {
+        if (error.response) {
+            store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api get data account entry list!' }));
+        } else {
+            store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api get data account entry list!' }));
+        }
         return [];
     }
 }

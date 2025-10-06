@@ -357,7 +357,7 @@ function AccountRoot() {
 	const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
 	const handleClickSave = () => {
 		if (!valueAccountName) {
-			toast.error(t('account-valid-empty'));
+			toast.error(t('toast-valid-empty'));
 			return;
 		}
 		if (valueAccountId.length != 9) {

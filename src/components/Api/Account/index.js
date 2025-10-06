@@ -18,6 +18,22 @@ export async function ApiListAccount() {
     }
 }
 
+export async function ApiAccountDetail(valueAccountId) {
+    try {
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const encodedId = encodeURIComponent(valueAccountId);
+        const response = await DomainPoultry.get(`master/account/code/${encodedId}`, { headers: header });
+        const data = await response.data?.Response ?? [];
+        return data
+    } catch (error) {
+        console.log(error);
+        store.dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api get ${valueAccountId}!` }));
+        return []
+    }
+}
+
 export async function ApiListAccountByUnit(body) {
     try {
         const header = {
@@ -34,7 +50,7 @@ export async function ApiListAccountByUnit(body) {
 }
 
 export async function ApiCreateAccount(params) {
-    if (params.AccountId && params.AccountName) {
+    if (params?.AccountId && params?.AccountName) {
         try {
             var statusCode = false;
             const header = {
@@ -62,7 +78,7 @@ export async function ApiCreateAccount(params) {
 }
 
 export async function ApiCreateListAccount(params) {
-    if (params[0].AccountId && params[0].AccountName) {
+    if (params[0]?.AccountId && params[0]?.AccountName) {
         try {
             var statusCode = false;
             const header = {

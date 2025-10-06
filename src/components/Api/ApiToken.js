@@ -1,10 +1,8 @@
 import React from 'react';
 import { useMsal } from '@azure/msal-react';
 import { useDispatch } from 'react-redux';
-import { updateCurrentUnit, updateDialogError, updateToken, updateUserAccess, updateUserInfo, updateUserMenuFromMasterApp } from '~/Redux/Reducer/Thunk';
-import DomainApi, { DomainMasterApp, DomainPoultry } from '~/DomainApi';
-import { store } from '~/Redux/store';
-import axios from 'axios';
+import { updateCurrentUnit, updateToken, updateUserAccess, updateUserInfo, updateUserMenuFromMasterApp } from '~/Redux/Reducer/Thunk';
+import { DomainMasterApp, DomainPoultry } from '~/DomainApi';
 
 export default function ApiToken() {
     const { instance } = useMsal();

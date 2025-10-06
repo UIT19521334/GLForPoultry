@@ -1,8 +1,5 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import Typography from '@mui/material/Typography';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Link from '@mui/material/Link';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -20,11 +17,11 @@ import { ApiCreateExpenseGroup, ApiDeleteExpenseGroup, ApiListExpenseGroup, ApiU
 import SaveIcon from '@mui/icons-material/Save';
 import '../../../Container.css';
 import TextField from '@mui/material/TextField';
-import { OnKeyEvent } from '~/components/Event/OnKeyEvent';
 import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
+import { useSelector } from 'react-redux';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -40,6 +37,8 @@ function ExpenseGroupGroup({ title }) {
     const [isLoading, setIsLoading] = React.useState(false);
     const [reloadListAccGroup, setReloadListAccGroup] = React.useState(false);
     const [dataList, setDataList] = useState([]);
+    const [dataDisplay, setDataDisplay] = useState([]);
+    const currentRegionId = useSelector((state) => state.FetchApi.currentUnit?.RegionId);
     //! columns header
     const columns = [
         {
@@ -57,15 +56,19 @@ function ExpenseGroupGroup({ title }) {
         }
     ];
 
+    const inputRef = React.useRef(null);
+
     // TODO call api get data account group
     useEffect(() => {
         const fetchApiGetDataAccGroup = async () => {
             setIsLoading(true);
-            await ApiListExpenseGroup(valueSearch, setDataList);
+            const res = await ApiListExpenseGroup(currentRegionId);
+            setDataList(res);
+            setDataDisplay(res);
             setIsLoading(false);
         };
         fetchApiGetDataAccGroup();
-    }, [reloadListAccGroup]);
+    }, [reloadListAccGroup, currentRegionId]);
 
     // Handle search
     const [valueSearch, setValueSearch] = React.useState('');
@@ -78,7 +81,7 @@ function ExpenseGroupGroup({ title }) {
                 return _.some(fieldsToSearch, (field) => _.includes(_.toLower(item[field]), search));
             });
         }
-        setDataList(filteredData);
+        setDataDisplay(filteredData);
     }
 
     const [valueCode, setValueCode] = React.useState('');
@@ -87,7 +90,7 @@ function ExpenseGroupGroup({ title }) {
 
     //! select row in datagrid
     const onRowsSelectionHandler = (ids) => {
-        const selectedRowsData = ids.map((id) => dataList.find((row) => row.GroupId === id));
+        const selectedRowsData = ids.map((id) => dataDisplay.find((row) => row.GroupId === id));
         if (selectedRowsData) {
             {
                 selectedRowsData.map((key) => {
@@ -223,6 +226,11 @@ function ExpenseGroupGroup({ title }) {
         setValueDisableSaveButton(false);
         setValueDisableDeleteButton(true);
         setValueDisableUpdateButton(true);
+        if (inputRef.current) {
+            setTimeout(() => {
+                inputRef.current.focus();
+            }, 0);
+        }
     };
     /* #endregion */
 
@@ -242,7 +250,7 @@ function ExpenseGroupGroup({ title }) {
     /* #region  button save */
     const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
     const handleClickSave = () => {
-        if (valueCode && valueName) {
+        if (valueName) {
             if (valueNewButton) {
                 setDialogIsOpenNew(true);
             }
@@ -250,7 +258,7 @@ function ExpenseGroupGroup({ title }) {
                 setDialogIsOpenUpdate(true);
             }
         } else {
-            toast.error(t('expense-toast-error'));
+            toast.error(t('toast-valid-empty'));
         }
     };
     /* #endregion */
@@ -263,7 +271,6 @@ function ExpenseGroupGroup({ title }) {
     /* #endregion */
 
     //! on key event
-    OnKeyEvent(() => setReloadListAccGroup(!reloadListAccGroup), 'Enter');
     OnMultiKeyEvent(handleClickNew, valueNewButton ? '' : 'n');
     OnMultiKeyEvent(handleClickUpdate, valueDisableUpdateButton ? '' : 'u');
     OnMultiKeyEvent(handleClickSave, valueDisableSaveButton ? '' : 's');
@@ -396,9 +403,13 @@ function ExpenseGroupGroup({ title }) {
                                         fullWidth
                                         label={t('button-search')}
                                         size="small"
-                                        // type="number"
                                         value={valueSearch}
                                         onChange={(event) => setValueSearch(event.target.value)}
+                                        onKeyDown={(event) => {
+                                            if (event.key === 'Enter') {
+                                                handleSearch();
+                                            }
+                                        }}
                                     />
                                     <div>
                                         <LoadingButton
@@ -422,7 +433,7 @@ function ExpenseGroupGroup({ title }) {
                                     </h5>
                                     <div style={{ width: '100%' }}>
                                         <DataGrid
-                                            rows={dataList}
+                                            rows={dataDisplay}
                                             columns={columns}
                                             getRowId={(row) => row.GroupId}
                                             initialState={{
@@ -538,7 +549,6 @@ function ExpenseGroupGroup({ title }) {
                                                     variant="outlined"
                                                     type="text"
                                                     size="large"
-                                                    status={!valueCode ? 'error' : ''}
                                                     count={{
                                                         show: !valueReadonlyCode,
                                                         max: 5,
@@ -550,7 +560,7 @@ function ExpenseGroupGroup({ title }) {
                                                         event.target.value.length <= 5 && handleOnChangeValueCode(event)
                                                     }
                                                     placeholder="xxxxx"
-                                                    disabled={valueReadonlyCode}
+                                                    disabled
                                                     style={{ color: '#000' }}
                                                 />
                                             </Stack>
@@ -567,6 +577,7 @@ function ExpenseGroupGroup({ title }) {
                                                     placeholder="name..."
                                                     disabled={valueReadonly}
                                                     style={{ color: '#000' }}
+                                                    ref={inputRef}
                                                 />
                                             </Stack>
 
@@ -576,7 +587,6 @@ function ExpenseGroupGroup({ title }) {
                                                 </div>
                                                 <Input.TextArea
                                                     size="large"
-                                                    status={!valueDescription ? 'error' : ''}
                                                     maxLength={250}
                                                     value={valueDescription}
                                                     onChange={(event) => handleOnChangeValueDescription(event)}

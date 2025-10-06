@@ -248,7 +248,7 @@ export const period = createSlice({
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
-                toast.error(' Error api account group!');
+                toast.error(' Error api list account group!');
             })
             /* #endregion */
 
@@ -268,7 +268,7 @@ export const period = createSlice({
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
-                toast.error(' Error api account group!');
+                toast.error(' Error api expense group!');
             })
             /* #endregion */
 
@@ -288,7 +288,7 @@ export const period = createSlice({
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
-                toast.error(' Error api account group!');
+                toast.error(' Error api list expense!');
             })
             /* #endregion */
 
@@ -308,7 +308,7 @@ export const period = createSlice({
                 // Add user to the state array
                 state.isLoading = false;
                 state.isError = true;
-                toast.error(' Error api account group!');
+                toast.error(' Error api list method!');
             })
             /* #endregion */
 

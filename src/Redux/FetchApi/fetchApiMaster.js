@@ -65,11 +65,13 @@ export const fetchApiListAccountGroup = createAsyncThunk('master/fetchApiListAcc
     return data.Response;
 });
 
-export const fetchApiListExpenseGroup = createAsyncThunk('master/fetchApiListExpenseGroup', async (token) => {
+export const fetchApiListExpenseGroup = createAsyncThunk('master/fetchApiListExpenseGroup', async (payload) => {
     const header = {
-        Authorization: token,
+        Authorization: payload.token,
     };
-    const response = await DomainPoultry.get(`master/expense-group`, { headers: header });
+
+    const url = payload.currentRegionId ? `master/expense-group?regionid=${payload.currentRegionId}` : `master/expense-group`;
+    const response = await DomainPoultry.get(url, { headers: header });
     const data = await response.data;
     return data.Response;
 });

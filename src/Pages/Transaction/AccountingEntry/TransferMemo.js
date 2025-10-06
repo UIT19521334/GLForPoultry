@@ -49,6 +49,7 @@ function TransferMemo() {
     const listUnit = useSelector((state) => state.FetchApi.userAccess.units);
     const token = useSelector((state) => state.FetchApi.token);
     const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
+    const currentRegionId = useSelector((state) => state.FetchApi.currentUnit?.RegionId);
 
 
     //! columns header
@@ -134,7 +135,7 @@ function TransferMemo() {
 
     useEffect(() => {
         const fetchApiSupport = async () => {
-            dispatch(fetchApiListExpenseGroup(token));
+            dispatch(fetchApiListExpenseGroup({ token, currentRegionId }));
             dispatch(fetchApiListExpense(token));
             dispatch(fetchApiListMethod(token));
             dispatch(fetchApiListSubAccountType(token));

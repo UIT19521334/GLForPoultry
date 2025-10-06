@@ -20,8 +20,8 @@ import TextField from '@mui/material/TextField';
 import { OnMultiKeyEvent } from '~/components/Event/OnMultiKeyEvent';
 import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import _, { update } from 'lodash';
-import { Autocomplete, Breadcrumbs, Chip, IconButton, InputAdornment, Link, MenuItem, Select, Typography } from '@mui/material';
+import _, { set, update } from 'lodash';
+import { Autocomplete, Breadcrumbs, Chip, IconButton, InputAdornment, Link, MenuItem, Select, Skeleton, Typography } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchApiListAccount, fetchApiListExpense, fetchApiListExpenseGroup, fetchApiListMethod, fetchApiListSubAccountType } from '~/Redux/FetchApi/fetchApiMaster';
 import { ClearIcon } from '@mui/x-date-pickers';
@@ -41,14 +41,15 @@ function AccountUnit() {
 	const { t } = useTranslation();
 	const dispatch = useDispatch();
 	const [isLoading, setIsLoading] = React.useState(false);
+	const [isLoadingExpense, setIsLoadingExpense] = React.useState(false);
 	const [reloadListAccount, setReloadListAccount] = React.useState(false);
 	const [dataList, setDataList] = useState([]);
 	const [displayData, setDisplayData] = useState([]);
 	const listExpenseGroup = useSelector((state) => state.FetchApi.listData_ExpenseGroup);
+	const [listExpense, setListExpense] = useState([]);
 	const listSubAccountType = useSelector((state) => state.FetchApi.listData_SubAccountType);
 	const listAccount = useSelector((state) => state.FetchApi.listData_Account);
 	const listMethod = useSelector((state) => state.FetchApi.listData_Method);
-	const listExpense = useSelector((state) => state.FetchApi.listData_Expense);
 	const listUnit = useSelector((state) => state.FetchApi.userAccess.units);
 	const token = useSelector((state) => state.FetchApi.token);
 	const username = useSelector((state) => state.FetchApi.userInfo?.userID_old);
@@ -139,32 +140,32 @@ function AccountUnit() {
 
 	useEffect(() => {
 		const fetchApiSupport = async () => {
-			dispatch(fetchApiListExpenseGroup(token));
+			dispatch(fetchApiListExpenseGroup({ token, currentRegionId }));
 			dispatch(fetchApiListMethod(token));
 			dispatch(fetchApiListSubAccountType(token));
 			dispatch(fetchApiListAccount(token));
 		};
 		fetchApiSupport();
-	}, []);
+	}, [currentRegionId]);
 
 	useEffect(() => {
-		const fetchApiSupport = async () => {
+		const fetchApiExpense = async () => {
 			if (valueExpenseGroupId) {
 				try {
-					dispatch(setGlobalLoading(true));
+					setIsLoadingExpense(true);
 					const result = await DomainPoultry.get(`master/expense-bygroup?groupid=${valueExpenseGroupId}&regionid=${currentRegionId}`, { headers: { Authorization: token } });
-					dispatch(updateListExpense(result.data?.Response ?? []));
-					dispatch(setGlobalLoading(false));
+					setListExpense(result.data?.Response ?? []);
+					setIsLoadingExpense(false);
 				} catch (error) {
-					dispatch(setGlobalLoading(false));
+					setIsLoadingExpense(false);
 					dispatch(updateDialogError({ open: true, title: t('error'), content: error.message ?? "Can't get expense list" }));
 				}
 			} else {
-				dispatch(fetchApiListExpense(token));
+				setListExpense([]);
 			}
 		};
-		fetchApiSupport();
-	}, [valueExpenseGroupId]);
+		fetchApiExpense();
+	}, [valueExpenseGroupId, currentRegionId]);
 
 	// Handle search
 	const [valueSearch, setValueSearch] = React.useState('');
@@ -455,7 +456,7 @@ function AccountUnit() {
 	/* #region  button save */
 	const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
 	const handleClickSave = () => {
-		if (valueAccountId.length == 9 && valueAccountName) {
+		if (valueAccountId.length == 9 && valueAccountName && valueUnitId.length > 0) {
 			if (valueNewButton) {
 				setDialogIsOpenNew(true);
 			}
@@ -463,7 +464,7 @@ function AccountUnit() {
 				setDialogIsOpenUpdate(true);
 			}
 		} else {
-			toast.error(t('account-toast-error'));
+			toast.error(t('toast-valid-empty'));
 		}
 	};
 	/* #endregion */
@@ -769,6 +770,7 @@ function AccountUnit() {
 													fullWidth
 													size="small"
 													autoHighlight
+													error={!valueAccountId || valueAccountId.length != 9}
 													options={Array.isArray(listAccount) ? listAccount : []}
 													getOptionLabel={(option) =>
 														option ? `[${option.AccountId}] - ${option.AccountName}` : ""
@@ -824,6 +826,7 @@ function AccountUnit() {
 													fullWidth
 													style={{ textAlign: "left" }}
 													value={valueUnitId} // array UnitId
+													error={valueUnitId.length === 0}
 													onChange={(e) => {
 														const newValue = e.target.value;
 														setValueUnitId(newValue);
@@ -900,6 +903,8 @@ function AccountUnit() {
 																		e.stopPropagation(); // chặn mở dropdown
 																		setValueExpenseGroupId("");
 																		setValueExpenseGroupName("");
+																		setValueExpenseId("");
+																		setValueExpenseName("");
 																	}}
 																>
 																	<ClearIcon fontSize="small" />
@@ -930,48 +935,57 @@ function AccountUnit() {
 												<div className="form-title">
 													<div>{t('expense')}</div>
 												</div>
-												<Select
-													autoFocus
-													size="small"
-													fullWidth
-													style={{ textAlign: 'left' }}
-													value={valueExpenseId}
-													onChange={handleChangeValueExpenseID}
-													disabled={valueReadonly}
-													endAdornment={
-														(valueExpenseId && !valueReadonly) ? (
-															<InputAdornment position="start">
-																<IconButton
-																	tabIndex={-1}
-																	size="small"
-																	onClick={(e) => {
-																		e.stopPropagation(); // chặn mở dropdown
-																		setValueExpenseId("");
-																		setValueExpenseName("");
-																	}}
-																>
-																	<ClearIcon fontSize="small" />
-																</IconButton>
-															</InputAdornment>
-														) : null
-													}
-												>
-													{_.isArray(listExpense) &&
-														listExpense.map((data) => {
-															return (
-																<MenuItem style={{ textAlign: 'left' }} key={data.ExpenseId} value={data.ExpenseId}>
-																	{`[${data.ExpenseId}] - ${data.ExpenseName}`}
+												{isLoadingExpense ? (
+													<Skeleton
+														variant="rectangular"
+														width="100%"
+														height={40}
+														sx={{ borderRadius: 1 }}
+													/>
+												) : (
+													<Select
+														autoFocus
+														size="small"
+														fullWidth
+														style={{ textAlign: 'left' }}
+														value={valueExpenseId}
+														onChange={handleChangeValueExpenseID}
+														disabled={valueReadonly}
+														endAdornment={
+															(valueExpenseId && !valueReadonly) ? (
+																<InputAdornment position="start">
+																	<IconButton
+																		tabIndex={-1}
+																		size="small"
+																		onClick={(e) => {
+																			e.stopPropagation(); // chặn mở dropdown
+																			setValueExpenseId("");
+																			setValueExpenseName("");
+																		}}
+																	>
+																		<ClearIcon fontSize="small" />
+																	</IconButton>
+																</InputAdornment>
+															) : null
+														}
+													>
+														{_.isArray(listExpense) &&
+															listExpense.map((data) => {
+																return (
+																	<MenuItem style={{ textAlign: 'left' }} key={data.ExpenseId} value={data.ExpenseId}>
+																		{`[${data.ExpenseId}] - ${data.ExpenseName}`}
+																	</MenuItem>
+																);
+															})}
+														{/* Nếu valueExpenseId không rỗng và không có trong listExpense thì render mặc định */}
+														{valueExpenseId &&
+															!listExpense.some((d) => d.ExpenseId === valueExpenseId) && (
+																<MenuItem style={{ textAlign: 'left' }} value={valueExpenseId}>
+																	{`[${valueExpenseId}] - ${valueExpenseName}`}
 																</MenuItem>
-															);
-														})}
-													{/* Nếu valueExpenseId không rỗng và không có trong listExpense thì render mặc định */}
-													{valueExpenseId &&
-														!listExpense.some((d) => d.ExpenseId === valueExpenseId) && (
-															<MenuItem style={{ textAlign: 'left' }} value={valueExpenseId}>
-																{`[${valueExpenseId}] - ${valueExpenseName}`}
-															</MenuItem>
-														)}
-												</Select>
+															)}
+													</Select>
+												)}
 											</Stack>
 
 											<Stack direction={'row'} spacing={2}>
