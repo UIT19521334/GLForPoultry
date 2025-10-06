@@ -5,7 +5,6 @@ import { DefaultLayout } from './components/Layout';
 import { AuthenticatedTemplate, UnauthenticatedTemplate, MsalProvider } from '@azure/msal-react';
 import Login from './Pages/Login';
 import '~/AppStyles.css';
-import CallApiMaster from './CallApiMaster';
 import './globals';
 import '@boldreports/javascript-reporting-controls/Scripts/bold.report-designer.min';
 import '@boldreports/javascript-reporting-controls/Scripts/bold.report-viewer.min';
@@ -25,7 +24,6 @@ import i18next from 'i18next';
 import './TranslationLanguage/i18n';
 
 const WrapperView = () => {
-    // CallApiMaster();
     const login = ApiToken();
     const darkTheme = createTheme({
         palette: {

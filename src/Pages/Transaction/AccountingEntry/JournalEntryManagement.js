@@ -200,7 +200,7 @@ function JournalEntryManagement() {
 		{
 			field: 'AccountId',
 			headerName: t('account-code'),
-			width: 300,
+			width: 240,
 			valueFormatter: (params) => {
 				const row = params.api.getRow(params.id);
 				return `${row.AccountId} - ${row.AccountName}`;
@@ -226,13 +226,16 @@ function JournalEntryManagement() {
 			editable: true,
 		},
 		{
-			field: 'AccountSubId',
+			field: 'Description',
+			headerName: t('explain'),
+			width: 150,
+			headerClassName: 'super-app-theme--header',
+			editable: true,
+		},
+		{
+			field: 'SubAccountName',
 			headerName: t('account-subcode'),
-			minWidth: 150,
-			valueFormatter: (params) => {
-				const row = params.api.getRow(params.id);
-				return `${row.AccountSubId} - ${row?.SubAccountName}`;
-			},
+			minWidth: 130,
 			headerClassName: 'super-app-theme--header',
 		},
 		{
@@ -307,9 +310,13 @@ function JournalEntryManagement() {
 	useEffect(() => {
 		const fetchApiGetDataAccountingEntry = async () => {
 			setIsLoading(true);
+			setValueUnitName(currentUnit.UnitName);
+			setValueUnitId(currentUnit.UnitId);
+			setValueUnitRegion(currentUnit.RegionId);
 			const result = await ApiListAccountEntry(
 				valueDateAccountPeriod.format('MMYYYY'),
-				MANUAL_ACCOUNTING_ENTRIES_TYPE_ID
+				MANUAL_ACCOUNTING_ENTRIES_TYPE_ID,
+				currentUnit.UnitId
 			);
 			dispatch(fetchApiListAccountGroup(token));
 			setDataList(result);
@@ -317,7 +324,7 @@ function JournalEntryManagement() {
 			setIsLoading(false);
 		};
 		fetchApiGetDataAccountingEntry();
-	}, [reloadData]);
+	}, [reloadData, currentUnit]);
 
 	useEffect(() => {
 		const fetchApiSupport = async () => {
@@ -1338,7 +1345,6 @@ function JournalEntryManagement() {
 															<Select
 																value={valueAccountGroupId}
 																onChange={handleChangeAccountGroup}
-																disabled
 															>
 																{listAccountGroup.map(
 																	(data) => {
@@ -1383,7 +1389,6 @@ function JournalEntryManagement() {
 																value={valueCurrencyId}
 																displayEmpty
 																onChange={handleChangeCurrency}
-																disabled
 															>
 																{listCurrency.map((data) => {
 																	return (
@@ -1454,7 +1459,7 @@ function JournalEntryManagement() {
 													</Stack>
 												</Stack>
 											</Grid>
-											<Grid xs={12} md={6}>
+											{/* <Grid xs={12} md={6}>
 												<Stack spacing={1}>
 													<Stack
 														direction={'row'}
@@ -1492,7 +1497,6 @@ function JournalEntryManagement() {
 																		);
 																	},
 																)}
-																{/* Nếu value không rỗng và không có trong list thì render mặc định */}
 																{valueUnitId !== "" &&
 																	!listUnit.some((d) => d.UnitId === valueUnitId) && (
 																		<MenuItem style={{ textAlign: 'left' }} value={valueUnitId}>
@@ -1503,7 +1507,7 @@ function JournalEntryManagement() {
 														</FormControl>
 													</Stack>
 												</Stack>
-											</Grid>
+											</Grid> */}
 										</Grid>
 									</Item>
 								</Grid>

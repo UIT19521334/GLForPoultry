@@ -76,7 +76,7 @@ export async function ApiAccountEntryListHeader(period, docTypeId) {
     }
 }
 
-export async function ApiListAccountEntry(period, docTypeId) {
+export async function ApiListAccountEntry(period, docTypeId, currentUnitId) {
     try {
 
         const header = {
@@ -86,7 +86,7 @@ export async function ApiListAccountEntry(period, docTypeId) {
         const listUnit = store.getState().FetchApi.userAccess.units;
         const unitIds = listUnit.map(u => u.UnitId);
         const body = {
-            unitid: unitIds,
+            unitid: [currentUnitId],
             period: period,
             doctypeid: docTypeId
         }

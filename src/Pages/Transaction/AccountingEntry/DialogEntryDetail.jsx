@@ -15,7 +15,7 @@ import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { ApiAccountDetail, ApiListAccountByUnit } from '~/components/Api/Account';
+import { ApiListAccount, ApiListAccountByUnit } from '~/components/Api/Account';
 import { Checkbox, CircularProgress } from '@mui/material';
 import { ApiListSupAccountByType } from '~/components/Api/SubAccount';
 import { ApiAreaByUnit, ApiFarmByUnit, ApiFlockByUnit, ApiMaterialByRegion } from '~/components/Api/AccountingEntryApi';
@@ -60,11 +60,7 @@ export default function DialogEntryDetail({
         if (valueUnitId && !loadedAccountOnce) {
             try {
                 setLoadingAccount(true);
-                const body = {
-                    IncludeUnit: true,
-                    Units: [valueUnitId]
-                }
-                const data_listAccount = await ApiListAccountByUnit(body);
+                const data_listAccount = await ApiListAccount();
                 setListAccount(data_listAccount);
                 setLoadedAccountOnce(true);
                 setLoadingAccount(false);

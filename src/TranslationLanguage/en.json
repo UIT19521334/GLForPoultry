@@ -2,6 +2,7 @@
     "loading": "Loading",
     "description": "Description",
     "content": "Content",
+    "explain": "Explain",
     "cost-center": "Cost center",
     "cost-channel": "Cost channel",
     "currency": "Currency",
