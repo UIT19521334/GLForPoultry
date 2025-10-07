@@ -162,31 +162,31 @@ export default function DialogEntryDetail({
                     list: listFarmByUnit,
                     disable: false,
                     fetchApi: fetchApiListFarm,
-                    getValue: (item) => item.FarmId,
+                    getValue: (item) => item.FarmCode,
                     findValue: (list) =>
-                        list.find((item) => item.FarmId === valueCostingMethod) || null,
+                        list.find((item) => item.FarmCode === valueCostingMethod) || null,
                     getLabel: (option) =>
-                        option ? `${option.FarmId} - ${option.FarmName} - ${option.FarmOwner}` : valueCostingMethod
+                        option ? `${option.FarmCode} - ${option.FarmName} - ${option.FarmOwner}` : valueCostingMethod
                 };
             case 'MT008':
                 return {
                     list: listAreaByUnit,
                     fetchApi: fetchApiListArea,
-                    getValue: (item) => item.AreaId,
+                    getValue: item,
                     findValue: (list) =>
-                        list.find((item) => item.AreaId === valueCostingMethod) || null,
+                        list.find((item) => item === valueCostingMethod) || null,
                     getLabel: (option) =>
-                        option ? `${option.AreaCode} - ${option.AreaName}` : valueCostingMethod
+                        option ? `${option}` : valueCostingMethod
                 };
             case 'MT002':
                 return {
                     list: listMaterialByRegion,
                     fetchApi: fetchApiListMaterial,
-                    getValue: (item) => item.MaterialId,
+                    getValue: (item) => item.MatId,
                     findValue: (list) =>
-                        list.find((item) => item.MaterialId === valueCostingMethod) || null,
+                        list.find((item) => item.MatId === valueCostingMethod) || null,
                     getLabel: (option) =>
-                        option ? `${option.MaterialCode} - ${option.MaterialName}` : valueCostingMethod
+                        option ? `${option.MatId} - ${option.MatName} - ${option.QuyCach}- ${option.DVT}` : valueCostingMethod
                 };
             default:
                 return {
@@ -500,7 +500,7 @@ export default function DialogEntryDetail({
                         <Grid item xs={12} md={2}>
                             <Stack spacing={1} alignItems={'center'}>
                                 <div>{t('non-deductible')}</div>
-                                <Checkbox checked={!!valueNonDeductible} onChange={(e) => setValueNonDeductible(e.target.value)} />
+                                <Checkbox checked={!!valueNonDeductible} onChange={(e) => setValueNonDeductible(e.target.checked)} />
                             </Stack>
                         </Grid>
                         <Grid item xs={12}>
