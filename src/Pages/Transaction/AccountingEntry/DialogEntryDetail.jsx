@@ -172,7 +172,7 @@ export default function DialogEntryDetail({
                 return {
                     list: listAreaByUnit,
                     fetchApi: fetchApiListArea,
-                    getValue: item,
+                    getValue: (item) => item,
                     findValue: (list) =>
                         list.find((item) => item === valueCostingMethod) || null,
                     getLabel: (option) =>
@@ -215,8 +215,7 @@ export default function DialogEntryDetail({
 
     useEffect(() => {
         const fetchDataUpdate = async () => {
-            if (isOpenEntryDetail && statusDialogDetail === 'UPDATE') {
-                console.log("selectedEntryDetail>>>>>>>>>>", selectedEntryDetail)
+            if (isOpenEntryDetail && statusDialogDetail !== 'ADD') {
                 setValueAccount({
                     AccountId: selectedEntryDetail.AccountId,
                     AccountName: selectedEntryDetail.AccountName,
@@ -260,16 +259,6 @@ export default function DialogEntryDetail({
         onCloseEntryDetail();
     };
 
-    const resetData = () => {
-        setValueAccount(null);
-        setValueDescription('');
-        setValueDebit(0);
-        setValueCredit(0);
-        setValueAccountSubId('');
-        setValueAccountSubName('');
-        setValueNonDeductible(false);
-    }
-
     const handleUpdateDetail = async () => {
 
         const oldRow = selectedEntryDetail;
@@ -299,7 +288,29 @@ export default function DialogEntryDetail({
         onCloseEntryDetail();
     };
 
-    OnMultiKeyEvent(statusDialogDetail == 'ADD' ? handleAddDetail : handleUpdateDetail, 's');
+    const handleSaveDetail = () => {
+        if (statusDialogDetail === 'ADD') {
+            handleAddDetail();
+            return;
+        }
+        if (statusDialogDetail === 'UPDATE') {
+            handleUpdateDetail();
+            return;
+        }
+        onCloseEntryDetail();
+    }
+
+    const resetData = () => {
+        setValueAccount(null);
+        setValueDescription('');
+        setValueDebit(0);
+        setValueCredit(0);
+        setValueAccountSubId('');
+        setValueAccountSubName('');
+        setValueNonDeductible(false);
+    }
+
+    OnMultiKeyEvent(handleSaveDetail, 's');
 
     return (
         <React.Fragment>
@@ -318,6 +329,7 @@ export default function DialogEntryDetail({
                                     options={listAccount || []}
                                     onOpen={fetchApiListAccount}
                                     loading={loadingAccount}
+                                    disabled={statusDialogDetail === 'VIEW'}
                                     onChange={(event, newValue) => {
                                         if (newValue?.AccountId) {
                                             setValueAccount(newValue);
@@ -360,6 +372,7 @@ export default function DialogEntryDetail({
                                     fullWidth
                                     size="small"
                                     loading={loadingAccountSub}
+                                    disabled={statusDialogDetail === 'VIEW'}
                                     value={
                                         listAccountSub.find((acc) => acc.AccountSubId === valueAccountSubId) ||
                                         (valueAccountSubId
@@ -434,7 +447,7 @@ export default function DialogEntryDetail({
                                             setValueCostingMethod('');
                                         }
                                     }}
-                                    disabled={config.disable}
+                                    disabled={config.disable || statusDialogDetail === 'VIEW'}
                                     getOptionLabel={(option) => {
                                         if (option?.tempLabel) return option.tempLabel;
                                         return config.getLabel(option)
@@ -465,6 +478,7 @@ export default function DialogEntryDetail({
                                     style={{ width: '100%' }}
                                     size="large"
                                     value={valueDebit}
+                                    disabled={statusDialogDetail === 'VIEW'}
                                     placeholder="0"
                                     // type='number'
                                     formatter={(val) =>
@@ -485,6 +499,7 @@ export default function DialogEntryDetail({
                                     style={{ width: '100%' }}
                                     size="large"
                                     // type='number'
+                                    disabled={statusDialogDetail === 'VIEW'}
                                     value={valueCredit}
                                     placeholder="0"
                                     formatter={(val) =>
@@ -500,7 +515,11 @@ export default function DialogEntryDetail({
                         <Grid item xs={12} md={2}>
                             <Stack spacing={1} alignItems={'center'}>
                                 <div>{t('non-deductible')}</div>
-                                <Checkbox checked={!!valueNonDeductible} onChange={(e) => setValueNonDeductible(e.target.checked)} />
+                                <Checkbox
+                                    disabled={statusDialogDetail === 'VIEW'}
+                                    checked={!!valueNonDeductible}
+                                    onChange={(e) => setValueNonDeductible(e.target.checked)}
+                                />
                             </Stack>
                         </Grid>
                         <Grid item xs={12}>
@@ -508,6 +527,7 @@ export default function DialogEntryDetail({
                                 <div>{t('description')}</div>
                                 <TextField
                                     showCount
+                                    disabled={statusDialogDetail === 'VIEW'}
                                     maxLength={500}
                                     rows={3}
                                     value={valueDescription}
@@ -523,7 +543,7 @@ export default function DialogEntryDetail({
                         startIcon={<SaveAltIcon />}
                         variant="contained"
                         type="submit"
-                        onClick={statusDialogDetail == 'ADD' ? handleAddDetail : handleUpdateDetail}
+                        onClick={handleSaveDetail}
                         fullWidth
                     >
                         {t('button-save')}

@@ -25,9 +25,9 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { Autocomplete, Button, Checkbox, FormControl, FormLabel, MenuItem, Select } from '@mui/material';
-import { Check, CloudUpload, Delete, Domain, PostAdd } from '@mui/icons-material';
+import { Check, CloudUpload, Delete, Domain, Home, PostAdd, Shop, ShoppingCart } from '@mui/icons-material';
 import { fetchApiListAccountGroup, fetchApiListSubAccount } from '~/Redux/FetchApi/fetchApiMaster';
-import { ApiListAccountEntry, ApiCreateAccountEntry, ApiUpdateAccountEntry } from '~/components/Api/AccountingEntryApi';
+import { ApiListAccountEntry, ApiCreateAccountEntry, ApiUpdateAccountEntry, ApiListAllMemo } from '~/components/Api/AccountingEntryApi';
 import { DomainPoultry } from '~/DomainApi';
 import { updateDialogError } from '~/Redux/Reducer/Thunk';
 import { ApiListAccountByUnit } from '~/components/Api/Account';
@@ -107,8 +107,7 @@ function TransferMemo() {
     const [valueReadonly, setValueReadonly] = React.useState(true);
     const [valueReadonlyPostingDate, setValueReadonlyPostingDate] = React.useState(true);
     const [valueReadonlyCode, setValueReadonlyCode] = React.useState(true);
-    const [buttonSelectMode, setButtonSelectMode] = React.useState(false);
-    const [statusDialogDetail, setStatusDialogDetail] = React.useState("ADD");
+    const [statusDialogDetail, setStatusDialogDetail] = React.useState("VIEW");
     const apiRefDetail = useGridApiRef();
 
     // Button states
@@ -297,9 +296,7 @@ function TransferMemo() {
         setValueAccountGroupId(event.target.value);
     };
 
-    const handleChangeUnit = (event) => {
-        setValueUnitId(event.target.value);
-    };
+
 
     const handleChangeDateAccountPeriod = (event) => {
         setValueUpdateDateAccountPeriod(event);
@@ -313,9 +310,8 @@ function TransferMemo() {
             setValueUnitName(currentUnit.UnitName);
             setValueUnitId(currentUnit.UnitId);
             setValueUnitRegion(currentUnit.RegionId);
-            const result = await ApiListAccountEntry(
+            const result = await ApiListAllMemo(
                 valueDateAccountPeriod.format('MMYYYY'),
-                MANUAL_ACCOUNTING_ENTRIES_TYPE_ID,
                 currentUnit.UnitId
             );
             dispatch(fetchApiListAccountGroup(token));
@@ -376,6 +372,46 @@ function TransferMemo() {
             setValueTotalDebit(totalDr);
         }
     }, [dataAccountEntryDetails])
+
+    const getDepreciationEntries = async () => {
+        try {
+            setIsLoading(true);
+            const body = {
+                unitids: [currentUnit.UnitId],
+                username: username,
+                month: valueDateAccountPeriod.format('MM'),
+                year: valueDateAccountPeriod.format('YYYY'),
+            }
+            const res = await DomainPoultry.post(`journal/trans-memo/depreciation`, body, { headers: { Authorization: token } });
+            const data = res.data?.Response ?? [];
+            setDataList(data);
+            setDisplayData(data);
+            setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+            dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api get depreciation!\n ${error}` }));
+        }
+    }
+
+    const getSalesEntries = async () => {
+        try {
+            setIsLoading(true);
+            const body = {
+                unitids: [currentUnit.UnitId],
+                username: username,
+                month: valueDateAccountPeriod.format('MM'),
+                year: valueDateAccountPeriod.format('YYYY'),
+            }
+            const res = await DomainPoultry.post(`journal/trans-memo/sales`, body, { headers: { Authorization: token } });
+            const data = res.data?.Response ?? [];
+            setDataList(data);
+            setDisplayData(data);
+            setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+            dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api get depreciation!\n ${error}` }));
+        }
+    }
 
 
     // ==================== SEARCH FUNCTIONALITY ====================
@@ -748,12 +784,12 @@ function TransferMemo() {
         setOpenDialogDetail(true);
     }
 
-    const handleClickUpdateDetail = async () => {
+    const handleClickViewDetail = async () => {
         if (!selectedEntryDetail) {
             toast.warning(t('Please selected data !!!'));
             return;
         }
-        setStatusDialogDetail('UPDATE')
+        setStatusDialogDetail('VIEW')
         setOpenDialogDetail(true);
     };
 
@@ -999,16 +1035,18 @@ function TransferMemo() {
                                                 startIcon={<SearchIcon />}
                                                 variant="contained"
                                                 color="warning"
+                                                sx={{
+                                                    whiteSpace: 'nowrap',
+                                                    width: 180,
+                                                }}
                                                 onClick={() =>
                                                     setReloadData(
                                                         !reloadData,
                                                     )
                                                 }
-                                                sx={{ whiteSpace: 'nowrap' }}
                                             >
                                                 {t('button-search')}
                                             </LoadingButton>
-
                                         </Stack>
                                     </Grid>
                                 </Grid>
@@ -1024,7 +1062,7 @@ function TransferMemo() {
                                             direction={'row'}
                                             spacing={2}
                                             alignItems={'center'}
-                                            justifyContent={'flex-start'}
+                                            justifyContent={'space-between'}
                                             height={50}
                                         >
                                             <>
@@ -1036,27 +1074,19 @@ function TransferMemo() {
                                                     {t('entry-title-list')}
                                                 </h5>
                                             </>
-
-                                            <Button
-                                                size="small"
-                                                component="label"
-                                                role={undefined}
-                                                variant="outlined"
-                                                onClick={() => setButtonSelectMode(!buttonSelectMode)}
-                                            >
-                                                {t('button-select-mode')}
-                                            </Button>
                                             <Stack
                                                 direction={'row'}
-                                                spacing={1}
-                                                sx={{ display: { xs: 'none', md: 'flex' } }}
+                                                spacing={2}
+                                                alignItems={'center'}
+                                                justifyContent={'flex-start'}
                                             >
                                                 <Button
                                                     component="label"
                                                     role={undefined}
-                                                    variant="outlined"
+                                                    variant="contained"
                                                     tabIndex={-1}
-                                                    startIcon={<PostAdd />}
+                                                    startIcon={<Home />}
+                                                    onClick={getDepreciationEntries}
                                                     sx={{
                                                         width: 300,
                                                         whiteSpace: 'nowrap',
@@ -1064,25 +1094,24 @@ function TransferMemo() {
                                                         textOverflow: 'ellipsis',
                                                     }}
                                                 >
-                                                    {fileExcel
-                                                        ? fileExcel.length > 0
-                                                            ? fileExcel[0].name.slice(0, 25) + '...'
-                                                            : t('button-import')
-                                                        : t('button-import')}
-                                                    <VisuallyHiddenInput
-                                                        type="file"
-                                                        onChange={handleClickChoseFile}
-                                                    />
+                                                    {t('load memo from depreciation')}
                                                 </Button>
                                                 <Button
                                                     component="label"
                                                     role={undefined}
                                                     variant="contained"
                                                     tabIndex={-1}
-                                                    startIcon={<CloudUpload />}
-                                                    onClick={handleClickImportFile}
+                                                    color="success"
+                                                    startIcon={<ShoppingCart />}
+                                                    onClick={getSalesEntries}
+                                                    sx={{
+                                                        width: 300,
+                                                        whiteSpace: 'nowrap',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                    }}
                                                 >
-                                                    {t('button-upload')}
+                                                    {t('load memo from sale')}
                                                 </Button>
                                             </Stack>
                                         </Stack>
@@ -1147,7 +1176,7 @@ function TransferMemo() {
                                             {t('entry-title-infor')}
                                         </h5>
                                     </Stack>
-                                    <Stack direction={'row'} spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
+                                    {/* <Stack direction={'row'} spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
                                         <LoadingButton
                                             startIcon={<AddBoxIcon />}
                                             variant="contained"
@@ -1189,7 +1218,7 @@ function TransferMemo() {
                                         >
                                             {t('button-delete')}
                                         </LoadingButton>
-                                    </Stack>
+                                    </Stack> */}
                                 </Stack>
                                 <Grid xs={12} md={12} sx={{ width: '100%' }}>
                                     <Item>
@@ -1345,6 +1374,8 @@ function TransferMemo() {
                                                             <Select
                                                                 value={valueAccountGroupId}
                                                                 onChange={handleChangeAccountGroup}
+                                                                displayEmpty
+                                                                disabled
                                                             >
                                                                 {listAccountGroup.map(
                                                                     (data) => {
@@ -1389,6 +1420,7 @@ function TransferMemo() {
                                                                 value={valueCurrencyId}
                                                                 displayEmpty
                                                                 onChange={handleChangeCurrency}
+                                                                disabled
                                                             >
                                                                 {listCurrency.map((data) => {
                                                                     return (
@@ -1541,25 +1573,15 @@ function TransferMemo() {
 
                                             <Stack direction={'row'} spacing={1}>
                                                 <LoadingButton
-                                                    startIcon={<AddBoxIcon />}
-                                                    variant="contained"
-                                                    color="success"
-                                                    onClick={handleClickAddDetail}
-                                                    sx={{ alignItems: 'left', whiteSpace: 'nowrap' }}
-                                                    disabled={valueDisableEditDetail}
-                                                >
-                                                    {t('button-detail')}
-                                                </LoadingButton>
-                                                <LoadingButton
                                                     size="small"
                                                     startIcon={<SystemUpdateAltIcon />}
                                                     variant="contained"
                                                     color="warning"
-                                                    onClick={handleClickUpdateDetail}
+                                                    onClick={handleClickViewDetail}
                                                     sx={{ whiteSpace: 'nowrap' }}
                                                     disabled={valueDisableEditDetail || valueDisableUpdateDetail}
                                                 >
-                                                    {t('button-update')}
+                                                    {t('button-view')}
                                                 </LoadingButton>
                                             </Stack>
                                         </Stack>

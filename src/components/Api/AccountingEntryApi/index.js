@@ -246,25 +246,30 @@ export async function ApiImportAccountEntry(access_token, valueFile) {
     }
 }
 
-//? Memo
-export async function ApiMemoListHeader(valueDateMonth, valueDateYear, valueSearch, setDataMemoListHeader) {
+export async function ApiListAllMemo(period, currentUnitId) {
     try {
-        let url = `journal/acc-entry/unitcode/${localStorage.getItem('Unit')}?username=${localStorage.getItem(
-            'UserName',
-        )}&acc_period_month=${valueDateMonth}&acc_period_year=${valueDateYear}&doctype=1`;
-        if (valueSearch) {
-            url = `journal/acc-entry/unitcode/${localStorage.getItem('Unit')}?username=${localStorage.getItem(
-                'UserName',
-            )}&acc_period_month=${valueDateMonth}&acc_period_year=${valueDateYear}&search_text=${valueSearch}&doctype=1`;
-        }
-        const response = await DomainApi.get(url);
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
 
-        setDataMemoListHeader(response.data.sort((a, b) => b.trans_ids - a.trans_ids));
+        const listUnit = store.getState().FetchApi.userAccess.units;
+        const unitIds = listUnit.map(u => u.UnitId);
+        const body = {
+            unitid: [currentUnitId],
+            period: period
+        }
+        const response = await DomainPoultry.post(`journal/trans-memo/all-entry`, body, { headers: header });
+        return response.data?.Response;
     } catch (error) {
-        console.log(error);
-        toast.error(' Error api get data account entry list!');
+        if (error.response) {
+            store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api get memo list!' }));
+        } else {
+            store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api get data get memo list!' }));
+        }
+        return [];
     }
 }
+
 
 export async function ApiLoadMemoFromFA() {
     try {

@@ -1037,7 +1037,7 @@ function JournalEntryManagement() {
 												</h5>
 											</>
 
-											<Button
+											{/* <Button
 												size="small"
 												component="label"
 												role={undefined}
@@ -1084,7 +1084,7 @@ function JournalEntryManagement() {
 												>
 													{t('button-upload')}
 												</Button>
-											</Stack>
+											</Stack> */}
 										</Stack>
 									</Grid>
 									<div style={{ width: '100%' }}>
