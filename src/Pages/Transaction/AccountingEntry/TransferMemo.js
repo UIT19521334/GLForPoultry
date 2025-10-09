@@ -147,12 +147,6 @@ function TransferMemo() {
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'GroupAccountId',
-            headerName: t('account-group'),
-            minWidth: 150,
-            headerClassName: 'super-app-theme--header',
-        },
-        {
             field: 'Description',
             headerName: t('description'),
             minWidth: 300,
@@ -160,8 +154,8 @@ function TransferMemo() {
             headerClassName: 'super-app-theme--header',
         },
         {
-            field: 'DocRefUploaId',
-            headerName: t('entry-import-code'),
+            field: 'DocTypeName',
+            headerName: t('memo-type'),
             minWidth: 150,
             headerClassName: 'super-app-theme--header',
         }

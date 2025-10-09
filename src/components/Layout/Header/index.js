@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { settingRoutes, accountantRoutes, reportRoutes } from '~/Routes';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { DomainMasterApp, DomainPoultry } from '~/DomainApi';
 import { styled, alpha, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -29,7 +30,6 @@ import MuiDrawer from '@mui/material/Drawer';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Logout from '@mui/icons-material/Logout';
-import { useLocation } from 'react-router-dom';
 import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
 import DrawIcon from '@mui/icons-material/Draw';
@@ -164,6 +164,56 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
+// NavLink custom để log truy cập menu
+function NavLinkWithLog({ to, title, menuid, groupid, children, ...props }) {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const token = useSelector(state => state.FetchApi.token);
+    const userInfo = useSelector(state => state.FetchApi.userInfo);
+
+    const handleClick = async (e) => {
+        // Nếu đang ở trang hiện tại thì không log và không navigate lại
+        if (location.pathname === to) return;
+        try {
+            await DomainMasterApp.post(
+                "Apps/addFeatureLog",
+                null, // body rỗng
+                {
+                    headers: {
+                        Authorization: token,
+                        "Content-Type": "application/json",
+                    },
+                    params: {
+                        appID: 30,
+                        userInAppID: userInfo?.UserIDInApp,
+                        userName: userInfo?.userName,
+                        menuLV1: groupid,
+                        menuLV1Name: "",
+                        menuLV2: menuid,
+                        menuLV2Name: "",
+                        menuLV3: -1,
+                        menuLV3Name: "",
+                        menuLV4: -1,
+                        menuLV4Name: "",
+                        platform: "web",
+                        deviceID: navigator.userAgent,
+                        environment: "production",
+                    },
+                }
+            );
+        } catch (error) {
+            // Không ảnh hưởng trải nghiệm nếu log lỗi
+            console.error('Log menu access error:', error);
+        }
+        navigate(to);
+    };
+    return (
+        <span onClick={handleClick} style={{ cursor: 'pointer', textDecoration: 'none', color: 'black' }} {...props}>
+            {children}
+        </span>
+    );
+}
+
 function Header() {
     const { t } = useTranslation();
     const { instance } = useMsal();
@@ -282,7 +332,7 @@ function Header() {
                         sx={{ display: menu.includes(route.menuid) ? 'block' : 'none' }}
                         onClick={toggleDrawer('left', false)}
                     >
-                        <NavLink to={route.path} style={{ textDecoration: 'none', color: 'black' }}>
+                        <NavLinkWithLog to={route.path} title={route.title} menuid={route.menuid} groupid={route.groupid}>
                             <ListItemButton
                                 sx={{
                                     minHeight: 48,
@@ -303,7 +353,7 @@ function Header() {
                                 </ListItemIcon>
                                 <ListItemText primary={t(route.title)} sx={{ opacity: open ? 1 : 0 }} />
                             </ListItemButton>
-                        </NavLink>
+                        </NavLinkWithLog>
                     </ListItem>
                 );
             })}
@@ -320,7 +370,7 @@ function Header() {
                         sx={{ display: menu.includes(route.menuid) ? 'block' : 'none' }}
                         onClick={toggleDrawer('left', false)}
                     >
-                        <NavLink to={route.path} style={{ textDecoration: 'none', color: 'black' }}>
+                        <NavLinkWithLog to={route.path} title={route.title} menuid={route.menuid} groupid={route.groupid}>
                             <ListItemButton
                                 sx={{
                                     minHeight: 48,
@@ -351,7 +401,7 @@ function Header() {
                                 </ListItemIcon>
                                 <ListItemText primary={t(route.title)} sx={{ opacity: open ? 1 : 0 }} />
                             </ListItemButton>
-                        </NavLink>
+                        </NavLinkWithLog>
                     </ListItem>
                 );
             })}
@@ -383,7 +433,7 @@ function Header() {
                             sx={{ display: 'block' }}
                             onClick={toggleDrawer('left', false)}
                         >
-                            <NavLink to={route.path} style={{ textDecoration: 'none', color: 'black' }}>
+                            <NavLinkWithLog to={route.path} title={route.title} menuid={route.menuid} groupid={route.groupid}>
                                 <ListItemButton
                                     sx={{
                                         minHeight: 48,
@@ -412,7 +462,7 @@ function Header() {
                                     </ListItemIcon>
                                     <ListItemText primary={t(route.title)} sx={{ opacity: open ? 1 : 0 }} />
                                 </ListItemButton>
-                            </NavLink>
+                            </NavLinkWithLog>
                         </ListItem>
                     </Collapse>
                 );
@@ -614,6 +664,7 @@ function Header() {
                             sx={{
                                 m: 1,
                                 width: '100%',
+                                minWidth: 140,
                                 paddingTop: 0.5,
                                 marginRight: 2,
                             }}
@@ -746,7 +797,7 @@ function Header() {
                                 sx={{ display: menu.includes(route.menuid) ? 'block' : 'none' }}
                                 onClick={toggleDrawer('left', false)}
                             >
-                                <Link to={route.path} style={{ textDecoration: 'none', color: 'black' }}>
+                                <NavLinkWithLog to={route.path} title={route.title} menuid={route.menuid} groupid={route.groupid}>
                                     <ListItemButton
                                         sx={{
                                             minHeight: 48,
@@ -778,7 +829,7 @@ function Header() {
                                         </ListItemIcon>
                                         <ListItemText primary={t(route.title)} sx={{ opacity: open ? 1 : 0 }} />
                                     </ListItemButton>
-                                </Link>
+                                </NavLinkWithLog>
                             </ListItem>
                         );
                     })}
@@ -795,7 +846,7 @@ function Header() {
                                 sx={{ display: menu.includes(route.menuid) ? 'block' : 'none' }}
                                 onClick={toggleDrawer('left', false)}
                             >
-                                <NavLink to={route.path} style={{ textDecoration: 'none', color: 'black' }}>
+                                <NavLinkWithLog to={route.path} title={route.title} menuid={route.menuid} groupid={route.groupid}>
                                     <ListItemButton
                                         sx={{
                                             minHeight: 48,
@@ -826,7 +877,7 @@ function Header() {
                                         </ListItemIcon>
                                         <ListItemText primary={t(route.title)} sx={{ opacity: open ? 1 : 0 }} />
                                     </ListItemButton>
-                                </NavLink>
+                                </NavLinkWithLog>
                             </ListItem>
                         );
                     })}
@@ -858,7 +909,7 @@ function Header() {
                                     sx={{ display: 'block' }}
                                     onClick={toggleDrawer('left', false)}
                                 >
-                                    <NavLink to={route.path} style={{ textDecoration: 'none', color: 'black' }}>
+                                    <NavLinkWithLog to={route.path} title={route.title} menuid={route.menuid} groupid={route.groupid}>
                                         <ListItemButton
                                             sx={{
                                                 minHeight: 48,
@@ -887,7 +938,7 @@ function Header() {
                                             </ListItemIcon>
                                             <ListItemText primary={t(route.title)} sx={{ opacity: open ? 1 : 0 }} />
                                         </ListItemButton>
-                                    </NavLink>
+                                    </NavLinkWithLog>
                                 </ListItem>
                             </Collapse>
                         );
