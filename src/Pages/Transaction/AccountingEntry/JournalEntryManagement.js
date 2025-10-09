@@ -458,7 +458,7 @@ function JournalEntryManagement() {
 
 	const agreeDialogImportFile = async () => {
 		setDialogIsOpenImportFile(false);
-		setCallApiImportFile(!callApiImportFile);
+		apiImportFile();
 	};
 
 	const closeDialogImportFile = () => {
@@ -466,14 +466,12 @@ function JournalEntryManagement() {
 		toast.warning(t('toast-cancel-upload'));
 	};
 
-	useEffect(() => {
-		const apiImportFile = async () => {
-			// await ApiImportAccountEntry(fileExcel);
-			setFileExcell('');
-			handleReloadData();
-		};
-		apiImportFile();
-	}, [callApiImportFile]);
+
+	const apiImportFile = async () => {
+		// await ApiImportAccountEntry(fileExcel);
+		setFileExcell('');
+		handleReloadData();
+	};
 
 	// ==================== RENDER SUB UI ====================
 	function AccountEditInputCell(props) {
@@ -1037,7 +1035,7 @@ function JournalEntryManagement() {
 												</h5>
 											</>
 
-											{/* <Button
+											<Button
 												size="small"
 												component="label"
 												role={undefined}
@@ -1084,7 +1082,7 @@ function JournalEntryManagement() {
 												>
 													{t('button-upload')}
 												</Button>
-											</Stack> */}
+											</Stack>
 										</Stack>
 									</Grid>
 									<div style={{ width: '100%' }}>

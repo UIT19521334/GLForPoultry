@@ -7,7 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
-import Autocomplete from '@mui/material/Autocomplete';
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { InputNumber } from 'antd';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import OnMultiKeyEvent from '~/components/Event/OnMultiKeyEvent';
@@ -235,11 +235,11 @@ export default function DialogEntryDetail({
         fetchDataUpdate();
     }, [isOpenEntryDetail])
 
-
     const handleAddDetail = () => {
         const newRow = {
             AccountName: valueAccount?.AccountName ?? "",
             MethodName: valueAccount?.MethodName,
+            MethodId: valueAccount?.MethodId,
             SubAccountTypeName: "",
             EntryDetailId: valueId,
             EntryHdId: valueEntryId,
@@ -260,12 +260,11 @@ export default function DialogEntryDetail({
     };
 
     const handleUpdateDetail = async () => {
-
         const oldRow = selectedEntryDetail;
-
         const newRow = {
             AccountName: valueAccount?.AccountName ?? "",
             MethodName: valueAccount?.MethodName,
+            MethodId: valueAccount?.MethodId,
             SubAccountName: valueAccountSubName,
             EntryDetailId: selectedEntryDetail.EntryDetailId,
             EntryHdId: valueEntryId,
@@ -311,6 +310,7 @@ export default function DialogEntryDetail({
     }
 
     OnMultiKeyEvent(handleSaveDetail, 's');
+    const filter = createFilterOptions();
 
     return (
         <React.Fragment>
@@ -326,14 +326,15 @@ export default function DialogEntryDetail({
                                 <Autocomplete
                                     size="small"
                                     value={valueAccount}
-                                    options={listAccount || []}
+                                    options={listAccount}
+                                    key={valueAccount?.Id || "account-autocomplete"}
                                     onOpen={fetchApiListAccount}
                                     loading={loadingAccount}
-                                    disabled={statusDialogDetail === 'VIEW'}
+                                    disabled={statusDialogDetail === "VIEW"}
                                     onChange={(event, newValue) => {
                                         if (newValue?.AccountId) {
                                             setValueAccount(newValue);
-                                            setValueAccountSubTypeId(newValue.AccountSubTypeId)
+                                            setValueAccountSubTypeId(newValue.AccountSubTypeId);
                                         } else {
                                             setValueAccount(null);
                                             setValueAccountSubTypeId("");
@@ -341,21 +342,37 @@ export default function DialogEntryDetail({
                                     }}
                                     getOptionLabel={(option) =>
                                         option
-                                            ? `${option.AccountId ?? ''} - ${option.AccountName ?? ''}`
+                                            ? `${option.AccountId ?? ""} - ${option.AccountName ?? ""}`
                                             : valueAccount?.AccountId
-                                                ? `${valueAccount?.AccountId ?? ''} - ${valueAccount?.AccountName ?? ''}`
-                                                : ''
+                                                ? `${valueAccount?.AccountId ?? ""} - ${valueAccount?.AccountName ?? ""}`
+                                                : ""
                                     }
+                                    renderOption={(props, option) => (
+                                        <li {...props} key={option.Id}>
+                                            {option.AccountId} - {option.AccountName}
+                                        </li>
+                                    )}
+                                    // 🔍 Custom filter không fuzzy, chỉ lọc đúng theo mã hoặc tên
+                                    filterOptions={(options, state) => {
+                                        const input = state.inputValue.toLowerCase().trim();
+                                        if (!input) return options; // nếu chưa nhập, trả lại tất cả
+                                        return options.filter(
+                                            (opt) => `${opt.AccountId} - ${opt.AccountName}`.toLowerCase().includes(input)
+                                        );
+                                    }}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
                                             variant="outlined"
                                             size="small"
+                                            label="Mã tài khoản"
                                             InputProps={{
                                                 ...params.InputProps,
                                                 endAdornment: (
                                                     <>
-                                                        {loadingAccount ? <CircularProgress color="inherit" size={20} /> : null}
+                                                        {loadingAccount ? (
+                                                            <CircularProgress color="inherit" size={20} />
+                                                        ) : null}
                                                         {params.InputProps.endAdornment}
                                                     </>
                                                 ),
