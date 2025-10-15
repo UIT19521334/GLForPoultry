@@ -27,7 +27,7 @@ export async function ApiListExpenseGroup(currentRegionId) {
     }
 }
 
-export async function ApiCreateExpenseGroup(valueCode, valueName, valueDescription) {
+export async function ApiCreateExpenseGroup(valueCode, valueName, valueDescription, currentRegionId) {
     if (valueName) {
         try {
             var statusCode = false;
@@ -43,6 +43,7 @@ export async function ApiCreateExpenseGroup(valueCode, valueName, valueDescripti
                 CreatedAt: new Date().toISOString(),
                 UpdatedAt: new Date().toISOString(),
                 Description: valueDescription,
+                RegionId: currentRegionId
             };
 
             await DomainPoultry.post(

@@ -7,7 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Unstable_Grid2';
 import Stack from '@mui/material/Stack';
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import Autocomplete from '@mui/material/Autocomplete';
 import { InputNumber } from 'antd';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import OnMultiKeyEvent from '~/components/Event/OnMultiKeyEvent';
@@ -15,7 +15,7 @@ import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { ApiListAccount, ApiListAccountByUnit } from '~/components/Api/Account';
+import { ApiListAccount } from '~/components/Api/Account';
 import { Checkbox, CircularProgress } from '@mui/material';
 import { ApiListSupAccountByType } from '~/components/Api/SubAccount';
 import { ApiAreaByUnit, ApiFarmByUnit, ApiFlockByUnit, ApiMaterialByRegion } from '~/components/Api/AccountingEntryApi';
@@ -216,12 +216,14 @@ export default function DialogEntryDetail({
     useEffect(() => {
         const fetchDataUpdate = async () => {
             if (isOpenEntryDetail && statusDialogDetail !== 'ADD') {
-                setValueAccount({
-                    AccountId: selectedEntryDetail.AccountId,
-                    AccountName: selectedEntryDetail.AccountName,
-                    MethodId: selectedEntryDetail.MethodId,
-                    MethodName: selectedEntryDetail.MethodName,
-                })
+                if (selectedEntryDetail?.AccountId) {
+                    setValueAccount({
+                        AccountId: selectedEntryDetail?.AccountId,
+                        AccountName: selectedEntryDetail?.AccountName,
+                        MethodId: selectedEntryDetail?.MethodId,
+                        MethodName: selectedEntryDetail?.MethodName,
+                    })
+                }
                 setValueCredit(selectedEntryDetail.Amount_Cr)
                 setValueDebit(selectedEntryDetail.Amount_Dr)
                 setValueDescription(selectedEntryDetail.Description)
@@ -230,6 +232,8 @@ export default function DialogEntryDetail({
                 setValueAccountSubName(selectedEntryDetail?.SubAccountName)
                 setValueAccountSubTypeId(selectedEntryDetail?.SubAccountTypeId)
                 setValueCostingMethod(selectedEntryDetail?.CostingMethod)
+            } else {
+                resetData();
             }
         }
         fetchDataUpdate();
@@ -302,15 +306,17 @@ export default function DialogEntryDetail({
     const resetData = () => {
         setValueAccount(null);
         setValueDescription('');
+        setListAccountSub([]);
         setValueDebit(0);
         setValueCredit(0);
         setValueAccountSubId('');
+        setValueAccountSubTypeId('');
         setValueAccountSubName('');
         setValueNonDeductible(false);
+        setValueCostingMethod('');
     }
 
     OnMultiKeyEvent(handleSaveDetail, 's');
-    const filter = createFilterOptions();
 
     return (
         <React.Fragment>
@@ -334,10 +340,12 @@ export default function DialogEntryDetail({
                                     onChange={(event, newValue) => {
                                         if (newValue?.AccountId) {
                                             setValueAccount(newValue);
+                                            setValueCostingMethod('');
                                             setValueAccountSubTypeId(newValue.AccountSubTypeId);
                                         } else {
                                             setValueAccount(null);
                                             setValueAccountSubTypeId("");
+                                            setValueCostingMethod('');
                                         }
                                     }}
                                     getOptionLabel={(option) =>
@@ -365,7 +373,7 @@ export default function DialogEntryDetail({
                                             {...params}
                                             variant="outlined"
                                             size="small"
-                                            label="Mã tài khoản"
+                                            label={t('account-code')}
                                             InputProps={{
                                                 ...params.InputProps,
                                                 endAdornment: (
@@ -439,7 +447,7 @@ export default function DialogEntryDetail({
                                 <TextField
                                     size='small'
                                     disabled
-                                    value={`${valueAccount?.MethodId} - ${valueAccount?.MethodName}`}
+                                    value={valueAccount?.MethodId ? `${valueAccount?.MethodId} - ${valueAccount?.MethodName}` : ""}
                                 />
                             </Stack>
                         </Grid>

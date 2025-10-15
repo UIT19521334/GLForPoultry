@@ -125,7 +125,7 @@ function ExpenseGroupGroup({ title }) {
 
     const asyncApiCreateExpenseGroup = async () => {
         setIsLoading(true);
-        const statusCode = await ApiCreateExpenseGroup(valueCode, valueName, valueDescription);
+        const statusCode = await ApiCreateExpenseGroup(valueCode, valueName, valueDescription, currentRegionId);
         if (statusCode) {
             setValueCode('');
             setValueName('');

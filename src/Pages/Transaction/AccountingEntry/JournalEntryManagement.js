@@ -169,7 +169,7 @@ function JournalEntryManagement() {
 	];
 
 	// Detail columns
-	const columnsDataDetail = React.useMemo(() => [
+	const columnsDataDetail = [
 		{
 			field: 'actions',
 			type: 'actions',
@@ -241,7 +241,7 @@ function JournalEntryManagement() {
 		{
 			field: 'CostingMethod',
 			headerName: t('Costing'),
-			minWidth: 150,
+			minWidth: 135,
 			headerClassName: 'super-app-theme--header',
 		},
 		{
@@ -253,10 +253,15 @@ function JournalEntryManagement() {
 			type: 'boolean',
 			flex: 1,
 			headerClassName: 'super-app-theme--header',
+			renderHeader: (params) => {
+				// Lấy chiều rộng cột thực tế
+				const width = params.colDef.computedWidth || 0;
+				return width < 80 ? t('non-deductible-sort') : t('non-deductible');
+			},
 			editable: true,
 			hide: true
 		},
-	], [listAccount, listSubAccount]);
+	];
 
 	// ==================== COMPUTED VALUES ====================
 	// Visibility column in datagrid
@@ -777,11 +782,7 @@ function JournalEntryManagement() {
 	};
 
 	const handleDeleteDetail = (id) => () => {
-		if (!valueDisableEditDetail) {
-			setDataAccountEntryDetails((prevData) => prevData.filter((item) => item.EntryDetailId !== id));
-		} else {
-			toast.warning(t('toast-click-update'));
-		}
+		setDataAccountEntryDetails((prevData) => prevData.filter((item) => item.EntryDetailId !== id));
 	};
 
 	const handleCloseDialogDetail = () => {

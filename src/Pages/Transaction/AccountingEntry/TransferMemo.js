@@ -117,7 +117,7 @@ function TransferMemo() {
     const [valueDisableDeleteButton, setValueDisableDeleteButton] = React.useState(true);
     const [valueDisableUpdateButton, setValueDisableUpdateButton] = React.useState(true);
     const [valueDisableEditDetail, setValueDisableEditDetail] = React.useState(true);
-    const [valueDisableUpdateDetail, setValueDisableUpdateDetail] = React.useState(true);
+    const [ValueDisableViewDetail, setValueDisableViewDetail] = React.useState(true);
 
     // Dialog states
     const [dialogIsOpenNew, setDialogIsOpenNew] = React.useState(false);
@@ -162,7 +162,7 @@ function TransferMemo() {
     ];
 
     // Detail columns
-    const columnsDataDetail = React.useMemo(() => [
+    const columnsDataDetail = [
         {
             field: 'actions',
             type: 'actions',
@@ -246,10 +246,15 @@ function TransferMemo() {
             type: 'boolean',
             flex: 1,
             headerClassName: 'super-app-theme--header',
+            renderHeader: (params) => {
+                // Lấy chiều rộng cột thực tế
+                const width = params.colDef.computedWidth || 0;
+                return width < 80 ? t('non-deductible-sort') : t('non-deductible');
+            },
             editable: true,
             hide: true
         },
-    ], [listAccount, listSubAccount]);
+    ];
 
     // ==================== COMPUTED VALUES ====================
     // Visibility column in datagrid
@@ -377,13 +382,18 @@ function TransferMemo() {
                 year: valueDateAccountPeriod.format('YYYY'),
             }
             const res = await DomainPoultry.post(`journal/trans-memo/depreciation`, body, { headers: { Authorization: token } });
-            const data = res.data?.Response ?? [];
-            setDataList(data);
-            setDisplayData(data);
+            if (res.data?.Response) {
+                toast.success('Success get depreciation entries!');
+                handleReloadData();
+            }
             setIsLoading(false);
         } catch (error) {
             setIsLoading(false);
-            dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api get depreciation!\n ${error}` }));
+            if (error.response) {
+                dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api get depreciation!' }));
+            } else {
+                dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api get depreciation!' }));
+            }
         }
     }
 
@@ -397,13 +407,18 @@ function TransferMemo() {
                 year: valueDateAccountPeriod.format('YYYY'),
             }
             const res = await DomainPoultry.post(`journal/trans-memo/sales`, body, { headers: { Authorization: token } });
-            const data = res.data?.Response ?? [];
-            setDataList(data);
-            setDisplayData(data);
+            if (res.data?.Response) {
+                toast.success('Success get sales entries!');
+                handleReloadData();
+            }
             setIsLoading(false);
         } catch (error) {
             setIsLoading(false);
-            dispatch(updateDialogError({ open: true, title: 'Error', content: `Error api get depreciation!\n ${error}` }));
+            if (error.response) {
+                dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api get sales!' }));
+            } else {
+                dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api get sales!' }));
+            }
         }
     }
 
@@ -766,7 +781,7 @@ function TransferMemo() {
     const handleRowDetailSelect = (ids) => {
         const selectedRowData = dataAccountEntryDetails.find((row) => row.EntryDetailId === ids[0]);
         setSelectedEntryDetail(selectedRowData)
-        setValueDisableUpdateDetail(false)
+        setValueDisableViewDetail(false)
     };
 
     const handleClickAddDetail = () => {
@@ -1573,7 +1588,7 @@ function TransferMemo() {
                                                     color="warning"
                                                     onClick={handleClickViewDetail}
                                                     sx={{ whiteSpace: 'nowrap' }}
-                                                    disabled={valueDisableEditDetail || valueDisableUpdateDetail}
+                                                    disabled={ValueDisableViewDetail}
                                                 >
                                                     {t('button-view')}
                                                 </LoadingButton>
