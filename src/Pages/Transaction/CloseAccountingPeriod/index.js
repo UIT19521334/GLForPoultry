@@ -21,7 +21,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { Spin } from 'antd';
 import { Excel } from 'antd-table-saveas-excel';
-import dayjs from 'dayjs';
+import dayjs from '~/utils/dayjs'
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -87,20 +87,20 @@ function CloseAccountingPeriod({ title }) {
     };
 
     //todo: call api open period
-    useEffect(() => {
-        const fetchApiOpen = async () => {
-            if (callApiOpen) {
-                setIsLoading(true);
-                const statusCode = await ApiOpenPeriod(access_token);
-                if (statusCode) {
-                    dispatch(fetchPeriod(unitcode));
-                }
-                setIsLoading(false);
-            }
-            setCallApiOpen(false);
-        };
-        fetchApiOpen();
-    }, [callApiOpen]);
+    // useEffect(() => {
+    //     const fetchApiOpen = async () => {
+    //         if (callApiOpen) {
+    //             setIsLoading(true);
+    //             const statusCode = await ApiOpenPeriod(access_token);
+    //             if (statusCode) {
+    //                 dispatch(fetchPeriod(unitcode));
+    //             }
+    //             setIsLoading(false);
+    //         }
+    //         setCallApiOpen(false);
+    //     };
+    //     fetchApiOpen();
+    // }, [callApiOpen]);
     const handleOpenPeriod = () => {
         setDialogIsOpen(true);
     };
@@ -114,24 +114,24 @@ function CloseAccountingPeriod({ title }) {
 
     //todo: call api calculate cogm
     const [buttonCalCOGM, setButtonCalCOGM] = useState(false);
-    useEffect(() => {
-        const fetchApiCalCOGM = async () => {
-            if (buttonCalCOGM) {
-                setIsLoading(true);
-                const statusCode = await ApiCalCOGM({
-                    access_token: access_token,
-                    PERIOD_MONTH: dayjs(dataPeriod_From_Redux).month() + 1,
-                    PERIOD_YEAR: dayjs(dataPeriod_From_Redux).year(),
-                });
-                if (statusCode) {
-                    toast.success(t('toast-success-cogm'));
-                }
-                setIsLoading(false);
-            }
-            setButtonCalCOGM(false);
-        };
-        fetchApiCalCOGM();
-    }, [buttonCalCOGM]);
+    // useEffect(() => {
+    //     const fetchApiCalCOGM = async () => {
+    //         if (buttonCalCOGM) {
+    //             setIsLoading(true);
+    //             const statusCode = await ApiCalCOGM({
+    //                 access_token: access_token,
+    //                 PERIOD_MONTH: dayjs(dataPeriod_From_Redux).month() + 1,
+    //                 PERIOD_YEAR: dayjs(dataPeriod_From_Redux).year(),
+    //             });
+    //             if (statusCode) {
+    //                 toast.success(t('toast-success-cogm'));
+    //             }
+    //             setIsLoading(false);
+    //         }
+    //         setButtonCalCOGM(false);
+    //     };
+    //     fetchApiCalCOGM();
+    // }, [buttonCalCOGM]);
     const [dialogIsOpenCalCOGM, setDialogIsOpenCalCOGM] = React.useState(false);
     const agreeDialogCalCOGM = () => {
         setDialogIsOpenCalCOGM(false);
@@ -144,24 +144,24 @@ function CloseAccountingPeriod({ title }) {
 
     //todo: call api calculate cogm
     const [buttonCalCostTransfer, setButtonCalCostTransfer] = useState(false);
-    useEffect(() => {
-        const fetchApiCalCostTransfer = async () => {
-            if (buttonCalCostTransfer) {
-                setIsLoading(true);
-                const statusCode = await ApiCalCostTransfer({
-                    access_token: access_token,
-                    PERIOD_MONTH: dayjs(dataPeriod_From_Redux).month() + 1,
-                    PERIOD_YEAR: dayjs(dataPeriod_From_Redux).year(),
-                });
-                if (statusCode) {
-                    toast.success(t('toast-success-cost-transfer'));
-                }
-                setIsLoading(false);
-            }
-            setButtonCalCostTransfer(false);
-        };
-        fetchApiCalCostTransfer();
-    }, [buttonCalCostTransfer]);
+    // useEffect(() => {
+    //     const fetchApiCalCostTransfer = async () => {
+    //         if (buttonCalCostTransfer) {
+    //             setIsLoading(true);
+    //             const statusCode = await ApiCalCostTransfer({
+    //                 access_token: access_token,
+    //                 PERIOD_MONTH: dayjs(dataPeriod_From_Redux).month() + 1,
+    //                 PERIOD_YEAR: dayjs(dataPeriod_From_Redux).year(),
+    //             });
+    //             if (statusCode) {
+    //                 toast.success(t('toast-success-cost-transfer'));
+    //             }
+    //             setIsLoading(false);
+    //         }
+    //         setButtonCalCostTransfer(false);
+    //     };
+    //     fetchApiCalCostTransfer();
+    // }, [buttonCalCostTransfer]);
     const [dialogIsOpenCalCost, setDialogIsOpenCalCost] = React.useState(false);
     const agreeDialogCalCost = () => {
         setDialogIsOpenCalCost(false);
@@ -174,26 +174,26 @@ function CloseAccountingPeriod({ title }) {
 
     //todo : call api transfer lost
     const [callApiTransferLost, setCallApiTransferLost] = useState(false);
-    useEffect(() => {
-        const fetchApiTransferLost = async () => {
-            if (callApiTransferLost) {
-                setIsLoading(true);
-                const statusCode = await ApiTransferLost({
-                    unitcode: unitcode,
-                    username: localStorage.getItem('UserName'),
-                    access_token: access_token,
-                    acc_period_month: dayjs(dataPeriod_From_Redux).month() + 1,
-                    acc_period_year: dayjs(dataPeriod_From_Redux).year(),
-                });
-                if (statusCode) {
-                    toast.success(`Thành công ${t('transfer-lost')}`);
-                }
-                setIsLoading(false);
-            }
-            setCallApiTransferLost(false);
-        };
-        fetchApiTransferLost();
-    }, [callApiTransferLost]);
+    // useEffect(() => {
+    //     const fetchApiTransferLost = async () => {
+    //         if (callApiTransferLost) {
+    //             setIsLoading(true);
+    //             const statusCode = await ApiTransferLost({
+    //                 unitcode: unitcode,
+    //                 username: localStorage.getItem('UserName'),
+    //                 access_token: access_token,
+    //                 acc_period_month: dayjs(dataPeriod_From_Redux).month() + 1,
+    //                 acc_period_year: dayjs(dataPeriod_From_Redux).year(),
+    //             });
+    //             if (statusCode) {
+    //                 toast.success(`Thành công ${t('transfer-lost')}`);
+    //             }
+    //             setIsLoading(false);
+    //         }
+    //         setCallApiTransferLost(false);
+    //     };
+    //     fetchApiTransferLost();
+    // }, [callApiTransferLost]);
     const [dialogIsOpenTransferLost, setDialogIsOpenTransferLost] = React.useState(false);
     const agreeDialogTransferLost = () => {
         setDialogIsOpenTransferLost(false);
@@ -322,27 +322,27 @@ function CloseAccountingPeriod({ title }) {
     const [reloadData, setReloadData] = React.useState(false);
     const [dataList, setDataList] = useState([]);
 
-    useEffect(() => {
-        const asyncApiList = async () => {
-            setIsLoading(true);
-            if (reloadData) {
-                if (valueCostCenter) {
-                    const status_code = await ApiLoadDataReport({
-                        valueCostCenter: valueCostCenter,
-                        PERIOD_MONTH: valueDateAccountPeriod.month() + 1,
-                        PERIOD_YEAR: valueDateAccountPeriod.year(),
-                        setDataReport: setDataList,
-                    });
-                } else {
-                    toast.warn(t('toast-nodata'));
-                }
-            }
-            setIsLoading(false);
-        };
+    // useEffect(() => {
+    //     const asyncApiList = async () => {
+    //         setIsLoading(true);
+    //         if (reloadData) {
+    //             if (valueCostCenter) {
+    //                 const status_code = await ApiLoadDataReport({
+    //                     valueCostCenter: valueCostCenter,
+    //                     PERIOD_MONTH: valueDateAccountPeriod.month() + 1,
+    //                     PERIOD_YEAR: valueDateAccountPeriod.year(),
+    //                     setDataReport: setDataList,
+    //                 });
+    //             } else {
+    //                 toast.warn(t('toast-nodata'));
+    //             }
+    //         }
+    //         setIsLoading(false);
+    //     };
 
-        asyncApiList();
-        setReloadData(false);
-    }, [reloadData]);
+    //     asyncApiList();
+    //     setReloadData(false);
+    // }, [reloadData]);
     /* #endregion */
 
     const CustomFooter = (props) => {
@@ -515,7 +515,7 @@ function CloseAccountingPeriod({ title }) {
                         title={t('transfer-lost')}
                         content={
                             <>
-                                {t('transfer-lost')}: {dayjs(dataPeriod_From_Redux).utc(true).format('MM - YYYY')}
+                                {t('transfer-lost')}: {dayjs(dataPeriod_From_Redux).utc(true).format('MM - YYYY')}/
                             </>
                         }
                         onOpen={dialogIsOpenTransferLost}

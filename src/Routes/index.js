@@ -20,18 +20,17 @@ const otherRoutes = [
 const MENU_MASTER = 121
 const MENU_TRANSACTION = 122
 
-export const settingRoutes = [
+export const masterRoutes = [
     { path: '/accountgroup', component: AccountGroup, title: 'menu-acc-group', menuid: 618, groupid: MENU_MASTER },
     { path: '/expense/*', component: Expense, title: 'menu-expense', menuid: 620, groupid: MENU_MASTER },
     { path: '/subaccount/*', component: SubAccount, title: 'menu-sub-acc', menuid: 622, groupid: MENU_MASTER },
     { path: '/account/*', component: Account, title: 'menu-acc', menuid: 621, groupid: MENU_MASTER },
-    // { path: '/indexrate', component: IndexRate, title: 'Index Rate' },
 ];
-export const accountantRoutes = [
+export const transactionRoutes = [
     { path: '/accountingentry/*', component: AccountingEntry, title: 'menu-entry', menuid: 623, groupid: MENU_TRANSACTION },
-    // { path: '/costallocation', component: CostAllocation, title: 'menu-allocation' },
-    // { path: '/closeaccountingperiod', component: CloseAccountingPeriod, title: 'menu-close-period' },
-    // { path: '/openaccountingperiod', component: OpenAccountingPeriod, title: 'menu-open-period' },
+    { path: '/costallocation', component: CostAllocation, title: 'menu-allocation', menuid: 704, groupid: MENU_TRANSACTION },
+    { path: '/closeaccountingperiod', component: CloseAccountingPeriod, title: 'menu-close-period', menuid: 702, groupid: MENU_TRANSACTION },
+    { path: '/openaccountingperiod', component: OpenAccountingPeriod, title: 'menu-open-period', menuid: 703, groupid: MENU_TRANSACTION },
 ];
 export const reportRoutes = [
     // { path: '/reportcogm', component: Report_COGM, title: 'menu-report-cogm' },
@@ -42,7 +41,7 @@ export const reportRoutes = [
 
 export const publicRoutes = [
     ...otherRoutes,
-    ...settingRoutes,
-    ...accountantRoutes,
+    ...masterRoutes,
+    ...transactionRoutes,
     ...reportRoutes,
 ];

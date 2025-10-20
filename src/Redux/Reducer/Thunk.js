@@ -35,7 +35,7 @@ const initialState = {
             Description: null
         }
     ],
-    listData_Period: [{
+    listData_Period: {
         acc_date: "2025-08-01T00:00:00",
         acc_period_month: "08",
         acc_period_year: "2025",
@@ -44,7 +44,7 @@ const initialState = {
         next_period_month: "09",
         next_period_year: "2025",
         unitcode: "UN001"
-    }],
+    },
     listData_CostCenter: [],
     listData_AccountGroup: [],
     listData_SubAccountType: [],

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { settingRoutes, accountantRoutes, reportRoutes } from '~/Routes';
+import { masterRoutes, transactionRoutes, reportRoutes } from '~/Routes';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { DomainMasterApp, DomainPoultry } from '~/DomainApi';
 import { styled, alpha, useTheme } from '@mui/material/styles';
@@ -324,7 +324,7 @@ function Header() {
                     backgroundColor: '#ed6c02',
                 }}
             />
-            {settingRoutes.map((route, index) => {
+            {masterRoutes.map((route, index) => {
                 return (
                     <ListItem
                         key={route.title}
@@ -362,7 +362,7 @@ function Header() {
                     backgroundColor: '#ed6c02',
                 }}
             />
-            {accountantRoutes.map((route, index) => {
+            {transactionRoutes.map((route, index) => {
                 return (
                     <ListItem
                         key={route.title}
@@ -789,7 +789,7 @@ function Header() {
                             backgroundColor: '#ed6c02',
                         }}
                     />
-                    {settingRoutes.map((route) => {
+                    {masterRoutes.map((route) => {
                         return (
                             <ListItem
                                 key={route.title}
@@ -838,7 +838,7 @@ function Header() {
                             backgroundColor: '#ed6c02',
                         }}
                     />
-                    {accountantRoutes.map((route, index) => {
+                    {transactionRoutes.map((route, index) => {
                         return (
                             <ListItem
                                 key={route.title}

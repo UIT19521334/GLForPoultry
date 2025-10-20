@@ -138,19 +138,19 @@ export default function DialogLivePigs({ open, onClose }) {
     const [reloadListFarm, setReloadListFarm] = React.useState(false);
     const [dataListFarm, setDataListFarm] = useState([]);
 
-    useEffect(() => {
-        const asyncApiListAccount = async () => {
-            setIsLoading(true);
-            await ApiGetListFarm(
-                valueCostCenter,
-                dayjs(dataPeriod_From_Redux).month() + 1,
-                dayjs(dataPeriod_From_Redux).year(),
-                setDataListFarm,
-            );
-            setIsLoading(false);
-        };
-        asyncApiListAccount();
-    }, [reloadListFarm]);
+    // useEffect(() => {
+    //     const asyncApiListAccount = async () => {
+    //         setIsLoading(true);
+    //         await ApiGetListFarm(
+    //             valueCostCenter,
+    //             dayjs(dataPeriod_From_Redux).month() + 1,
+    //             dayjs(dataPeriod_From_Redux).year(),
+    //             setDataListFarm,
+    //         );
+    //         setIsLoading(false);
+    //     };
+    //     asyncApiListAccount();
+    // }, [reloadListFarm]);
     /* #endregion */
     const [valueHidenFarm, setValueHidenFarm] = React.useState(false);
     const [valueFarm, setValueFarm] = React.useState('');
@@ -164,18 +164,18 @@ export default function DialogLivePigs({ open, onClose }) {
     const [reloadList, setReloadList] = React.useState(false);
     const [dataList, setDataList] = useState([]);
 
-    useEffect(() => {
-        const asyncApiListAccount = async () => {
-            setIsLoading(true);
-            await ApiLivePigList(
-                dayjs(dataPeriod_From_Redux).month() + 1,
-                dayjs(dataPeriod_From_Redux).year(),
-                setDataList,
-            );
-            setIsLoading(false);
-        };
-        asyncApiListAccount();
-    }, [reloadList]);
+    // useEffect(() => {
+    //     const asyncApiListAccount = async () => {
+    //         setIsLoading(true);
+    //         await ApiLivePigList(
+    //             dayjs(dataPeriod_From_Redux).month() + 1,
+    //             dayjs(dataPeriod_From_Redux).year(),
+    //             setDataList,
+    //         );
+    //         setIsLoading(false);
+    //     };
+    //     asyncApiListAccount();
+    // }, [reloadList]);
     /* #endregion */
 
     //! column datagrid header
@@ -284,40 +284,40 @@ export default function DialogLivePigs({ open, onClose }) {
     /* #endregion */
 
     // TODO call api create
-    useEffect(() => {
-        if (callApiNew) {
-            const asyncApiCreate = async () => {
-                setIsLoading(true);
-                const statusCode = await ApiCreateLivePig(
-                    access_token,
-                    valueType,
-                    valueCostCenter,
-                    value,
-                    valueDescription,
-                    valueFarm,
-                    dayjs(dataPeriod_From_Redux).month() + 1,
-                    dayjs(dataPeriod_From_Redux).year(),
-                );
-                if (statusCode) {
-                    setValueCode('');
-                    setValueType('');
-                    setValueCostCenter('');
-                    setValue('');
-                    setValueDescription('');
+    // useEffect(() => {
+    //     if (callApiNew) {
+    //         const asyncApiCreate = async () => {
+    //             setIsLoading(true);
+    //             const statusCode = await ApiCreateLivePig(
+    //                 access_token,
+    //                 valueType,
+    //                 valueCostCenter,
+    //                 value,
+    //                 valueDescription,
+    //                 valueFarm,
+    //                 dayjs(dataPeriod_From_Redux).month() + 1,
+    //                 dayjs(dataPeriod_From_Redux).year(),
+    //             );
+    //             if (statusCode) {
+    //                 setValueCode('');
+    //                 setValueType('');
+    //                 setValueCostCenter('');
+    //                 setValue('');
+    //                 setValueDescription('');
 
-                    setValueNewButton(false);
-                    setValueDisableSaveButton(true);
-                    setValueReadonly(true);
-                    setReloadList(!reloadList);
-                }
-            };
+    //                 setValueNewButton(false);
+    //                 setValueDisableSaveButton(true);
+    //                 setValueReadonly(true);
+    //                 setReloadList(!reloadList);
+    //             }
+    //         };
 
-            setIsLoading(false);
-            asyncApiCreate();
-        }
+    //         setIsLoading(false);
+    //         asyncApiCreate();
+    //     }
 
-        setCallApiNew(false);
-    }, [callApiNew]);
+    //     setCallApiNew(false);
+    // }, [callApiNew]);
 
     const agreeDialogUpdate = () => {
         setDialogIsOpenUpdate(false);
@@ -339,35 +339,35 @@ export default function DialogLivePigs({ open, onClose }) {
     /* #endregion */
 
     // TODO call api update
-    useEffect(() => {
-        if (callApiUpdate) {
-            const asyncApiUpdate = async () => {
-                setIsLoading(true);
-                const statusCode = await ApiUpdateLivePig(
-                    access_token,
-                    valueCode,
-                    valueType,
-                    valueCostCenter,
-                    value,
-                    valueDescription,
-                    valueFarm,
-                    dayjs(dataPeriod_From_Redux).month() + 1,
-                    dayjs(dataPeriod_From_Redux).year(),
-                );
-                if (statusCode) {
-                    setValueUpdateButton(false);
-                    setValueDisableSaveButton(true);
-                    setValueReadonly(true);
-                    setReloadList(!reloadList);
-                }
-            };
+    // useEffect(() => {
+    //     if (callApiUpdate) {
+    //         const asyncApiUpdate = async () => {
+    //             setIsLoading(true);
+    //             const statusCode = await ApiUpdateLivePig(
+    //                 access_token,
+    //                 valueCode,
+    //                 valueType,
+    //                 valueCostCenter,
+    //                 value,
+    //                 valueDescription,
+    //                 valueFarm,
+    //                 dayjs(dataPeriod_From_Redux).month() + 1,
+    //                 dayjs(dataPeriod_From_Redux).year(),
+    //             );
+    //             if (statusCode) {
+    //                 setValueUpdateButton(false);
+    //                 setValueDisableSaveButton(true);
+    //                 setValueReadonly(true);
+    //                 setReloadList(!reloadList);
+    //             }
+    //         };
 
-            setIsLoading(false);
-            asyncApiUpdate();
-        }
+    //         setIsLoading(false);
+    //         asyncApiUpdate();
+    //     }
 
-        setCallApiUpdate(false);
-    }, [callApiUpdate]);
+    //     setCallApiUpdate(false);
+    // }, [callApiUpdate]);
 
     //! handle click save
     const [valueDisableSaveButton, setValueDisableSaveButton] = React.useState(true);
@@ -403,22 +403,22 @@ export default function DialogLivePigs({ open, onClose }) {
         }
         setDialogIsOpenDelete(true);
     };
-    const apiDelete = async () => {
-        const status_code = await ApiDeleteLivePig(access_token, valueCode);
-        if (status_code) {
-            setValueCode('');
+    // const apiDelete = async () => {
+    //     const status_code = await ApiDeleteLivePig(access_token, valueCode);
+    //     if (status_code) {
+    //         setValueCode('');
 
-            setValueCostCenter('');
-            setValue('');
-            setValueDescription('');
+    //         setValueCostCenter('');
+    //         setValue('');
+    //         setValueDescription('');
 
-            setReloadList(!reloadList);
-        }
-    };
+    //         setReloadList(!reloadList);
+    //     }
+    // };
     useEffect(() => {
         setIsLoading(true);
         if (callApiDelete) {
-            apiDelete();
+            // apiDelete();
         }
         setCallApiDelete(false);
         setIsLoading(false);

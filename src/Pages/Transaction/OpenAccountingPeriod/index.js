@@ -1,5 +1,5 @@
 import React from 'react';
-import dayjs from 'dayjs';
+import dayjs from '~/utils/dayjs'
 import { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -95,21 +95,21 @@ function OpenAccountingPeriod({ title }) {
     };
 
     //todo: call api reopen period
-    useEffect(() => {
-        const fetchApiReopen = async () => {
-            if (callApiOpenReopen) {
-                setIsLoading(true);
-                const statusCode = await ApiReopenPeriod(access_token, dateReopenPeriod, valueUser);
-                if (statusCode) {
-                    dispatch(fetchPeriod(unitcode));
-                    setDateReopenPeriod(null);
-                }
-                setIsLoading(false);
-            }
-            setCallApiOpenReopen(false);
-        };
-        fetchApiReopen();
-    }, [callApiOpenReopen]);
+    // useEffect(() => {
+    //     const fetchApiReopen = async () => {
+    //         if (callApiOpenReopen) {
+    //             setIsLoading(true);
+    //             const statusCode = await ApiReopenPeriod(access_token, dateReopenPeriod, valueUser);
+    //             if (statusCode) {
+    //                 dispatch(fetchPeriod(unitcode));
+    //                 setDateReopenPeriod(null);
+    //             }
+    //             setIsLoading(false);
+    //         }
+    //         setCallApiOpenReopen(false);
+    //     };
+    //     fetchApiReopen();
+    // }, [callApiOpenReopen]);
 
     //! on key event
     OnMultiKeyEvent(() => handleReopenPeriod(), 'r');

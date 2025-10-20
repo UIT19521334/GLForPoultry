@@ -229,14 +229,14 @@ function CostAllocation({ title }) {
     /* #region data list header */
     const [dataListHeader, setDataListHeader] = useState([]);
     const [reloadListHeader, setReloadListHeader] = useState([]);
-    useEffect(() => {
-        setIsLoading(true);
-        const asyncApiListHeader = async () => {
-            await ApiCostAllocationListHeader(valueStatus, setDataListHeader);
-        };
-        asyncApiListHeader();
-        setIsLoading(false);
-    }, [reloadListHeader]);
+    // useEffect(() => {
+    //     setIsLoading(true);
+    //     const asyncApiListHeader = async () => {
+    //         await ApiCostAllocationListHeader(valueStatus, setDataListHeader);
+    //     };
+    //     asyncApiListHeader();
+    //     setIsLoading(false);
+    // }, [reloadListHeader]);
 
     //! select row header in datagrid
     const onHandleRowsSelectionHeader = (ids) => {
@@ -369,20 +369,20 @@ function CostAllocation({ title }) {
     };
 
     const [callApiProcess, setCallApiProcess] = React.useState(false);
-    useEffect(() => {
-        const apiProcess = async () => {
-            setIsLoading(true);
-            const statusCode = await ApiProcessCostAllocation(access_token, valueAllocationCode);
-            if (statusCode) {
-                setValueButtonProcess(true);
-                setValueButtonPause(false);
-                setReloadListHeader(!reloadListHeader);
-            }
-            setIsLoading(false);
-        };
+    // useEffect(() => {
+    //     const apiProcess = async () => {
+    //         setIsLoading(true);
+    //         const statusCode = await ApiProcessCostAllocation(access_token, valueAllocationCode);
+    //         if (statusCode) {
+    //             setValueButtonProcess(true);
+    //             setValueButtonPause(false);
+    //             setReloadListHeader(!reloadListHeader);
+    //         }
+    //         setIsLoading(false);
+    //     };
 
-        apiProcess();
-    }, [callApiProcess]);
+    //     apiProcess();
+    // }, [callApiProcess]);
     /* #endregion */
 
     //todo: call api pause
@@ -396,20 +396,20 @@ function CostAllocation({ title }) {
         }
     };
     const [callApiPause, setCallApiPause] = React.useState(false);
-    useEffect(() => {
-        const apiPause = async () => {
-            setIsLoading(true);
-            const statusCode = await ApiPauseCostAllocation(access_token, valueAllocationCode);
-            if (statusCode) {
-                setValueButtonProcess(false);
-                setValueButtonPause(true);
-                setReloadListHeader(!reloadListHeader);
-            }
-            setIsLoading(false);
-        };
+    // useEffect(() => {
+    //     const apiPause = async () => {
+    //         setIsLoading(true);
+    //         const statusCode = await ApiPauseCostAllocation(access_token, valueAllocationCode);
+    //         if (statusCode) {
+    //             setValueButtonProcess(false);
+    //             setValueButtonPause(true);
+    //             setReloadListHeader(!reloadListHeader);
+    //         }
+    //         setIsLoading(false);
+    //     };
 
-        apiPause();
-    }, [callApiPause]);
+    //     apiPause();
+    // }, [callApiPause]);
     /* #endregion */
 
     //todo: call api new header
@@ -425,45 +425,45 @@ function CostAllocation({ title }) {
         toast.warning(t('toast-cancel-new'));
     };
 
-    useEffect(() => {
-        const apiNewHeader = async () => {
-            setIsLoading(true);
-            const statusCode = await ApiCreateCostAllocationHeader(
-                access_token,
-                valueDocDate,
-                valueDescription,
-                valueCurrency,
-                valueChannel,
-                valueAccountGroup,
-                valueDebitEntry,
-                valueCreditEntry,
-                valueCostCenter,
-                valueUser,
-                dataList,
-            );
-            if (statusCode) {
-                setValueAllocationCode('');
-                setValueUser('');
-                setValueDescription('');
-                setValueDocDate(dayjs());
-                setValueUpdateDate(dayjs());
-                setValueAccountGroup('');
-                setValueDebitEntry('');
-                setValueCreditEntry('');
-                setValueButtonNew(false);
-                setValueDisabledSaveButton(true);
-                setValueReadonly(true);
-                // setValueReadonlyDocdate(true);
-                setValueEditGrid(false);
-                setDataListDetail([]);
-                setValueChannel('');
-            }
-            setIsLoading(false);
-            setReloadListHeader(!reloadListHeader);
-        };
+    // useEffect(() => {
+    //     const apiNewHeader = async () => {
+    //         setIsLoading(true);
+    //         const statusCode = await ApiCreateCostAllocationHeader(
+    //             access_token,
+    //             valueDocDate,
+    //             valueDescription,
+    //             valueCurrency,
+    //             valueChannel,
+    //             valueAccountGroup,
+    //             valueDebitEntry,
+    //             valueCreditEntry,
+    //             valueCostCenter,
+    //             valueUser,
+    //             dataList,
+    //         );
+    //         if (statusCode) {
+    //             setValueAllocationCode('');
+    //             setValueUser('');
+    //             setValueDescription('');
+    //             setValueDocDate(dayjs());
+    //             setValueUpdateDate(dayjs());
+    //             setValueAccountGroup('');
+    //             setValueDebitEntry('');
+    //             setValueCreditEntry('');
+    //             setValueButtonNew(false);
+    //             setValueDisabledSaveButton(true);
+    //             setValueReadonly(true);
+    //             // setValueReadonlyDocdate(true);
+    //             setValueEditGrid(false);
+    //             setDataListDetail([]);
+    //             setValueChannel('');
+    //         }
+    //         setIsLoading(false);
+    //         setReloadListHeader(!reloadListHeader);
+    //     };
 
-        apiNewHeader();
-    }, [callApiNewHeader]);
+    //     apiNewHeader();
+    // }, [callApiNewHeader]);
     /* #endregion */
 
     //todo: call api update header
@@ -479,69 +479,69 @@ function CostAllocation({ title }) {
         toast.warning(t('toast-cancel-update'));
     };
 
-    useEffect(() => {
-        const apiUpdate = async () => {
-            setIsLoading(true);
-            const statusCode = await ApiUpdateCostAllocationHeader(
-                access_token,
-                valueDocDate,
-                valueAllocationCode,
-                valueDescription,
-                valueCurrency,
-                valueChannel,
-                valueAccountGroup,
-                valueDebitEntry,
-                valueCreditEntry,
-                valueCostCenter,
-                valueUser,
-                dataList,
-            );
-            if (statusCode) {
-                setValueButtonUpdate(false);
-                setValueDisabledSaveButton(true);
-                setValueReadonly(true);
-                setValueEditGrid(false);
-                setReloadListDetail(!reloadListDetail);
-            }
-            setIsLoading(false);
-            setReloadListHeader(!reloadListHeader);
-        };
-        apiUpdate();
-    }, [callApiUpdate]);
+    // useEffect(() => {
+    //     const apiUpdate = async () => {
+    //         setIsLoading(true);
+    //         const statusCode = await ApiUpdateCostAllocationHeader(
+    //             access_token,
+    //             valueDocDate,
+    //             valueAllocationCode,
+    //             valueDescription,
+    //             valueCurrency,
+    //             valueChannel,
+    //             valueAccountGroup,
+    //             valueDebitEntry,
+    //             valueCreditEntry,
+    //             valueCostCenter,
+    //             valueUser,
+    //             dataList,
+    //         );
+    //         if (statusCode) {
+    //             setValueButtonUpdate(false);
+    //             setValueDisabledSaveButton(true);
+    //             setValueReadonly(true);
+    //             setValueEditGrid(false);
+    //             setReloadListDetail(!reloadListDetail);
+    //         }
+    //         setIsLoading(false);
+    //         setReloadListHeader(!reloadListHeader);
+    //     };
+    //     apiUpdate();
+    // }, [callApiUpdate]);
     /* #endregion */
 
     //todo: call api get data detail
     /* #region  call api detail list */
     const [dataListDetail, setDataListDetail] = useState([]);
     const [reloadListDetail, setReloadListDetail] = useState([]);
-    useEffect(() => {
-        const process = async () => {
-            setIsLoading(true);
-            if (valueAllocationCode) {
-                await ApiCostAllocationListDetail(valueAllocationCode, setDataListDetail);
-            }
-            setIsLoading(false);
-        };
-        process();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [reloadListDetail]);
+    // useEffect(() => {
+    //     const process = async () => {
+    //         setIsLoading(true);
+    //         if (valueAllocationCode) {
+    //             await ApiCostAllocationListDetail(valueAllocationCode, setDataListDetail);
+    //         }
+    //         setIsLoading(false);
+    //     };
+    //     process();
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [reloadListDetail]);
     /* #endregion */
 
     //todo: call api export file
     /* #region  call api export list */
     const [dataListExport, setDataListExport] = useState([]);
     const [buttonExport, setButtonExport] = useState(true);
-    useEffect(() => {
-        const process = async () => {
-            setIsLoading(true);
-            setButtonExport(true);
-            await Api_Export_CostAllocation(setDataListExport);
-            setIsLoading(false);
-            setButtonExport(false);
-        };
-        process();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dataListHeader]);
+    // useEffect(() => {
+    //     const process = async () => {
+    //         setIsLoading(true);
+    //         setButtonExport(true);
+    //         await Api_Export_CostAllocation(setDataListExport);
+    //         setIsLoading(false);
+    //         setButtonExport(false);
+    //     };
+    //     process();
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [dataListHeader]);
 
     const columnsExport = [
         {
