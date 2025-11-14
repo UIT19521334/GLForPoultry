@@ -38,6 +38,8 @@ import OnMultiKeyEvent from '~/components/Event/OnMultiKeyEvent';
 import { fetchPeriod } from '~/Redux/FetchApi/fetchApiMaster';
 import DialogLivePigs from './DialogLivePigs';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
+import { TextField } from '@mui/material';
+import { updateDialogError } from '~/Redux/Reducer/Thunk';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -59,6 +61,7 @@ const getTotals = (data, key) => {
 function CloseAccountingPeriod({ title }) {
     var dispatch = useDispatch();
     const [isLoading, setIsLoading] = React.useState(false);
+    const [confirmText, setConfirmText] = React.useState("");
     const access_token = useSelector((state) => state.FetchApi.token);
     const dataPeriod_From_Redux = useSelector((state) => state.FetchApi.listData_Period.acc_date);
     const unitcode = useSelector((state) => state.Actions.unitcode);
@@ -78,8 +81,14 @@ function CloseAccountingPeriod({ title }) {
     const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
     const [callApiOpen, setCallApiOpen] = React.useState(false);
     const agreeDialogr = () => {
-        setDialogIsOpen(false);
+        if (confirmText !== 'Thiên An bắt nhập') {
+            dispatch(updateDialogError({ open: true, title: '', content: 'Nhập sai mã, không thể đóng kỳ !!!' }))
+            setConfirmText('');
+            setDialogIsOpen(false);
+            return
+        }
         setCallApiOpen(true);
+        setDialogIsOpen(false);
     };
     const closeDialog = () => {
         setDialogIsOpen(false);
@@ -101,7 +110,7 @@ function CloseAccountingPeriod({ title }) {
     //     };
     //     fetchApiOpen();
     // }, [callApiOpen]);
-    const handleOpenPeriod = () => {
+    const handleClosePeriod = () => {
         setDialogIsOpen(true);
     };
 
@@ -417,7 +426,7 @@ function CloseAccountingPeriod({ title }) {
     };
 
     //! on key event
-    OnMultiKeyEvent(() => handleOpenPeriod(), 'l');
+    OnMultiKeyEvent(() => handleClosePeriod(), 'l');
 
     //? Mobile
     //! button phan bo header
@@ -471,10 +480,17 @@ function CloseAccountingPeriod({ title }) {
                 <ToastContainer position='bottom-right' stacked />
                 {dialogIsOpen && (
                     <AlertDialog
-                        title={t('close-toast-new')}
+                        title={`${t('close-toast-new')}: ${dayjs(dataPeriod_From_Redux).utc(true).format('MM - YYYY')}`}
                         content={
                             <>
-                                {t('close-toast-new')}: {dayjs(dataPeriod_From_Redux).utc(true).format('MM - YYYY')}
+                                <Box mb={2}>
+
+                                    {`Nhập "Thiên An bắt nhập" để đóng kỳ`}
+                                </Box>
+                                <TextField fullWidth
+                                    value={confirmText}
+                                    onChange={(e) => setConfirmText(e.target.value)}
+                                />
                             </>
                         }
                         onOpen={dialogIsOpen}
@@ -607,7 +623,7 @@ function CloseAccountingPeriod({ title }) {
                                             variant="contained"
                                             color="primary"
                                             startIcon={<LockIcon />}
-                                            onClick={handleOpenPeriod}
+                                            onClick={handleClosePeriod}
                                         >
                                             {t('button-lock')}
                                         </LoadingButton>
@@ -643,7 +659,7 @@ function CloseAccountingPeriod({ title }) {
                                                 justifyContent={'flex-start'}
                                                 sx={{ display: { xs: 'none', md: 'flex' } }}
                                             >
-                                                <LoadingButton
+                                                {/* <LoadingButton
                                                     startIcon={<AddBoxIcon />}
                                                     variant="contained"
                                                     color="primary"
@@ -652,9 +668,9 @@ function CloseAccountingPeriod({ title }) {
                                                     sx={{ whiteSpace: 'nowrap' }}
                                                 >
                                                     {t('button-material-cost')}
-                                                </LoadingButton>
+                                                </LoadingButton> */}
 
-                                                <LoadingButton
+                                                {/* <LoadingButton
                                                     startIcon={<CalculateIcon />}
                                                     variant="contained"
                                                     color="warning"
@@ -663,9 +679,9 @@ function CloseAccountingPeriod({ title }) {
                                                     sx={{ whiteSpace: 'nowrap' }}
                                                 >
                                                     {t('button-calculate-cogm')}
-                                                </LoadingButton>
+                                                </LoadingButton> */}
 
-                                                <LoadingButton
+                                                {/* <LoadingButton
                                                     startIcon={<MoveUpIcon />}
                                                     variant="contained"
                                                     color="secondary"
@@ -674,7 +690,7 @@ function CloseAccountingPeriod({ title }) {
                                                     sx={{ whiteSpace: 'nowrap' }}
                                                 >
                                                     {t('button-calculate-cost-transfer')}
-                                                </LoadingButton>
+                                                </LoadingButton> */}
                                                 <LoadingButton
                                                     sx={{
                                                         backgroundColor: '#FF8F00',
@@ -786,7 +802,7 @@ function CloseAccountingPeriod({ title }) {
                                                                             {t('button-view-report')}
                                                                         </LoadingButton>
                                                                     </div>
-                                                                    <div>
+                                                                    {/* <div>
                                                                         <LoadingButton
                                                                             startIcon={<FileDownloadIcon />}
                                                                             variant="contained"
@@ -798,7 +814,7 @@ function CloseAccountingPeriod({ title }) {
                                                                         >
                                                                             {t('button-export')}
                                                                         </LoadingButton>
-                                                                    </div>
+                                                                    </div> */}
                                                                 </Stack>
                                                             </Grid>
                                                         </Grid>

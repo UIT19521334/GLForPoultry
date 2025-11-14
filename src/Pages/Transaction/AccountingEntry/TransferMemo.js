@@ -25,7 +25,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { Autocomplete, Button, Checkbox, FormControl, FormLabel, MenuItem, Select } from '@mui/material';
-import { Check, CloudUpload, Delete, Domain, Home, PostAdd, Shop, ShoppingCart } from '@mui/icons-material';
+import { Check, CloudUpload, Delete, Domain, Home, MoneyOff, PostAdd, Shop, ShoppingCart } from '@mui/icons-material';
 import { fetchApiListAccountGroup, fetchApiListSubAccount } from '~/Redux/FetchApi/fetchApiMaster';
 import { ApiListAccountEntry, ApiCreateAccountEntry, ApiUpdateAccountEntry, ApiListAllMemo } from '~/components/Api/AccountingEntryApi';
 import { DomainPoultry } from '~/DomainApi';
@@ -412,6 +412,35 @@ function TransferMemo() {
                 handleReloadData();
             }
             setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+            if (error.response) {
+                dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Error api get sales!' }));
+            } else {
+                dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Error api get sales!' }));
+            }
+        }
+    }
+
+    const getCollectionEntries = async () => {
+        try {
+            setIsLoading(true);
+            // const body = {
+            //     unitids: [currentUnit.UnitId],
+            //     username: username,
+            //     month: valueDateAccountPeriod.format('MM'),
+            //     year: valueDateAccountPeriod.format('YYYY'),
+            // }
+            // const res = await DomainPoultry.post(`journal/trans-memo/sales`, body, { headers: { Authorization: token } });
+            // if (res.data?.Response) {
+            //     toast.success('Success get sales entries!');
+            //     handleReloadData();
+            // }
+            setTimeout(() => {
+                setIsLoading(false);
+                toast.success('Success get collection!');
+                handleReloadData();
+            }, 4000);
         } catch (error) {
             setIsLoading(false);
             if (error.response) {
@@ -845,7 +874,7 @@ function TransferMemo() {
         <Stack
             direction={'row'}
             spacing={1}
-            sx={{ display: { xs: 'flex', md: 'none' } }}
+            sx={{ display: { xs: 'flex' } }}
             justifygroupid={'space-between'}
             marginTop={1.5}
         >
@@ -1072,7 +1101,8 @@ function TransferMemo() {
                                             spacing={2}
                                             alignItems={'center'}
                                             justifyContent={'space-between'}
-                                            height={50}
+                                            flexWrap="wrap"
+                                            useFlexGap
                                         >
                                             <>
                                                 <h5
@@ -1088,6 +1118,8 @@ function TransferMemo() {
                                                 spacing={2}
                                                 alignItems={'center'}
                                                 justifyContent={'flex-start'}
+                                                flexWrap="wrap"
+                                                useFlexGap
                                             >
                                                 <Button
                                                     component="label"
@@ -1103,7 +1135,7 @@ function TransferMemo() {
                                                         textOverflow: 'ellipsis',
                                                     }}
                                                 >
-                                                    {t('load memo from depreciation')}
+                                                    {t('load-memo-depreciation')}
                                                 </Button>
                                                 <Button
                                                     component="label"
@@ -1120,7 +1152,24 @@ function TransferMemo() {
                                                         textOverflow: 'ellipsis',
                                                     }}
                                                 >
-                                                    {t('load memo from sale')}
+                                                    {t('load-memo-sale')}
+                                                </Button>
+                                                <Button
+                                                    component="label"
+                                                    role={undefined}
+                                                    variant="contained"
+                                                    tabIndex={-1}
+                                                    color="warning"
+                                                    startIcon={<MoneyOff />}
+                                                    onClick={getCollectionEntries}
+                                                    sx={{
+                                                        width: 300,
+                                                        whiteSpace: 'nowrap',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                    }}
+                                                >
+                                                    {t('load-memo-collection')}
                                                 </Button>
                                             </Stack>
                                         </Stack>
@@ -1552,7 +1601,7 @@ function TransferMemo() {
                                         </Grid>
                                     </Item>
                                 </Grid>
-                                {mobileResponsive}
+                                {/* {mobileResponsive} */}
                             </Item>
                         </Grid>
 
