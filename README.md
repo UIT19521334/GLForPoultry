@@ -1,4 +1,7 @@
 
+![Logo](https://cdn.haitrieu.com/wp-content/uploads/2023/11/Logo-Japfa-1.png)
+
+
 ## 1. Tổng quan hệ thống
 
 Japfa Poultry GL Web là ứng dụng web phục vụ nghiệp vụ kế toán – chi phí cho mảng Poultry.
