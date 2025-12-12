@@ -29,8 +29,6 @@ Japfa Poultry GL Web là ứng dụng web phục vụ nghiệp vụ kế toán �
 4. Mọi API tiếp theo dùng `apiClient` (axios instance) tự động gắn `Authorization: Bearer <token>` từ Redux.
 5. Router (`publicRoutes`) render các màn hình Master, Transaction, Report theo quyền.
 
-<div class="page-break"></div>
-
 ### 2.2 Cấu trúc chính (frontend)
 
 - `src/App.js`
@@ -211,8 +209,8 @@ GLForPoultry/
 │  └─ globals.js        # Biến global, polyfill nếu có
 ├─ .env                 # Biến môi trường (local)
 ├─ package.json
-├─ README.md            # Tài liệu kỹ thuật (file hiện tại)
-└─ Document.md          
+├─ README.md
+└─ Document.md          # Tài liệu kỹ thuật (file hiện tại)
 ```
 
 ---
