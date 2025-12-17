@@ -1,33 +1,47 @@
 import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
-import DomainApi from '~/DomainApi';
+import DomainApi, { DomainPoultry } from '~/DomainApi';
+import { updateDialogError } from '~/Redux/Reducer/Thunk';
+import { store } from '~/Redux/store';
 
-export async function ApiOpenPeriod(access_token) {
+//Mở Kỳ kế toán
+export async function ApiOpenPeriod(unitcode, body) {
     try {
-        var statusCode = false;
-        // const access_token = Access_token();
         const header = {
-            Authorization: access_token,
+            Authorization: store.getState().FetchApi.token,
         };
-
-        const response = await DomainApi.post(
-            `costing/acc-period/unitcode/${localStorage.getItem(
-                'Unit',
-            )}/open-next-period?username=${localStorage.getItem('UserName')}`,
-            null,
-            { headers: header },
-        );
-        statusCode = true;
-        toast.success(' Success open next period!');
+        const response = await DomainPoultry.post(`/${unitcode}/open-period`, body, { headers: header });
+        const data = await response?.data?.Response ?? null;
+        return data
     } catch (error) {
-        console.log('>>Error: ', error);
+        console.log(error);
         if (error.response) {
-            toast.error(error.response.data.ErrorMessage);
+            store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Lỗi mở kỳ kế toán!' }));
         } else {
-            toast.error(error.message);
+            store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Lỗi mở kỳ kế toán!' }));
         }
+        return null;
     }
-    return statusCode;
+}
+
+// Danh sách user
+export async function ApiUsersForOpenPeriod(unitcode) {
+    try {
+        const header = {
+            Authorization: store.getState().FetchApi.token,
+        };
+        const response = await DomainPoultry.get(`/${unitcode}/users`, { headers: header });
+        const data = await response.data?.Response ?? null;
+        return data
+    } catch (error) {
+        console.log(error);
+        if (error.response) {
+            store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.response.data.ErrorMessage || 'Lỗi lấy danh sách người dùng!' }));
+        } else {
+            store.dispatch(updateDialogError({ open: true, title: 'Error', content: error.message || 'Lỗi lấy danh sách người dùng!' }));
+        }
+        return null;
+    }
 }
 
 export async function ApiReopenPeriod(access_token, periodDate, user) {

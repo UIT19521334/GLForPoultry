@@ -30,15 +30,17 @@ import AlertDialog from '~/components/AlertDialog';
 import {
     ApiCalCOGM,
     ApiCalCostTransfer,
+    ApiClosePeriod,
     ApiLoadDataReport,
-    ApiTransferLost,
+    ApiProcessPeriod,
+    ApiTransferProfitLoss,
 } from '~/components/Api/CloseAccountingPeriod';
 import { ApiOpenPeriod } from '~/components/Api/OpenAccountingPeriod';
 import OnMultiKeyEvent from '~/components/Event/OnMultiKeyEvent';
 import { fetchPeriod } from '~/Redux/FetchApi/fetchApiMaster';
 import DialogLivePigs from './DialogLivePigs';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
-import { TextField } from '@mui/material';
+import { FormHelperText, TextField } from '@mui/material';
 import { updateDialogError } from '~/Redux/Reducer/Thunk';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -60,87 +62,94 @@ const getTotals = (data, key) => {
 
 function CloseAccountingPeriod({ title }) {
     var dispatch = useDispatch();
+    const currentUnit = useSelector((state) => state.FetchApi.currentUnit);
+    const userInfo = useSelector(state => state.FetchApi.userInfo);
     const [isLoading, setIsLoading] = React.useState(false);
     const [confirmText, setConfirmText] = React.useState("");
-    const access_token = useSelector((state) => state.FetchApi.token);
-    const dataPeriod_From_Redux = useSelector((state) => state.FetchApi.listData_Period.acc_date);
-    const unitcode = useSelector((state) => state.Actions.unitcode);
-    const [valueNextPeriod, setValueNextPeriod] = React.useState(dayjs(dataPeriod_From_Redux).add(1, 'month'));
+    const [errorConfirmText, setErrorConfirmText] = React.useState("");
+    const [valueNextPeriod, setValueNextPeriod] = React.useState(dayjs(new Date()));
+    const [valueClosedPeriod, setValueClosedPeriod] = React.useState(dayjs(new Date()));
     const { t } = useTranslation();
     const dataCostCenter = useSelector((state) =>
         state.FetchApi.listData_CostCenter.filter((data) => data.kind_of_location !== null),
     );
 
-    const [valueDateAccountPeriod, setValueDateAccountPeriod] = React.useState(dayjs(dataPeriod_From_Redux));
+    const [valueDateAccountPeriod, setValueDateAccountPeriod] = React.useState(dayjs(valueClosedPeriod));
     const [valueCostCenter, setValueCostCenter] = React.useState('');
 
     //todo: reload next month
     useEffect(() => {
-        setValueNextPeriod(dayjs(dataPeriod_From_Redux).add(1, 'month'));
-    }, [dataPeriod_From_Redux]);
+        getPeriodForUnit();
+    }, []);
+
+    const getPeriodForUnit = async () => {
+        setIsLoading(true)
+        const result = await ApiProcessPeriod(currentUnit.UnitId)
+        setIsLoading(false)
+        if (result) {
+            setValueClosedPeriod(dayjs(result.period_locked, "MMYYYY"))
+            setValueNextPeriod(dayjs(result.period_nextlock, "MMYYYY"))
+        }
+    }
+
+    const transferProfitLoss = async () => {
+        setIsLoading(true)
+        const body = {
+            Month: valueNextPeriod.format("M"),
+            Year: valueNextPeriod.format("YYYY"),
+            UserName: userInfo?.userName,
+            Currency: "VND",
+        }
+        const result = await ApiTransferProfitLoss(currentUnit.UnitId, body)
+        setIsLoading(false)
+        if (result) {
+            toast.success(t('transfer-lost-success'));
+        }
+    }
+
+    const closePeriod = async () => {
+        setIsLoading(true)
+        const body = {
+            Month: valueNextPeriod.format("M"),
+            Year: valueNextPeriod.format("YYYY"),
+            UserName: userInfo?.userName,
+            Currency: "VND",
+        }
+        const result = await ApiClosePeriod(currentUnit.UnitId, body)
+        setIsLoading(false)
+        if (result) {
+            toast.success('Đóng kỳ thành công');
+        }
+    }
+
     const [dialogIsOpen, setDialogIsOpen] = React.useState(false);
     const [callApiOpen, setCallApiOpen] = React.useState(false);
     const agreeDialogr = () => {
         if (confirmText !== 'Thiên An bắt nhập') {
-            dispatch(updateDialogError({ open: true, title: '', content: 'Nhập sai mã, không thể đóng kỳ !!!' }))
-            setConfirmText('');
-            setDialogIsOpen(false);
+            setErrorConfirmText('Nhập sai mã, không thể đóng kỳ !!!')
             return
         }
-        setCallApiOpen(true);
+        setConfirmText('');
+        setErrorConfirmText('');
         setDialogIsOpen(false);
+        closePeriod();
     };
     const closeDialog = () => {
         setDialogIsOpen(false);
+        setConfirmText('');
         toast.warning(t('close-toast-cancel'));
     };
 
-    //todo: call api open period
-    // useEffect(() => {
-    //     const fetchApiOpen = async () => {
-    //         if (callApiOpen) {
-    //             setIsLoading(true);
-    //             const statusCode = await ApiOpenPeriod(access_token);
-    //             if (statusCode) {
-    //                 dispatch(fetchPeriod(unitcode));
-    //             }
-    //             setIsLoading(false);
-    //         }
-    //         setCallApiOpen(false);
-    //     };
-    //     fetchApiOpen();
-    // }, [callApiOpen]);
     const handleClosePeriod = () => {
         setDialogIsOpen(true);
     };
 
-    //todo: call api export file
-    /* #region  call api export list */
+
     const [buttonExport, setButtonExport] = useState(false);
     const handleViewReport = (event) => {
         setReloadData(true);
     };
-
-    //todo: call api calculate cogm
     const [buttonCalCOGM, setButtonCalCOGM] = useState(false);
-    // useEffect(() => {
-    //     const fetchApiCalCOGM = async () => {
-    //         if (buttonCalCOGM) {
-    //             setIsLoading(true);
-    //             const statusCode = await ApiCalCOGM({
-    //                 access_token: access_token,
-    //                 PERIOD_MONTH: dayjs(dataPeriod_From_Redux).month() + 1,
-    //                 PERIOD_YEAR: dayjs(dataPeriod_From_Redux).year(),
-    //             });
-    //             if (statusCode) {
-    //                 toast.success(t('toast-success-cogm'));
-    //             }
-    //             setIsLoading(false);
-    //         }
-    //         setButtonCalCOGM(false);
-    //     };
-    //     fetchApiCalCOGM();
-    // }, [buttonCalCOGM]);
     const [dialogIsOpenCalCOGM, setDialogIsOpenCalCOGM] = React.useState(false);
     const agreeDialogCalCOGM = () => {
         setDialogIsOpenCalCOGM(false);
@@ -151,26 +160,9 @@ function CloseAccountingPeriod({ title }) {
         toast.warning(t('toast-cancel-cogm'));
     };
 
-    //todo: call api calculate cogm
+
     const [buttonCalCostTransfer, setButtonCalCostTransfer] = useState(false);
-    // useEffect(() => {
-    //     const fetchApiCalCostTransfer = async () => {
-    //         if (buttonCalCostTransfer) {
-    //             setIsLoading(true);
-    //             const statusCode = await ApiCalCostTransfer({
-    //                 access_token: access_token,
-    //                 PERIOD_MONTH: dayjs(dataPeriod_From_Redux).month() + 1,
-    //                 PERIOD_YEAR: dayjs(dataPeriod_From_Redux).year(),
-    //             });
-    //             if (statusCode) {
-    //                 toast.success(t('toast-success-cost-transfer'));
-    //             }
-    //             setIsLoading(false);
-    //         }
-    //         setButtonCalCostTransfer(false);
-    //     };
-    //     fetchApiCalCostTransfer();
-    // }, [buttonCalCostTransfer]);
+
     const [dialogIsOpenCalCost, setDialogIsOpenCalCost] = React.useState(false);
     const agreeDialogCalCost = () => {
         setDialogIsOpenCalCost(false);
@@ -181,35 +173,13 @@ function CloseAccountingPeriod({ title }) {
         toast.warning(t('toast-cancel-cost-transfer'));
     };
 
-    //todo : call api transfer lost
-    const [callApiTransferLost, setCallApiTransferLost] = useState(false);
-    // useEffect(() => {
-    //     const fetchApiTransferLost = async () => {
-    //         if (callApiTransferLost) {
-    //             setIsLoading(true);
-    //             const statusCode = await ApiTransferLost({
-    //                 unitcode: unitcode,
-    //                 username: localStorage.getItem('UserName'),
-    //                 access_token: access_token,
-    //                 acc_period_month: dayjs(dataPeriod_From_Redux).month() + 1,
-    //                 acc_period_year: dayjs(dataPeriod_From_Redux).year(),
-    //             });
-    //             if (statusCode) {
-    //                 toast.success(`Thành công ${t('transfer-lost')}`);
-    //             }
-    //             setIsLoading(false);
-    //         }
-    //         setCallApiTransferLost(false);
-    //     };
-    //     fetchApiTransferLost();
-    // }, [callApiTransferLost]);
-    const [dialogIsOpenTransferLost, setDialogIsOpenTransferLost] = React.useState(false);
-    const agreeDialogTransferLost = () => {
-        setDialogIsOpenTransferLost(false);
-        setCallApiTransferLost(true);
+    const [dialogIsOpenTransferProfitLoss, setDialogIsOpenTransferProfitLoss] = React.useState(false);
+    const agreeDialogTransferProfitLoss = () => {
+        setDialogIsOpenTransferProfitLoss(false);
+        transferProfitLoss();
     };
-    const closeDialogTransferLost = () => {
-        setDialogIsOpenTransferLost(false);
+    const closeDialogTransferProfitLoss = () => {
+        setDialogIsOpenTransferProfitLoss(false);
         toast.warning(`Hủy ${t('transfer-lost')}`);
     };
     //! handler change
@@ -480,17 +450,20 @@ function CloseAccountingPeriod({ title }) {
                 <ToastContainer position='bottom-right' stacked />
                 {dialogIsOpen && (
                     <AlertDialog
-                        title={`${t('close-toast-new')}: ${dayjs(dataPeriod_From_Redux).utc(true).format('MM - YYYY')}`}
+                        title={`${t('close-toast-new')}: ${dayjs(valueNextPeriod).utc(true).format('MM - YYYY')}`}
                         content={
                             <>
                                 <Box mb={2}>
 
-                                    {`Nhập "Thiên An bắt nhập" để đóng kỳ`}
+                                    {t('close-period-confirm"')}
                                 </Box>
                                 <TextField fullWidth
                                     value={confirmText}
+                                    error={errorConfirmText}
+                                    helperText={errorConfirmText}
                                     onChange={(e) => setConfirmText(e.target.value)}
                                 />
+
                             </>
                         }
                         onOpen={dialogIsOpen}
@@ -504,7 +477,7 @@ function CloseAccountingPeriod({ title }) {
                         content={
                             <>
                                 {t('button-calculate-cogm')}:{' '}
-                                {dayjs(dataPeriod_From_Redux).utc(true).format('MM - YYYY')}
+                                {dayjs(valueClosedPeriod).utc(true).format('MM - YYYY')}
                             </>
                         }
                         onOpen={dialogIsOpenCalCOGM}
@@ -518,7 +491,7 @@ function CloseAccountingPeriod({ title }) {
                         content={
                             <>
                                 {t('button-calculate-cost-transfer')}:{' '}
-                                {dayjs(dataPeriod_From_Redux).utc(true).format('MM - YYYY')}
+                                {dayjs(valueClosedPeriod).utc(true).format('MM - YYYY')}
                             </>
                         }
                         onOpen={dialogIsOpenCalCost}
@@ -526,17 +499,17 @@ function CloseAccountingPeriod({ title }) {
                         onAgree={agreeDialogCalCost}
                     />
                 )}
-                {dialogIsOpenTransferLost && (
+                {dialogIsOpenTransferProfitLoss && (
                     <AlertDialog
                         title={t('transfer-lost')}
                         content={
                             <>
-                                {t('transfer-lost')}: {dayjs(dataPeriod_From_Redux).utc(true).format('MM - YYYY')}/
+                                {t('transfer-lost')}: {dayjs(valueNextPeriod).utc(true).format('MM - YYYY')}/
                             </>
                         }
-                        onOpen={dialogIsOpenTransferLost}
-                        onClose={closeDialogTransferLost}
-                        onAgree={agreeDialogTransferLost}
+                        onOpen={dialogIsOpenTransferProfitLoss}
+                        onClose={closeDialogTransferProfitLoss}
+                        onAgree={agreeDialogTransferProfitLoss}
                     />
                 )}
                 {openDialogCost && <DialogLivePigs open={openDialogCost} onClose={handleCloseDialogDetail} />}
@@ -568,7 +541,7 @@ function CloseAccountingPeriod({ title }) {
                                         <Stack
                                             direction={'row'}
                                             spacing={2}
-                                            alignItems={'center'}
+                                            alignItems={'flex-start'}
                                             justifyContent={'flex-start'}
                                         >
                                             <h6 style={{ width: '50%', textAlign: 'right' }}>{t('close-period')}</h6>
@@ -577,7 +550,7 @@ function CloseAccountingPeriod({ title }) {
                                                     <DatePicker
                                                         // label={'"month" and "year"'}
                                                         views={['month', 'year']}
-                                                        value={dayjs(dataPeriod_From_Redux)}
+                                                        value={dayjs(valueClosedPeriod)}
                                                         // sx={{ width: 300 }}
                                                         slotProps={{
                                                             textField: { size: 'small' },
@@ -594,7 +567,7 @@ function CloseAccountingPeriod({ title }) {
                                         <Stack
                                             direction={'row'}
                                             spacing={2}
-                                            alignItems={'center'}
+                                            alignItems={'flex-start'}
                                             justifyContent={'flex-start'}
                                         >
                                             <h6 style={{ width: '50%', textAlign: 'right' }}>{t('new-period')}</h6>
@@ -644,13 +617,13 @@ function CloseAccountingPeriod({ title }) {
                                             justifyContent={'flex-start'}
                                             height={50}
                                         >
-                                            <h5
+                                            {/* <h5
                                                 style={{
                                                     fontWeight: 'bold',
                                                 }}
                                             >
                                                 {t('expenses-period')}
-                                            </h5>
+                                            </h5> */}
 
                                             <Stack
                                                 direction={'row'}
@@ -659,38 +632,6 @@ function CloseAccountingPeriod({ title }) {
                                                 justifyContent={'flex-start'}
                                                 sx={{ display: { xs: 'none', md: 'flex' } }}
                                             >
-                                                {/* <LoadingButton
-                                                    startIcon={<AddBoxIcon />}
-                                                    variant="contained"
-                                                    color="primary"
-                                                    onClick={handleClickOpenDialogDetail}
-                                                    loadingPosition="start"
-                                                    sx={{ whiteSpace: 'nowrap' }}
-                                                >
-                                                    {t('button-material-cost')}
-                                                </LoadingButton> */}
-
-                                                {/* <LoadingButton
-                                                    startIcon={<CalculateIcon />}
-                                                    variant="contained"
-                                                    color="warning"
-                                                    onClick={() => setDialogIsOpenCalCOGM(true)}
-                                                    loadingPosition="start"
-                                                    sx={{ whiteSpace: 'nowrap' }}
-                                                >
-                                                    {t('button-calculate-cogm')}
-                                                </LoadingButton> */}
-
-                                                {/* <LoadingButton
-                                                    startIcon={<MoveUpIcon />}
-                                                    variant="contained"
-                                                    color="secondary"
-                                                    onClick={() => setDialogIsOpenCalCost(true)}
-                                                    loadingPosition="start"
-                                                    sx={{ whiteSpace: 'nowrap' }}
-                                                >
-                                                    {t('button-calculate-cost-transfer')}
-                                                </LoadingButton> */}
                                                 <LoadingButton
                                                     sx={{
                                                         backgroundColor: '#FF8F00',
@@ -702,7 +643,7 @@ function CloseAccountingPeriod({ title }) {
                                                     }}
                                                     startIcon={<SyncAltIcon />}
                                                     variant="contained"
-                                                    onClick={() => setDialogIsOpenTransferLost(true)}
+                                                    onClick={() => setDialogIsOpenTransferProfitLoss(true)}
                                                     loadingPosition="start"
                                                 >
                                                     {t('transfer-lost')}
@@ -717,7 +658,7 @@ function CloseAccountingPeriod({ title }) {
                                             }}
                                         >
                                             <Grid container direction={'row'} spacing={1}>
-                                                <Grid xs={12} md={12} sx={{ width: '100%' }}>
+                                                {/* <Grid xs={12} md={12} sx={{ width: '100%' }}>
                                                     <Item>
                                                         <Grid container xs={12} md={12} spacing={1}>
                                                             <Grid xs={12} md={4}>
@@ -802,36 +743,18 @@ function CloseAccountingPeriod({ title }) {
                                                                             {t('button-view-report')}
                                                                         </LoadingButton>
                                                                     </div>
-                                                                    {/* <div>
-                                                                        <LoadingButton
-                                                                            startIcon={<FileDownloadIcon />}
-                                                                            variant="contained"
-                                                                            color="success"
-                                                                            onClick={handleClickExport}
-                                                                            loading={buttonExport}
-                                                                            loadingPosition="start"
-                                                                            sx={{ whiteSpace: 'nowrap' }}
-                                                                        >
-                                                                            {t('button-export')}
-                                                                        </LoadingButton>
-                                                                    </div> */}
+                                                                    
                                                                 </Stack>
                                                             </Grid>
                                                         </Grid>
                                                     </Item>
-                                                </Grid>
-                                                <Grid xs={12} md={12}>
+                                                </Grid> */}
+                                                {/* <Grid xs={12} md={12}>
                                                     <Stack spacing={0}>
                                                         <div style={{ width: '100%' }}>
                                                             <DataGrid
                                                                 rows={dataList}
                                                                 columns={columns}
-                                                                // initialState={{
-                                                                //     pagination: {
-                                                                //         paginationModel: { page: 0, pageSize: 5 },
-                                                                //     },
-                                                                // }}
-                                                                // pageSizeOptions={[5, 10, 15]}
                                                                 autoHeight
                                                                 showCellVerticalBorder
                                                                 showColumnVerticalBorder
@@ -843,7 +766,7 @@ function CloseAccountingPeriod({ title }) {
                                                             />
                                                         </div>
                                                     </Stack>
-                                                </Grid>
+                                                </Grid> */}
                                             </Grid>
                                         </Box>
                                     </Grid>
