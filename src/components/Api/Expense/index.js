@@ -2,7 +2,7 @@ import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
 import _ from 'lodash';
 import { store } from "~/Redux/store";
-import { updateDialogError } from '~/Redux/Reducer/Thunk';
+import { updateDialogError } from '~/Redux/Reducer/FetchApi';
 
 export async function ApiListExpenseByRegion(regionId) {
     try {

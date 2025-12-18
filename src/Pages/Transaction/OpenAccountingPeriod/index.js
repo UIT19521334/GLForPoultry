@@ -62,7 +62,6 @@ const suffix = (
 );
 function OpenAccountingPeriod({ title }) {
     const [isLoading, setIsLoading] = React.useState(false);
-    var dispatch = useDispatch();
     const { t } = useTranslation();
     const currentUnit = useSelector((state) => state.FetchApi.currentUnit);
     const userInfo = useSelector(state => state.FetchApi.userInfo);
@@ -126,9 +125,9 @@ function OpenAccountingPeriod({ title }) {
     const openPeriod = async () => {
         setIsLoading(true)
         const body = {
-            Month: valueClosedPeriod.format("M"),
-            Year: valueClosedPeriod.format("YYYY"),
-            UserName: userInfo?.userName,
+            Month: dateReopenPeriod.format("M"),
+            Year: dateReopenPeriod.format("YYYY"),
+            UserName: userInfo?.userID_old,
             Currency: "VND",
             UserPermission: valueUser
         }
@@ -139,7 +138,7 @@ function OpenAccountingPeriod({ title }) {
         }
     }
 
-    // OnMultiKeyEvent(() => handleReopenPeriod(), 'r');
+    OnMultiKeyEvent(() => handleReopenPeriod(), 'r');
     return (
         <Spin size="large" tip={'Loading'} spinning={isLoading}>
             <div className="main">

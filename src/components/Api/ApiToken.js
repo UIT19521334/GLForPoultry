@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMsal } from '@azure/msal-react';
 import { useDispatch } from 'react-redux';
-import { updateCurrentUnit, updateToken, updateUserAccess, updateUserInfo, updateUserMenuFromMasterApp } from '~/Redux/Reducer/Thunk';
+import { updateCurrentUnit, updateToken, updateUserAccess, updateUserInfo, updateUserMenuFromMasterApp } from '~/Redux/Reducer/FetchApi';
 import { DomainMasterApp, DomainPoultry } from '~/DomainApi';
 
 export default function ApiToken() {

@@ -22,7 +22,7 @@ import { Input, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateListAccount } from '~/Redux/Reducer/Thunk';
+import { updateListAccount } from '~/Redux/Reducer/FetchApi';
 
 const Item = styled(Paper)(({ theme }) => ({
 	backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',

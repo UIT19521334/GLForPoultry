@@ -29,7 +29,7 @@ import { Check, CloudUpload, Delete, Domain, PostAdd } from '@mui/icons-material
 import { fetchApiListAccountGroup, fetchApiListSubAccount } from '~/Redux/FetchApi/fetchApiMaster';
 import { ApiListAccountEntry, ApiCreateAccountEntry, ApiUpdateAccountEntry } from '~/components/Api/AccountingEntryApi';
 import { DomainPoultry } from '~/DomainApi';
-import { updateDialogError } from '~/Redux/Reducer/Thunk';
+import { updateDialogError } from '~/Redux/Reducer/FetchApi';
 import { ApiListAccountByUnit } from '~/components/Api/Account';
 import { ApiListExpenseByRegion } from '~/components/Api/Expense';
 import DialogEntryDetail from './DialogEntryDetail';

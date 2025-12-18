@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { updateDialogError } from "~/Redux/Reducer/Thunk";
+import { updateDialogError } from "~/Redux/Reducer/FetchApi";
 
 export default function ErrorDialog() {
     const dispatch = useDispatch();

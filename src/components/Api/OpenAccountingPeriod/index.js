@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
 import DomainApi, { DomainPoultry } from '~/DomainApi';
-import { updateDialogError } from '~/Redux/Reducer/Thunk';
+import { updateDialogError } from '~/Redux/Reducer/FetchApi';
 import { store } from '~/Redux/store';
 
 //Mở Kỳ kế toán
@@ -10,7 +10,7 @@ export async function ApiOpenPeriod(unitcode, body) {
         const header = {
             Authorization: store.getState().FetchApi.token,
         };
-        const response = await DomainPoultry.post(`/${unitcode}/open-period`, body, { headers: header });
+        const response = await DomainPoultry.post(`/process/${unitcode}/open-period`, body, { headers: header });
         const data = await response?.data?.Response ?? null;
         return data
     } catch (error) {

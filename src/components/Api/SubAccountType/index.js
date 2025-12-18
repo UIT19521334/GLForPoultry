@@ -1,6 +1,6 @@
 import { toast } from 'react-toastify';
 import { DomainPoultry } from '~/DomainApi';
-import { updateDialogError } from '~/Redux/Reducer/Thunk';
+import { updateDialogError } from '~/Redux/Reducer/FetchApi';
 import { store } from "~/Redux/store";
 
 export async function ApiCreateSubAccountType(valueCode, valueName, valueDescription) {

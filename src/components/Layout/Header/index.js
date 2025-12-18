@@ -57,7 +57,7 @@ import ReactNiceAvatar, { genConfig } from 'react-nice-avatar';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import PercentIcon from '@mui/icons-material/Percent';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCurrentUnit } from '~/Redux/Reducer/Thunk';
+import { updateCurrentUnit } from '~/Redux/Reducer/FetchApi';
 /**side PC */
 const drawerWidth = 240;
 

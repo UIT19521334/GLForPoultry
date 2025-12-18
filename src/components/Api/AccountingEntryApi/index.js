@@ -2,7 +2,7 @@ import { toast } from 'react-toastify';
 import DomainApi, { DomainPoultry } from '~/DomainApi';
 import dayjs from 'dayjs';
 import { store } from "~/Redux/store";
-import { updateDialogError } from '~/Redux/Reducer/Thunk';
+import { updateDialogError } from '~/Redux/Reducer/FetchApi';
 
 // period format MMYYYY
 

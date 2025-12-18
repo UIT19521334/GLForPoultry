@@ -41,7 +41,7 @@ import { fetchPeriod } from '~/Redux/FetchApi/fetchApiMaster';
 import DialogLivePigs from './DialogLivePigs';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import { FormHelperText, TextField } from '@mui/material';
-import { updateDialogError } from '~/Redux/Reducer/Thunk';
+import { updateDialogError } from '~/Redux/Reducer/FetchApi';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -112,7 +112,7 @@ function CloseAccountingPeriod({ title }) {
         const body = {
             Month: valueNextPeriod.format("M"),
             Year: valueNextPeriod.format("YYYY"),
-            UserName: userInfo?.userName,
+            UserName: userInfo?.userID_old,
             Currency: "VND",
         }
         const result = await ApiClosePeriod(currentUnit.UnitId, body)
@@ -454,8 +454,7 @@ function CloseAccountingPeriod({ title }) {
                         content={
                             <>
                                 <Box mb={2}>
-
-                                    {t('close-period-confirm"')}
+                                    {t('close-period-confirm')}
                                 </Box>
                                 <TextField fullWidth
                                     value={confirmText}
